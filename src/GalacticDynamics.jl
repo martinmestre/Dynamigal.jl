@@ -1,11 +1,12 @@
 module GalacticDynamics
 
 using DifferentialEquations
+using Tensors
 
-
-include("metrics.jl")
-include("potentials.jl")
-iclude("transformations.jl")
-include("reference_frames")
+include("types.jl")
+# include("metrics.jl")
+# include("potentials.jl")
+# iclude("transformations.jl")
+# include("reference_frames")
 
 end
