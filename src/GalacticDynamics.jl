@@ -1,7 +1,7 @@
 module GalacticDynamics
 
 using DifferentialEquations
-using Tensors
+
 
 include("types.jl")
 # include("metrics.jl")
