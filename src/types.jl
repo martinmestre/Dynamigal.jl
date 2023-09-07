@@ -34,6 +34,6 @@ abstract type AbstractContinuousDisk <:AbstractContinuousDistribution end
 abstract type AbstractContinuousBulge <:AbstractContinuousDistribution end
 
 
-Base.:+(a<:AbstractPotential, b<:AbstractPotential)::Vector{<:AbstractPotential} = [a,b]
-Base.:+(a::Vector{<:AbstractPotentail}, b<:AbstractPotential)::Vector{<:AbstractPotential} = vcat(a,b)
-Base.:+(a::Vector{<:AbstractPotentail}, b::Vector{<:AbstractPotential})::Vector{<:AbstractPotential} = vcat(a,b)
+Base.:+(a::Union{<:AbstractPotential,Vector{<:AbstractPotentail}},
+        b::Union{<:AbstractPotential,Vector{<:AbstractPotentail}})
+        ::Vector{<:AbstractPotential} = vcat(a,b)
