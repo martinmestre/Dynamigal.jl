@@ -5,10 +5,10 @@ import Base.:+
 """Abstract types"""
 abstract type AbstractCosmos end
 abstract type AbstractSpaceTime <: AbstractCosmos end
-abstract type AbstractConservativeForce <: AbstractSpaceTime end
-abstract type AbstractNonConservativeForce <: AbstractSpaceTime end
-abstract type AbstractPotential <: AbstractConservativeForce end
+abstract type AbstractConservative<: AbstractSpaceTime end
+abstract type AbstractNonConservative <: AbstractSpaceTime end
+abstract type AbstractPotential <: AbstractConservative end
 
-Base.:+(a<:AbstractConservativeForce, b<:AbstractConservativeForce)::Vector{<:AbstractConservativeForce} = [a,b]
+Base.:+(a<:AbstractConservative, b<:AbstractConservative)::Vector{<:AbstractConservative} = [a,b]
 
 
