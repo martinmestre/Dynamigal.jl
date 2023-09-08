@@ -5,6 +5,9 @@ version = "1.0.0-DEV"
 
 [deps]
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
+Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
+Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
+UnitfulAstro = "6112ee07-acf9-5e0f-b108-d242c714bf9f"
 
 [compat]
 julia = "1"

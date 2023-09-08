@@ -1,7 +1,8 @@
 module GalacticDynamics
 
 using DifferentialEquations
-
+using Parameters
+using Unitful, UnitfulAstro
 
 include("types.jl")
 # include("metrics.jl")
