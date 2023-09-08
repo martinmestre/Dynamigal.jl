@@ -71,8 +71,9 @@ function ode(u,p,t)
 end
 
 function test()
-    u0 = SA[[1.0, 0.0, 0.0]ua.kpc...,[0.0,10.0,0.0]u"km/s"...]
+    u₀ = SA[[1.0, 0.0, 0.0]ua.kpc...,[0.0,10.0,0.0]u"km/s"...]
     tspan = (0.0, 100.0)*u.Gyr
-    prob = ODEProblem(ode, u0, tspan)
+    prob = ODEProblem(ode, u₀, tspan)
+    @btime sol=solve(prob, Tsit5())
     return sol
 end
