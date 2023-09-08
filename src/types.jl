@@ -16,6 +16,7 @@ abstract type AbstractContinuousDistribution <: AbstractDistribution end
 abstract type AbstractParticle <: AbstractDiscreteDistribution end
 abstract type AbstractEnsemble <: AbstractDiscreteDistribution end
 abstract type AbstractElementaryParticle <: AbstractParticle end
+abstract type AbstractTestParticle <: AbstractParticle end
 abstract type AbstractMacroParticle <: AbstractParticle end
 
 abstract type AbstractGlobularCluster <: AbstractEnsemble end
@@ -32,25 +33,46 @@ abstract type AbstractContinuousDisk <:AbstractContinuousDistribution end
 abstract type AbstractContinuousBulge <:AbstractContinuousDistribution end
 
 
-Base.:+(a::Union{<:AbstractPotential,Vector{<:AbstractPotentail}},
-        b::Union{<:AbstractPotential,Vector{<:AbstractPotentail}})
-        ::Vector{<:AbstractPotential} = vcat(a,b)
+# Base.:+(a::Union{<:AbstractPotential,Vector{<:AbstractPotentail}},
+#         b::Union{<:AbstractPotential,Vector{<:AbstractPotentail}})
+#         ::Vector{<:AbstractPotential} = vcat(a,b)
 
 
 """Concrete types (structs)"""
-
-
-@with_kw struct Plummer{M,L} <: AbstractPotential
+@with_kw mutable struct Plummer{M,L,V} <: AbstractPotential
         m::M
         b::L
-        x::Vector{L} = zeros(3)
+        x::Vector{L}
+        v::Vector{V}
+end
+function potential(pot::Plummer, x::AbstractArray)
+    return -u.G * pot.m / sqrt(pot.b^2 + sum((x-pot.x).^2))
 end
 
-@with_kw struct Particle{M,L} <: AbstractMacroParticle
+
+@with_kw mutable struct Particle{M,L,V} <: AbstractMacroParticle
         m::M
         x::Vector{L}
+        v::Vector{V}
 end
 
-@with_kw struct TestParticle{L} <: AbstractMacroParticle
+@with_kw mutable struct TestParticle{L,V} <: AbstractTestParticle
         x::Vector{L}
+        v::Vector{V}
+end
+
+function acceleration(pot::AbstractPotential, x::AbstractArray)
+    return -gradient(y->potential(pot, y), x)
+end
+
+function ode(u,p,t)
+    pot = p[1]
+    return SA[u[4:6]...,acceleration(pot, x[1:3])...]
+end
+
+function test()
+    u0 = SA[[1.0, 0.0, 0.0]ua.kpc...,[0.0,10.0,0.0]u"km/s"...]
+    tspan = (0.0, 100.0)*u.Gyr
+    prob = ODEProblem(ode, u0, tspan)
+    return sol
 end
