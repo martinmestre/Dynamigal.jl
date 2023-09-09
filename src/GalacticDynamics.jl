@@ -6,8 +6,8 @@ using Zygote
 using StaticArrays
 using Unitful, UnitfulAstro
 import UnitfulChainRules
-u=Unitful
-ua=UnitfulAstro
+
+u=UnitfulAstro
 
 export Plummer, potential, acceleration
 include("types.jl")

@@ -39,17 +39,19 @@ abstract type AbstractContinuousBulge <:AbstractContinuousDistribution end
 
 
 """Concrete types (structs)"""
-@with_kw mutable struct Plummer{M,L,V} <: AbstractPotential
-        m::M
-        b::L
-        x::Vector{L}
-        v::Vector{V}
-end
-function potential_no_G(pot::Plummer, x::AbstractArray)
-    return -pot.m / sqrt(pot.b^2 + sum((x-pot.x).^2))
+@with_kw mutable struct Plummer{T<:Real} <: AbstractPotential
+        m_u
+        b_u
+        m::T
+        b::T
+        function Plummer{T}(m_u, b_u)
+            m = uconvert(u"Msun", m_u).val
+            b = uconvert(u"kpc", b_u).val
+            return new{T}(m_u, b_u, m, b)
+        end
 end
 function potential(pot::Plummer, x::AbstractArray)
-        return -u.G*potential_no_G(pot,x)
+    return -G*pot.m / sqrt(pot.b^2 + x'x)
 end
 
 @with_kw mutable struct Particle{M,L,V} <: AbstractMacroParticle
@@ -64,7 +66,7 @@ end
 end
 
 function acceleration(pot::AbstractPotential, x::AbstractArray)
-    return -u.G.*gradient(y->potential_no_G(pot, y), x)
+    return -gradient(y->potential(pot, y), x)
 end
 
 function ode(u,p,t)
@@ -73,14 +75,12 @@ function ode(u,p,t)
 end
 
 function test()
-    plum = Plummer(1.0ua"Msun",1.0ua"kpc",zeros(3)ua"kpc",zeros(3)u"km/s")
+    plum = Plummer{Float64}(1.1u"Msun",10.0u"kpc")
     p = [plum]
-    x₀ = [1.0, 0.0, 0.0]ua"kpc"
-    v₀ = [0.0,10.0,0.0]u"km/s"
-    u₀ = uconvert(NoUnits, SA[x₀...,v₀...])
-    t_unit = u"Gyr"
+    x₀ = [1.0, 0.0, 0.0]
+    v₀ = [0.0,10.0,0.0]
+    u₀ = SA[x₀...,v₀...]
     tspan = (0.0, 10.0)
-    ode_
     prob = ODEProblem(ode, u₀, tspan, p)
     sol=solve(prob, Tsit5())
     return sol
