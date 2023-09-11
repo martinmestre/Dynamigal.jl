@@ -39,18 +39,25 @@ abstract type AbstractContinuousBulge <:AbstractContinuousDistribution end
 
 
 """Concrete types (structs)"""
+
 @with_kw mutable struct Plummer{T<:Real} <: AbstractPotential
-        m_u
-        b_u
+        m_u::Quantity{T}
+        b_u::Quantity{T}
         m::T
         b::T
-        function Plummer{T}(m_u, b_u)
+        function Plummer{T}(m_u, b_u) where {T}
             m = uconvert(u"Msun", m_u).val
             b = uconvert(u"kpc", b_u).val
             return new{T}(m_u, b_u, m, b)
         end
 end
-function potential(pot::Plummer, x::AbstractArray)
+Plummer(m_u::Quantity{T}, b_u::Quantity{T}) where {T} = Plummer{T}(m_u, b_u)
+
+function potential(pot::Plummer, x::Vector{<:Quantity{T}}) where {T}
+    return -u"G"*pot.m_u / sqrt(pot.b_u^2 + x'x)
+end
+
+function potential(pot::Plummer, x::AbstractArray{T}) where {T}
     return -G*pot.m / sqrt(pot.b^2 + x'x)
 end
 
@@ -65,8 +72,12 @@ end
         v::Vector{V}
 end
 
-function acceleration(pot::AbstractPotential, x::AbstractArray)
-    return -gradient(y->potential(pot, y), x)
+function acceleration(pot::AbstractPotential, x::Vector{<:Quantity{T}}) where {T}
+    x = [uconvert(u"kpc", x[i]).val for i ∈ eachindex(x)]
+    return -1.0.*gradient(y->potential(pot, y), x)[1]
+end
+function acceleration(pot::AbstractPotential, x::AbstractArray{T}) where {T}
+    return -1.0.*gradient(y->potential(pot, y), x)[1]
 end
 
 function ode(u,p,t)
@@ -75,13 +86,13 @@ function ode(u,p,t)
 end
 
 function test()
-    plum = Plummer{Float64}(1.1u"Msun",10.0u"kpc")
+    plum = Plummer(10.0^8*u"Msun",10.0u"kpc")
     p = [plum]
-    x₀ = [1.0, 0.0, 0.0]
+    x₀ = [10.0, 0.0, 0.0]
     v₀ = [0.0,10.0,0.0]
     u₀ = SA[x₀...,v₀...]
-    tspan = (0.0, 10.0)
+    tspan = (0.0, 100.0)
     prob = ODEProblem(ode, u₀, tspan, p)
-    sol=solve(prob, Tsit5())
+    sol=solve(prob, Tsit5(); abstol=5.e-8, reltol=5.e-8)
     return sol
 end

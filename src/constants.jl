@@ -1,3 +1,3 @@
 """Constants"""
 
-const G = uconvert(u"kpc*(km/s)^2/Msun",u"G")
+const G = uconvert(u"kpc*(km/s)^2/Msun",u"G").val
