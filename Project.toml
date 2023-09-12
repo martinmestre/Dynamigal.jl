@@ -6,6 +6,7 @@ version = "1.0.0-DEV"
 [deps]
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
 DynamicQuantities = "06fc5a27-2a28-4c7c-a15d-362465fb6821"
+Measurements = "eff96d63-e80a-5855-80a2-b1b0885c5ab7"
 Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 StaticTools = "86c06d3c-3f03-46de-9781-57580aa96d0a"

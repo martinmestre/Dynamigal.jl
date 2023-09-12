@@ -40,18 +40,19 @@ abstract type AbstractContinuousBulge <:AbstractContinuousDistribution end
 
 """Concrete types (structs)"""
 
-@with_kw mutable struct Plummer{T<:Real} <: AbstractPotential
-        m_u::Quantity{T}
-        b_u::Quantity{T}
+@with_kw mutable struct Plummer{M<:Unitful.Mass, L<:Unitful.Length,T<:Real} <: AbstractPotential
+        m_u::M
+        b_u::L
         m::T
         b::T
-        function Plummer{T}(m_u, b_u) where {T}
+        function Plummer{M,L}(m_u, b_u) where {M<:Unitful.Mass,L<:Unitful.Length}
             m = uconvert(u"Msun", m_u).val
             b = uconvert(u"kpc", b_u).val
-            return new{T}(m_u, b_u, m, b)
+            T=typeof(b)
+            return new{M,L,T}(m_u, b_u, m, b)
         end
 end
-Plummer(m_u::Quantity{T}, b_u::Quantity{T}) where {T} = Plummer{T}(m_u, b_u)
+Plummer(m_u::M, b_u::L) where {M,L} = Plummer{M,L}(m_u, b_u)
 
 function potential(pot::Plummer, x::Vector{<:Quantity{T}}) where {T}
     return -u"G"*pot.m_u / sqrt(pot.b_u^2 + x'x)
