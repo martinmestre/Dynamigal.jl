@@ -6,13 +6,15 @@ using Zygote
 using StaticArrays
 using Unitful, UnitfulAstro
 import UnitfulChainRules
-u=UnitfulAstro
+U=Unitful
 
 export G
 export Plummer, potential, acceleration
+export Particle, TestParticle
 export ode, test
 include("constants.jl")
 include("types.jl")
+include("methods.jl")
 # include("metrics.jl")
 # include("potentials.jl")
 # iclude("transformations.jl")

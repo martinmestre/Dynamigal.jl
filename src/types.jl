@@ -39,61 +39,49 @@ abstract type AbstractContinuousBulge <:AbstractContinuousDistribution end
 
 
 """Concrete types (structs)"""
-
-@with_kw mutable struct Plummer{M<:Unitful.Mass, L<:Unitful.Length,T<:Real} <: AbstractPotential
+@with_kw mutable struct Plummer{M<:U.Mass, L<:U.Length,T<:Real} <: AbstractPotential
         m_u::M
         b_u::L
         m::T
         b::T
-        function Plummer{M,L}(m_u, b_u) where {M<:Unitful.Mass,L<:Unitful.Length}
-            m = uconvert(u"Msun", m_u).val
-            b = uconvert(u"kpc", b_u).val
-            T=typeof(b)
+        function Plummer{M,L}(m_u, b_u) where {M,L}
+            m = uconvert(u_M, m_u).val
+            b = uconvert(u_L, b_u).val
+            T=typeof(m)
             return new{M,L,T}(m_u, b_u, m, b)
         end
 end
 Plummer(m_u::M, b_u::L) where {M,L} = Plummer{M,L}(m_u, b_u)
 
-function potential(pot::Plummer, x::Vector{<:Quantity{T}}) where {T}
-    return -u"G"*pot.m_u / sqrt(pot.b_u^2 + x'x)
-end
 
-function potential(pot::Plummer, x::AbstractArray{T}) where {T}
-    return -G*pot.m / sqrt(pot.b^2 + x'x)
+@with_kw mutable struct Particle{M<:U.Mass,L<:U.Length,V<:U.Velocity,T<:Real} <: AbstractMacroParticle
+        m_u::M
+        x_u::Vector{L}
+        v_u::Vector{V}
+        m::T
+        x::Vector{T}
+        v::Vector{T}
+        function Particle{M,L,V}(m_u, x_u, v_u) where {M,L,V}
+            m = uconvert(u_M, m_u).val
+            x = [uconvert(u_L, x_u[i]).val for i ∈ eachindex(x_u)]
+            v = [uconvert(u_V, v_u[i]).val for i ∈ eachindex(v_u)]
+            T=typeof(m)
+            return new{M,L,V,T}(m_u, x_u, v_u, m, x, v)
+        end
 end
+Particle(m_u::M, x_u::Vector{L}, v_u::Vector{V}) where {M,L,V} = Particle{M,L,V}(m_u, x_u, v_u)
 
-@with_kw mutable struct Particle{M,L,V} <: AbstractMacroParticle
-        m::M
-        x::Vector{L}
-        v::Vector{V}
+@with_kw mutable struct TestParticle{L<:U.Length,V<:U.Velocity,T<:Real} <: AbstractTestParticle
+    x_u::Vector{L}
+    v_u::Vector{V}
+    x::Vector{T}
+    v::Vector{T}
+    function TestParticle{L,V}(x_u, v_u) where {L,V}
+        x = [uconvert(u_L, x_u[i]).val for i ∈ eachindex(x_u)]
+        v = [uconvert(u_V, v_u[i]).val for i ∈ eachindex(v_u)]
+        T=typeof(x[begin])
+        return new{L,V,T}(x_u, v_u, x, v)
+    end
 end
+TestParticle(x_u::Vector{L}, v_u::Vector{V}) where {L,V} = TestParticle{L,V}(x_u, v_u)
 
-@with_kw mutable struct TestParticle{L,V} <: AbstractTestParticle
-        x::Vector{L}
-        v::Vector{V}
-end
-
-function acceleration(pot::AbstractPotential, x::Vector{<:Quantity{T}}) where {T}
-    x = [uconvert(u"kpc", x[i]).val for i ∈ eachindex(x)]
-    return -1.0.*gradient(y->potential(pot, y), x)[1]
-end
-function acceleration(pot::AbstractPotential, x::AbstractArray{T}) where {T}
-    return -1.0.*gradient(y->potential(pot, y), x)[1]
-end
-
-function ode(u,p,t)
-    pot = p[1]
-    return SA[u[4:6]...,acceleration(pot, u[1:3])...]
-end
-
-function test()
-    plum = Plummer(10.0^8*u"Msun",10.0u"kpc")
-    p = [plum]
-    x₀ = [10.0, 0.0, 0.0]
-    v₀ = [0.0,10.0,0.0]
-    u₀ = SA[x₀...,v₀...]
-    tspan = (0.0, 100.0)
-    prob = ODEProblem(ode, u₀, tspan, p)
-    sol=solve(prob, Tsit5(); abstol=5.e-8, reltol=5.e-8)
-    return sol
-end
