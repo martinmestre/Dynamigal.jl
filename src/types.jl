@@ -32,6 +32,8 @@ abstract type AbstractContinuousSubHalo <:AbstractContinuousDistribution end
 abstract type AbstractContinuousDisk <:AbstractContinuousDistribution end
 abstract type AbstractContinuousBulge <:AbstractContinuousDistribution end
 
+abstract type AbstractOrbit <: AbstractCosmos end
+
 
 # Base.:+(a::Union{<:AbstractPotential,Vector{<:AbstractPotentail}},
 #         b::Union{<:AbstractPotential,Vector{<:AbstractPotentail}})
@@ -63,8 +65,8 @@ Plummer(m_u::M, b_u::L) where {M,L} = Plummer{M,L}(m_u, b_u)
         v::Vector{T}
         function Particle{M,L,V}(m_u, x_u, v_u) where {M,L,V}
             m = uconvert(u_M, m_u).val
-            x = [uconvert(u_L, x_u[i]).val for i ∈ eachindex(x_u)]
-            v = [uconvert(u_V, v_u[i]).val for i ∈ eachindex(v_u)]
+            x = ustrip(uconvert.(u_L, x_u))
+            v = ustrip(uconvert.(u_V, v_u))
             T=typeof(m)
             return new{M,L,V,T}(m_u, x_u, v_u, m, x, v)
         end
@@ -77,11 +79,16 @@ Particle(m_u::M, x_u::Vector{L}, v_u::Vector{V}) where {M,L,V} = Particle{M,L,V}
     x::Vector{T}
     v::Vector{T}
     function TestParticle{L,V}(x_u, v_u) where {L,V}
-        x = [uconvert(u_L, x_u[i]).val for i ∈ eachindex(x_u)]
-        v = [uconvert(u_V, v_u[i]).val for i ∈ eachindex(v_u)]
+        x = ustrip(uconvert.(u_L, x_u))
+        v = ustrip(uconvert.(u_V, v_u))
         T=typeof(x[begin])
         return new{L,V,T}(x_u, v_u, x, v)
     end
 end
 TestParticle(x_u::Vector{L}, v_u::Vector{V}) where {L,V} = TestParticle{L,V}(x_u, v_u)
 
+@with_kw mutable struct Orbit{T<:U.Time, L<:U.Length, V<:U.Velocity} <: AbstractOrbit
+    t::Vector{T}
+    x::Matrix{L}
+    v::Matrix{V}
+end

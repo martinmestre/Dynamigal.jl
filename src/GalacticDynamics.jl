@@ -1,17 +1,20 @@
 module GalacticDynamics
 
+using Reexport
 using DifferentialEquations
 using Parameters
-using Zygote
+@reexport using Zygote
 using StaticArrays
-using Unitful, UnitfulAstro
+@reexport using Unitful, UnitfulAstro
 import UnitfulChainRules
 U=Unitful
 
-export G
+export G, u_T
 export Plummer, potential, acceleration
+export evolve
 export Particle, TestParticle
 export ode, test
+
 include("constants.jl")
 include("types.jl")
 include("methods.jl")
