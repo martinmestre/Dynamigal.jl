@@ -10,14 +10,16 @@ import UnitfulChainRules
 U=Unitful
 
 export G, u_T
-export Plummer, potential, acceleration
-export evolve
+export Plummer, potential, acceleration, ode, evolve
 export Particle, TestParticle
-export ode, test
+export example_Plummer
 
 include("constants.jl")
 include("types.jl")
-include("methods.jl")
+include("potentials.jl")
+include("acceleration.jl")
+include("evolutions.jl")
+include("examples.jl")
 # include("metrics.jl")
 # include("potentials.jl")
 # iclude("transformations.jl")
