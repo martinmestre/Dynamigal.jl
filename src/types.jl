@@ -8,6 +8,10 @@ abstract type AbstractCosmos end
 abstract type AbstractGeometry <: AbstractCosmos end
 abstract type AbstractSpaceTime <: AbstractGeometry end
 abstract type AbstractPotential <: AbstractGeometry end
+abstract type AbstractDiskPotential <: AbstractPotential end
+abstract type AbstractBulgePotential <: AbstractPotential end
+abstract type AbstractHaloPotential <: AbstractPotential end
+
 
 abstract type AbstractDistribution <: AbstractCosmos end
 abstract type AbstractDiscreteDistribution <: AbstractDistribution end
@@ -41,6 +45,7 @@ abstract type AbstractOrbit <: AbstractCosmos end
 
 
 """Concrete types (structs)"""
+
 @with_kw mutable struct Plummer{M<:U.Mass, L<:U.Length,T<:Real} <: AbstractPotential
         m_u::M
         b_u::L
@@ -54,6 +59,23 @@ abstract type AbstractOrbit <: AbstractCosmos end
         end
 end
 Plummer(m_u::M, b_u::L) where {M,L} = Plummer{M,L}(m_u, b_u)
+
+@with_kw mutable struct MiyamotoNagaiDisk{M<:U.Mass, L<:U.Length,T<:Real} <: AbstractDiskPotential
+    m_u::M
+    a_u::L
+    b_u::L
+    m::T
+    a::T
+    b::T
+    function MiyamotoNagaiDisk{M,L}(m_u, a_u, b_u) where {M,L}
+        m = uconvert(u_M, m_u).val
+        a = uconvert(u_L, a_u).val
+        b = uconvert(u_L, b_u).val
+        T=typeof(m)
+        return new{M,L,T}(m_u, a_u, b_u, m, a, b)
+    end
+end
+MiyamotoNagaiDisk(m_u::M, a_u::L, b_u::L) where {M,L} = MiyamotoNagaiDisk{M,L}(m_u, a_u, b_u)
 
 
 @with_kw mutable struct Particle{M<:U.Mass,L<:U.Length,V<:U.Velocity,T<:Real} <: AbstractMacroParticle

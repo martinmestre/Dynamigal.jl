@@ -12,7 +12,7 @@ U=Unitful
 export G, u_T
 export Plummer, potential, acceleration, ode, evolve
 export Particle, TestParticle
-export example_Plummer
+export example_Plummer, example_MiyamotoNagai
 
 include("constants.jl")
 include("types.jl")

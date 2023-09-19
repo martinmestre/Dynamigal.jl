@@ -11,3 +11,12 @@ function potential(pot::Plummer, x::Vector{<:U.Length})
 end
 
 
+"""Unitless Miyamoto-Nagai disk potential"""
+function potential(pot::MiyamotoNagaiDisk, x::AbstractArray{T}) where {T<:Real}
+    return -G*pot.m/sqrt( x[1:2]'x[1:2] + (pot.a + sqrt(pot.b^2+x[3]^2))^2 )
+end
+
+"""Unitful MiyamotoNagaiDisk potential"""
+function potential(pot::MiyamotoNagaiDisk, x::Vector{<:U.Length})
+    return uconvert(u_Pot, -Gᵤ*pot.m_u/sqrt( x[1:2]'x[1:2] + (pot.a_u + sqrt(pot.b_u^2+x[3]^2))^2))
+end
