@@ -1,7 +1,7 @@
 """Evolution functions"""
 
-"""Evolution of AbstractPotential"""
-function evolve(pot::AbstractPotential, x::Vector{<:U.Length}, v::Vector{<:U.Velocity},
+"""Evolution of a an initial condition in an AbstractPotential"""
+function evolve(pot::UnionAbstractPotentials, x::Vector{<:U.Length}, v::Vector{<:U.Velocity},
     t_span::Tuple{<:U.Time, <:U.Time})
     dimₓ, dimᵥ = unit(x[begin]), unit(v[begin])
     x = ustrip(uconvert.(u_L, x))
@@ -14,3 +14,13 @@ function evolve(pot::AbstractPotential, x::Vector{<:U.Length}, v::Vector{<:U.Vel
     orb = Orbit(sol.t*u_T, sol[1:3,:]*u_L, sol[4:6,:]*u_V)
     return orb
 end
+
+"""Evolution of a TestParticle in an AbstractPotential"""
+function evolve(pot::UnionAbstractPotentials, p::TestParticle, t_span::Tuple{<:U.Time, <:U.Time})
+    x = p.x_u
+    v = p.v_u
+    return evolve(pot, x, v, t_span)
+end
+
+
+

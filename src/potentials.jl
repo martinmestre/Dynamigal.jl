@@ -1,6 +1,6 @@
 """Potential functions"""
 
-"""Unitless Plummer potential"""
+"""Plummer potential"""
 function potential(pot::Plummer, x::AbstractArray{T}) where {T<:Real}
     return -G*pot.m / sqrt(pot.b^2 + x'x)
 end
@@ -11,7 +11,7 @@ function potential(pot::Plummer, x::Vector{<:U.Length})
 end
 
 
-"""Unitless Miyamoto-Nagai disk potential"""
+"""Miyamoto-Nagai disk potential"""
 function potential(pot::MiyamotoNagaiDisk, x::AbstractArray{T}) where {T<:Real}
     return -G*pot.m/sqrt( x[1:2]'x[1:2] + (pot.a + sqrt(pot.b^2+x[3]^2))^2 )
 end
