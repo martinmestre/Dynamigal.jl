@@ -16,7 +16,7 @@ function evolve(pot::UnionAbstractPotentials, x::Vector{<:U.Length}, v::Vector{<
 end
 
 """Evolution of a TestParticle in an AbstractPotential"""
-function evolve(pot::UnionAbstractPotentials, p::TestParticle, t_span::Tuple{<:U.Time, <:U.Time})
+function evolve(pot::UnionAbstractPotentials, p::AbstractParticle, t_span::Tuple{<:U.Time, <:U.Time})
     x = p.x_u
     v = p.v_u
     return evolve(pot, x, v, t_span)

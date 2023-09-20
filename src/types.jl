@@ -38,7 +38,7 @@ abstract type AbstractContinuousBulge <:AbstractContinuousDistribution end
 
 abstract type AbstractOrbit <: AbstractCosmos end
 
-const UnionAbstractPotentials = Union{<:AbstractPotential, Vector{<:AbstractPotential}}
+const UnionAbstractPotentials = Union{AbstractPotential, Vector{<:AbstractPotential}}
 
 """Overloading sum in order to sum potentials"""
 function Base.:+(a::UnionAbstractPotentials, b::UnionAbstractPotentials)
@@ -78,6 +78,23 @@ Plummer(m_u::M, b_u::L) where {M,L} = Plummer{M,L}(m_u, b_u)
 end
 MiyamotoNagaiDisk(m_u::M, a_u::L, b_u::L) where {M,L} = MiyamotoNagaiDisk{M,L}(m_u, a_u, b_u)
 
+@with_kw struct AllenSantillanHalo{M<:U.Mass, L<:U.Length,T<:Real} <: AbstractDiskPotential
+    m_u::M
+    a_u::L
+    Λ_u::L
+    γ::T
+    m::T
+    a::T
+    Λ::T
+    function AllenSantillanHalo{M,L,T}(m_u, a_u, Λ_u, γ) where {M,L,T}
+        m = uconvert(u_M, m_u).val
+        a = uconvert(u_L, a_u).val
+        Λ = uconvert(u_L, Λ_u).val
+        T=typeof(m)
+        return new{M,L,T}(m_u, a_u, Λ_u, γ, m, a, Λ)
+    end
+end
+AllenSantillanHalo(m_u::M, a_u::L, Λ_u::L, γ::T) where {M,L,T} = AllenSantillanHalo{M,L,T}(m_u, a_u, Λ_u)
 
 @with_kw struct Particle{M<:U.Mass,L<:U.Length,V<:U.Velocity,T<:Real} <: AbstractMacroParticle
         m_u::M

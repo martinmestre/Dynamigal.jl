@@ -13,7 +13,7 @@ function acceleration(pot::UnionAbstractPotentials, x::Vector{<:U.Length})
 end
 
 """Acceleration in a sum of AbstractPotentials"""
-function acceleration(pot::Vector{AbstractPotential}, x::AbstractArray{T}) where {T<:Real}
+function acceleration(pot::Vector{<:AbstractPotential}, x::AbstractArray{T}) where {T<:Real}
     sum_acc = zeros(3)
     for i ∈ eachindex(pot)
         sum_acc .+= acceleration(pot[i], x)
