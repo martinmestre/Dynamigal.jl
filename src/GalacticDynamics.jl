@@ -7,7 +7,7 @@ using Parameters
 using StaticArrays
 @reexport using Unitful, UnitfulAstro
 import UnitfulChainRules
-U=Unitful
+const U=Unitful
 
 export G, u_T
 export Plummer, potential, acceleration, ode, evolve

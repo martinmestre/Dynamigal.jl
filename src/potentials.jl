@@ -42,9 +42,9 @@ function potential(pot::AllenSantillanHalo, x::AbstractArray{T}) where {T<:Real}
     f(y) = 1.0 + (y/pot.a)^(pot.γ-1.0)
     r  = sqrt( x'x )
     if r < pot.Λ
-        res = -G*(pot.m/pot.a)*( log(f(r)/f(pot.Λ))/(pot.γ-1.0) - (1.0-1.0/f(pot.Λ)) )
+        res = -4.3009e-6*(pot.m/pot.a)*( log(f(r)/f(pot.Λ))/(pot.γ-1.0) - (1.0-1.0/f(pot.Λ)) )
     else
-        res = -G*(pot.m/r)*(pot.Λ/pot.a)^pot.γ/f(pot.Λ)
+        res = -4.3009e-6*(pot.m/r)*(pot.Λ/pot.a)^pot.γ/f(pot.Λ)
     end
     return res
 end

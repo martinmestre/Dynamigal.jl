@@ -32,7 +32,7 @@ function example_AllenSantillan()
     γ = 2.0
     pot = AllenSantillanHalo(m, a, Λ, γ)
     w₀ = [3.59746558, 8.24013064, -9.17984456, -58.75537855, -147.5572843, 173.06078831]
-    x₀ = w₀[1:3]u"kpc"
+    x₀ = [10.0,-8.0,7.0]u"kpc"
     v₀ = w₀[4:6]u"km/s"
     t_range = (0.0,10.0).*u_T
     acc = acceleration(pot, x₀)
