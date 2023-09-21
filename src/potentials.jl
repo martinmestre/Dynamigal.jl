@@ -39,12 +39,12 @@ end
 
 """Allen and Santillan (generalized) halo"""
 function potential(pot::AllenSantillanHalo, x::AbstractArray{T}) where {T<:Real}
-    Λ_a = pot.Λ/pot.a
-    γ₁ = γ-1.0
-    r  = sqrt( pot.x'pot.x )
-    if r < Λ
-        res = -G*(pot.m/pot.a)*( log((1+(r/pot.a)^γ₁)/(1+Λ_a^γ₁))/γ₁ - Λ_a^γ₁/(1+Λ_a^γ₁) )
+    f(y) = 1.0 + (y/pot.a)^(pot.γ-1.0)
+    r  = sqrt( x'x )
+    if r < pot.Λ
+        res = -G*(pot.m/pot.a)*( log(f(r)/f(pot.Λ))/(pot.γ-1.0) - (1.0-1.0/f(pot.Λ)) )
     else
-        res = -G*(pot.m/r)* Λ_a^γ/(1+Λ_a^γ₁)
+        res = -G*(pot.m/r)*(pot.Λ/pot.a)^pot.γ/f(pot.Λ)
+    end
     return res
 end

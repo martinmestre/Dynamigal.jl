@@ -24,6 +24,23 @@ function example_MiyamotoNagai()
     return sol
 end
 
+function example_AllenSantillan()
+    m_gal = 2.325e7*u"Msun"
+    m =1018.0*m_gal  # Msun
+    a = 2.562*u"kpc"     # kpc
+    Λ = 200.0*u"kpc"    # kpc
+    γ = 2.0
+    pot = AllenSantillanHalo(m, a, Λ, γ)
+    w₀ = [3.59746558, 8.24013064, -9.17984456, -58.75537855, -147.5572843, 173.06078831]
+    x₀ = w₀[1:3]u"kpc"
+    v₀ = w₀[4:6]u"km/s"
+    t_range = (0.0,10.0).*u_T
+    acc = acceleration(pot, x₀)
+    sol = evolve(pot, x₀, v₀, t_range)
+    @show acc
+    return sol
+end
+
 function example_sum_of_potentials()
     m_gal = 2.325e7*u"Msun"
     m =2856.0*m_gal  # Msun
