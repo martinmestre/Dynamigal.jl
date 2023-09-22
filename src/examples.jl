@@ -35,9 +35,7 @@ function example_AllenSantillan()
     x₀ = [10.0,-8.0,7.0]u"kpc"
     v₀ = w₀[4:6]u"km/s"
     t_range = (0.0,10.0).*u_T
-    acc = acceleration(pot, x₀)
     sol = evolve(pot, x₀, v₀, t_range)
-    @show acc
     return sol
 end
 
