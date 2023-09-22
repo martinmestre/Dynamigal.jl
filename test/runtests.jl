@@ -1,6 +1,8 @@
 using GalacticDynamics
-using Test
+using Test, SafeTestsets
 
-@testset "GalacticDynamics.jl" begin
-    # Write your tests here.
+@time begin
+    @safetestset "Acceleration" begin
+        include("acceleration/acceleration.jl")
+    end
 end
