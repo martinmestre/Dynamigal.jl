@@ -10,7 +10,7 @@ function potential(pot::Vector{<:AbstractPotential}, x::AbstractArray{T}) where 
 end
 function potential(pot::UnionAbstractPotentials, x::Vector{<:U.Length})
     x = ustrip(uconvert.(u_L, x))
-    return u_Pot*potential(pot,x)
+    return u_V^2*potential(pot,x)
 end
 
 
@@ -22,7 +22,7 @@ end
 
 """Unitful Plummer potential"""
 function potential(pot::Plummer, x::Vector{<:U.Length})
-    return uconvert(u_Pot, -Gᵤ*pot.m_u / sqrt(pot.b_u^2 + x'x))
+    return uconvert(u_V^2, -Gᵤ*pot.m_u / sqrt(pot.b_u^2 + x'x))
 end
 
 
@@ -33,7 +33,7 @@ end
 
 """Unitful MiyamotoNagaiDisk potential"""
 function potential(pot::MiyamotoNagaiDisk, x::Vector{<:U.Length})
-    return uconvert(u_Pot, -Gᵤ*pot.m_u/sqrt( x[1:2]'x[1:2] + (pot.a_u + sqrt(pot.b_u^2+x[3]^2))^2))
+    return uconvert(u_V^2, -Gᵤ*pot.m_u/sqrt( x[1:2]'x[1:2] + (pot.a_u + sqrt(pot.b_u^2+x[3]^2))^2))
 end
 
 
