@@ -1,0 +1,3 @@
+[deps]
+GalacticDynamics = "6ce81dba-b6c7-4d45-87bc-beb01d72eeef"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
