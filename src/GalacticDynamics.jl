@@ -9,13 +9,15 @@ using StaticArrays
 import UnitfulChainRules
 const U=Unitful
 
-export G, u_T
+export SolverConfig
 export Plummer, potential, acceleration, ode, evolve
 export Particle, TestParticle
 export example_Plummer, example_MiyamotoNagai, example_sum_of_potentials
 export example_AllenSantillan
 
+
 include("constants.jl")
+include("config.jl")
 include("types.jl")
 include("potentials.jl")
 include("acceleration.jl")
