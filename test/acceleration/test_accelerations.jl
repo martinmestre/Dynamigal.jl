@@ -1,10 +1,3 @@
-using GalacticDynamics
-using Test
-using PythonCall
-
-pyimport("sys")."path".append("")
-accelerations_py = pyimport("accelerations")
-
 @testset "AllenSantillanHalo" begin
     m_gal = 2.325e7*u"Msun"
     m =1018.0*m_gal  # Msun

@@ -1,12 +1,11 @@
 using GalacticDynamics
-using Test, SafeTestsets
+using Test
 using PythonCall
 
-include("init_python.jl")
-
+pyimport("sys")."path".append("")
+pyimport("sys")."path".append("python")
+accelerations_py = pyimport("accelerations")
 
 @time begin
-    @safetestset "Acceleration" begin
-        include("acceleration/test_accelerations.jl")
-    end
+    include("acceleration/test_accelerations.jl")
 end
