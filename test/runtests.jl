@@ -7,6 +7,6 @@ include("init_python.jl")
 
 @time begin
     @safetestset "Acceleration" begin
-        include("acceleration/accelerations.jl")
+        include("acceleration/test_accelerations.jl")
     end
 end
