@@ -4,6 +4,20 @@ import numpy as np
 
 g = 4.300923924e-6  # kpc (km/s)^2 M_sun^{-1}
 
+
+class Plummer:
+    """Plummer Sphere"""
+
+    def __init__(self, m, b):
+        """Init."""
+        self.m = m
+        self.b = b
+
+    def accel(self, x,y,z):
+        fac = -g*self.m/(self.b*self.b +x*x + y*y + z*z )**(1.5)
+        return np.array([fac*x, fac*y, fac*z])
+
+
 class MiyamotoNagai:
     """Miyamoto-Nagai disk."""
 
