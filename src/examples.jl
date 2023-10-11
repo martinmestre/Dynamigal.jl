@@ -6,7 +6,8 @@ function example_Plummer()
     x₀ = [10.0, 0.0, 0.0]u"kpc"
     v₀ = [0.0,50.0,0.0]u"km/s"
     t_range = (0.0,10.0).*u_T
-    sol = evolve(pot, x₀, v₀, t_range)
+    sol = evolve(pot, x₀, v₀, t_range; options=SolverConfig(reltol=5.0e-12))
+    @show sol[begin]
     return sol
 end
 

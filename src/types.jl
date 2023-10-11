@@ -1,6 +1,8 @@
 """Types"""
 
 import Base.:+
+import Base.:getindex
+import Base.:firstindex, Base.:lastindex
 
 """Abstract types"""
 abstract type AbstractCosmos end
@@ -37,6 +39,8 @@ abstract type AbstractContinuousDisk <:AbstractContinuousDistribution end
 abstract type AbstractContinuousBulge <:AbstractContinuousDistribution end
 
 abstract type AbstractOrbit <: AbstractCosmos end
+abstract type AbstractPhaseSpacePoint <: AbstractCosmos end
+abstract type AbstractInitialCondition <: AbstractPhaseSpacePoint end
 
 const UnionAbstractPotentials = Union{AbstractPotential, Vector{<:AbstractPotential}}
 
@@ -134,3 +138,12 @@ TestParticle(x_u::Vector{L}, v_u::Vector{V}) where {L,V} = TestParticle{L,V}(x_u
     x::Matrix{L}
     v::Matrix{V}
 end
+
+@with_kw struct PhaseSpacePoint{T<:U.Time, L<:U.Length, V<:U.Velocity} <: AbstractPhaseSpacePoint
+    t::T
+    x::Vector{L}
+    v::Vector{V}
+end
+getindex(orb::Orbit,i) = PhaseSpacePoint(orb.t[i], orb.x[1:3,i], orb.v[1:3,i])
+firstindex(orb::Orbit) = PhaseSpacePoint(orb.t[begin], orb.x[1:3,begin], orb.v[1:3,begin])
+lastindex(orb::Orbit) = PhaseSpacePoint(orb.t[end], orb.x[1:3,end], orb.v[1:3,end])

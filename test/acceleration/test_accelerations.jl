@@ -1,4 +1,4 @@
-@testset "AllenSantillanHalo" begin
+@testset "AccelerationsAllenSantillanHalo" begin
     m_gal = 2.325e7*u"Msun"
     m =1018.0*m_gal  # Msun
     a = 2.562*u"kpc"     # kpc
@@ -14,7 +14,7 @@
     end
 end
 
-@testset "MiyamotoNagaiDisk" begin
+@testset "AccelerationsMiyamotoNagaiDisk" begin
     m_gal = 2.325e7*u"Msun"
     m =500.0*m_gal  # Msun
     a = 12.0*u"kpc"     # kpc
@@ -28,7 +28,7 @@ end
     end
 end
 
-@testset "Plummer" begin
+@testset "AccelerationsPlummer" begin
     m_gal = 2.325e7*u"Msun"
     m = 1000.0*m_gal  # Msun
     a = 2.0*u"kpc"     # kpc
