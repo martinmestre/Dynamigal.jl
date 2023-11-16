@@ -1,5 +1,13 @@
 """Potential functions"""
 
+
+"""Unitful UnionAbstractPotentials"""
+function potential(pot::UnionAbstractPotentials, x::Vector{<:U.Length})
+    x = ustrip(uconvert.(u_L, x))
+    return u_V^2*potential(pot,x)
+end
+
+
 """Potential of a sum of AbstractPotentials"""
 function potential(pot::Vector{<:AbstractPotential}, x::AbstractArray{T}) where {T<:Real}
     sum_pot = zeros(3)
@@ -8,11 +16,6 @@ function potential(pot::Vector{<:AbstractPotential}, x::AbstractArray{T}) where 
     end
     return sum_pot
 end
-function potential(pot::UnionAbstractPotentials, x::Vector{<:U.Length})
-    x = ustrip(uconvert.(u_L, x))
-    return u_V^2*potential(pot,x)
-end
-
 
 
 """Plummer potential"""
@@ -48,3 +51,4 @@ function potential(pot::AllenSantillanHalo, x::AbstractArray{T}) where {T<:Real}
     end
     return res
 end
+
