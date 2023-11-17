@@ -18,14 +18,16 @@ export example_AllenSantillan
 
 include("constants.jl")
 include("config.jl")
-include("types.jl")
+include("abstract_types.jl")
+include("potential_types.jl")
+include("particle_types.jl")
+include("orbit_types.jl")
 include("potentials.jl")
 include("accelerations.jl")
 include("evolutions.jl")
 include("examples.jl")
 # include("metrics.jl")
-# include("potentials.jl")
 # iclude("transformations.jl")
-# include("reference_frames")
+# include("reference_frames.jl")
 
 end
