@@ -10,8 +10,9 @@ import UnitfulChainRules
 const U=Unitful
 
 export SolverConfig
-export Plummer, potential, acceleration, ode, evolve
+export potential, acceleration, ode, evolve
 export Particle, TestParticle, PhaseSpacePoint
+export Plummer, AllenSantillanHalo, MiyamotoNagaiDisk, PointMass
 export example_Plummer, example_MiyamotoNagai, example_sum_of_potentials
 export example_AllenSantillan
 

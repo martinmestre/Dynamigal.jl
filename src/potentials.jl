@@ -18,6 +18,18 @@ function potential(pot::Vector{<:AbstractPotential}, x::AbstractArray{T}) where 
 end
 
 
+"""PointMass potential"""
+function potential(pot::PointMass, x::AbstractArray{T}) where {T<:Real}
+    return -G*pot.m / sqrt(x'x)
+end
+
+"""Unitful PointMass potential"""
+function potential(pot::PointMass, x::Vector{<:U.Length})
+    return uconvert(u_V^2, -Gᵤ*pot.m_u / sqrt(x'x))
+end
+
+
+
 """Plummer potential"""
 function potential(pot::Plummer, x::AbstractArray{T}) where {T<:Real}
     return -G*pot.m / sqrt(pot.b^2 + x'x)

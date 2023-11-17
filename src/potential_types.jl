@@ -1,5 +1,16 @@
 """Potential types"""
 
+@with_kw struct PointMass{M<:U.Mass, T<:Real} <: AbstractPotential
+    m_u::M
+    m::T
+    function PointMass{M}(m_u) where {M}
+        m = uconvert(u_M, m_u).val
+        T=typeof(m)
+        return new{M,T}(m_u, m)
+    end
+end
+PointMass(m_u::M) where {M} = PointMass{M}(m_u)
+PointMass(m::T) where {T<:Real} = PointMass(m*u_M)
 
 @with_kw struct Plummer{M<:U.Mass, L<:U.Length, T<:Real} <: AbstractPotential
     m_u::M
