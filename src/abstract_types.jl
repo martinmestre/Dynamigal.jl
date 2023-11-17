@@ -39,8 +39,7 @@ abstract type AbstractContinuousDisk <:AbstractContinuousDistribution end
 abstract type AbstractContinuousBulge <:AbstractContinuousDistribution end
 
 abstract type AbstractOrbit <: AbstractCosmos end
-abstract type AbstractPhaseSpacePoint <: AbstractCosmos end
-abstract type AbstractInitialCondition <: AbstractPhaseSpacePoint end
+abstract type AbstractEvent <: AbstractCosmos end
 
 const UnionAbstractPotentials = Union{AbstractPotential, Vector{<:AbstractPotential}}
 

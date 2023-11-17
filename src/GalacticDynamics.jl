@@ -11,7 +11,7 @@ const U=Unitful
 
 export SolverConfig
 export potential, acceleration, ode, evolve
-export Particle, TestParticle, PhaseSpacePoint
+export Particle, TestParticle, Event
 export Plummer, AllenSantillanHalo, MiyamotoNagaiDisk, PointMass
 export example_Plummer, example_MiyamotoNagai, example_sum_of_potentials
 export example_AllenSantillan
