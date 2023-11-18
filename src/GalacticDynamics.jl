@@ -6,8 +6,7 @@ using Parameters
 @reexport using Zygote
 using StaticArrays
 @reexport using Unitful, UnitfulAstro
-import UnitfulChainRules
-const U=Unitful
+
 
 export SolverConfig
 export potential, acceleration, ode, evolve

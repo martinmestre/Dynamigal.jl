@@ -1,20 +1,28 @@
 """Potential functions"""
 
 
-"""Unitful UnionAbstractPotentials"""
-function potential(pot::UnionAbstractPotentials, x::Vector{<:U.Length})
-    x = ustrip(uconvert.(u_L, x))
-    return u_V^2*potential(pot,x)
+"""Unitful Potential for UnionAbstractPotentials"""
+function potential(pot::UnionAbstractPotentials, x::Vector{<:Unitful.Length}; kwargs...)
+    x = ustrip(uconvert.(lu.l, x))
+    return potential(pot, x; kwargs...)*lu.p
 end
 
 
 """Potential of a sum of AbstractPotentials"""
-function potential(pot::Vector{<:AbstractPotential}, x::AbstractArray{T}) where {T<:Real}
+function potential(pot::Vector{<:AbstractPotential}, x::AbstractArray{T}; kwargs...) where {T<:Real}
     sum_pot = zeros(3)
     for i ∈ eachindex(pot)
-        sum_pot .+= potential(pot[i], x)
+        sum_pot .+= potential(pot[i], x; kwargs...)
     end
     return sum_pot
+end
+
+
+"""List of specific Potentials..."""
+
+"""TimeDependent potential"""
+function potential(pot::TimeDependent, x::AbstractArray{T}; t::T=0.0) where {T<:Real}
+    return -G*pot.m / sqrt(t^2+x'x)
 end
 
 
@@ -23,32 +31,16 @@ function potential(pot::PointMass, x::AbstractArray{T}) where {T<:Real}
     return -G*pot.m / sqrt(x'x)
 end
 
-"""Unitful PointMass potential"""
-function potential(pot::PointMass, x::Vector{<:U.Length})
-    return uconvert(u_V^2, -Gᵤ*pot.m_u / sqrt(x'x))
-end
-
-
 
 """Plummer potential"""
 function potential(pot::Plummer, x::AbstractArray{T}) where {T<:Real}
     return -G*pot.m / sqrt(pot.b^2 + x'x)
 end
 
-"""Unitful Plummer potential"""
-function potential(pot::Plummer, x::Vector{<:U.Length})
-    return uconvert(u_V^2, -Gᵤ*pot.m_u / sqrt(pot.b_u^2 + x'x))
-end
-
 
 """Miyamoto-Nagai disk potential"""
 function potential(pot::MiyamotoNagaiDisk, x::AbstractArray{T}) where {T<:Real}
     return -G*pot.m/sqrt( x[1:2]'x[1:2] + (pot.a + sqrt(pot.b^2+x[3]^2))^2 )
-end
-
-"""Unitful MiyamotoNagaiDisk potential"""
-function potential(pot::MiyamotoNagaiDisk, x::Vector{<:U.Length})
-    return uconvert(u_V^2, -Gᵤ*pot.m_u/sqrt( x[1:2]'x[1:2] + (pot.a_u + sqrt(pot.b_u^2+x[3]^2))^2))
 end
 
 
