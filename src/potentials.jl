@@ -21,7 +21,7 @@ end
 """List of specific Potentials..."""
 
 """TimeDependent potential"""
-function potential(pot::TimeDependent, x::AbstractArray{T}; t::T=0.0) where {T<:Real}
+function potential(pot::TimeDependent, x::AbstractArray{T}; t::T) where {T<:Real}
     return -G*pot.m / sqrt(t^2+x'x)
 end
 
