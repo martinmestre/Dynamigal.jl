@@ -1,23 +1,30 @@
 """Orbit types"""
 
-
-@with_kw struct Event{T<:U.Time, L<:U.Length, V<:U.Velocity, D<:Real} <: AbstractEvent
-    t_u::T
-    x_u::Vector{L}
-    v_u::Vector{V}
+@with_kw struct Event{D<:Real, T::typeof(u_T), L::typeof(u_L), V::typeof(u_V)} <: AbstractEvent
     t::D
     x::Vector{D}
     v::Vector{D}
-    function Event{T,L,V}(t_u, x_u, v_u) where {T,L,V}
-        t = t_u / uconvert(unit(t_u), u_T)
-        x = ustrip(uconvert.(u_L, x_u))
-        v = ustrip(uconvert.(u_V, v_u))
-        D = typeof(t)
-        return new{T,L,V,D}(t_u, x_u, v_u, t, x, v)
-    end
+    units::Tuple{T,L,V} = (u_T, u_L, u_V)
 end
-Event(t_u::T, x_u::Vector{L}, v_u::Vector{V}) where {T,L,V} = Event{T,L,V}(t_u, x_u, v_u)
-Event(t::T, x::Vector{T}, v::Vector{T}) where {T<:Real} = Event(t*u_T, x*u_L, v*u_V)
+
+
+# @with_kw struct Event{T<:U.Time, L<:U.Length, V<:U.Velocity, D<:Real} <: AbstractEvent
+#     t_u::T
+#     x_u::Vector{L}
+#     v_u::Vector{V}
+#     t::D
+#     x::Vector{D}
+#     v::Vector{D}
+#     function Event{T,L,V}(t_u, x_u, v_u) where {T,L,V}
+#         t = t_u / uconvert(unit(t_u), u_T)
+#         x = ustrip(uconvert.(u_L, x_u))
+#         v = ustrip(uconvert.(u_V, v_u))
+#         D = typeof(t)
+#         return new{T,L,V,D}(t_u, x_u, v_u, t, x, v)
+#     end
+# end
+# Event(t_u::T, x_u::Vector{L}, v_u::Vector{V}) where {T,L,V} = Event{T,L,V}(t_u, x_u, v_u)
+# Event(t::T, x::Vector{T}, v::Vector{T}) where {T<:Real} = Event(t*u_T, x*u_L, v*u_V)
 
 
 @with_kw struct Orbit{T<:U.Time, L<:U.Length, V<:U.Velocity} <: AbstractOrbit
