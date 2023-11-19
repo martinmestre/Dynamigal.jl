@@ -1,5 +1,5 @@
 """Constants"""
 
 """Solver units"""
-const lu = UnitsConfig()
-const G = ustrip( uconvert(lu.l*lu.v^2/lu.m, u"G") )
+const 𝕦 = UnitsConfig()  # 𝕦 is written as \bbu
+const G = ustrip( uconvert(𝕦.l*𝕦.v^2/𝕦.m, u"G") )

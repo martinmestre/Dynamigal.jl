@@ -3,8 +3,8 @@
 
 """Unitful acceleration"""
 function acceleration(pot::UnionAbstractPotentials, x::Vector{<:Unitful.Length}; kargs...)
-    x = ustrip(uconvert.(lu.l, x))
-    return acceleration(pot, x; kargs...)*lu.a
+    x = ustrip(uconvert.(𝕦.l, x))
+    return acceleration(pot, x; kargs...)*𝕦.a
 end
 
 

@@ -1,34 +1,30 @@
 """Particle types"""
 
 
-@with_kw struct Particle{M<:U.Mass,L<:U.Length,V<:U.Velocity,T<:Real} <: AbstractMacroParticle
-    m_u::M
-    x_u::Vector{L}
-    v_u::Vector{V}
-    m::T
-    x::Vector{T}
-    v::Vector{T}
-    function Particle{M,L,V}(m_u, x_u, v_u) where {M,L,V}
-        m = uconvert(u_M, m_u).val
-        x = ustrip(uconvert.(u_L, x_u))
-        v = ustrip(uconvert.(u_V, v_u))
-        T = typeof(m)
-        return new{M,L,V,T}(m_u, x_u, v_u, m, x, v)
-    end
+@with_kw struct TestParticle <: AbstractTestParticle
+    event::Event
 end
-Particle(m_u::M, x_u::Vector{L}, v_u::Vector{V}) where {M,L,V} = Particle{M,L,V}(m_u, x_u, v_u)
+TestParticle(t::T, x::Vector{D}, v::Vector{F}) where {T<:Real,D<:Real,F<:Real} =
+    TestParticle(Event(t,x,v))
+TestParticle(x::Vector{D}, v::Vector{F}) where {D<:Real,F<:Real} = TestParticle(Event(x,v))
+TestParticle(t::T, x::Vector{D}, v::Vector{F}) where {T<:Unitful.Time, D<:Unitful.Length, F<:Unitful.Velocity} = TestParticle(Event(t,x,v))
+TestParticle(x::Vector{D}, v::Vector{F}) where {D<:Unitful.Length, F<:Unitful.Velocity} =
+    TestParticle(Event(x,v))
 
-@with_kw struct TestParticle{L<:U.Length,V<:U.Velocity,T<:Real} <: AbstractTestParticle
-    x_u::Vector{L}
-    v_u::Vector{V}
-    x::Vector{T}
-    v::Vector{T}
-    function TestParticle{L,V}(x_u, v_u) where {L,V}
-        x = ustrip(uconvert.(u_L, x_u))
-        v = ustrip(uconvert.(u_V, v_u))
-        T = typeof(x[begin])
-        return new{L,V,T}(x_u, v_u, x, v)
-    end
+
+@with_kw struct Particle{T<:Real} <: AbstractParticle
+    m::T = 1.0
+    event::Event
 end
-TestParticle(x_u::Vector{L}, v_u::Vector{V}) where {L,V} = TestParticle{L,V}(x_u, v_u)
+Particle(m::M, t::T, x::Vector{D}, v::Vector{F}) where {M<:Real,T<:Real,D<:Real,F<:Real} =
+    Particle(m, Event(t, x, v))
+Particle(m::M, t::T, x::Vector{D}, v::Vector{F}) where {M<:Real,T<:Real,D<:Real,F<:Real} =
+    Particle(m, Event(t, x, v))
+Particle(m::M, x::Vector{D}, v::Vector{F}) where {M<:Real, D<:Real,F<:Real} =
+    Particle(m, Event(x, v))
+Particle(m::M, t::T, x::Vector{D}, v::Vector{F}) where {M<:Unitful.Mass, T<:Unitful.Time, D<:Unitful.Length, F<:Unitful.Velocity} = Particle(m, Event(t, x, v))
+Particle(m::M, x::Vector{D}, v::Vector{F}) where {M<:Unitful.Mass, D<:Unitful.Length, F<:Unitful.Velocity} =
+    Particle(m, Event(x, v))
+
+
 

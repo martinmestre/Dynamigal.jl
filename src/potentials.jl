@@ -3,8 +3,8 @@
 
 """Unitful Potential for UnionAbstractPotentials"""
 function potential(pot::UnionAbstractPotentials, x::Vector{<:Unitful.Length}; kwargs...)
-    x = ustrip(uconvert.(lu.l, x))
-    return potential(pot, x; kwargs...)*lu.p
+    x = ustrip(uconvert.(𝕦.l, x))
+    return potential(pot, x; kwargs...)*𝕦.p
 end
 
 
