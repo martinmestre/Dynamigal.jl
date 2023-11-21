@@ -1,27 +1,41 @@
 """Evolution functions"""
 
+
 """Evolution of a an initial condition in an AbstractPotential"""
-function evolve(pot::UnionAbstractPotentials, x::Vector{<:U.Length}, v::Vector{<:U.Velocity},
-    t_span::Tuple{<:U.Time, <:U.Time}; options=SolverConfig())
+function evolve(pot::UnionAbstractPotentials, x::D, v::F,
+    Δt::Tuple{T,T}; options=SolverConfig()) where {D<:Real, F<:Real, T<:Real}
     (; solver, abstol, reltol ) = options
-    dimₓ, dimᵥ = unit(x[begin]), unit(v[begin])
-    x = ustrip(uconvert.(u_L, x))
-    v = ustrip(uconvert.(u_V, v))
-    t_span = uconvert.(unit(u_T),t_span)./u_T
     p = pot
     u₀ = SA[x...,v...]
-    prob = ODEProblem(ode, u₀, t_span, p)
+    prob = ODEProblem(ode, u₀, Δt, p)
     sol=solve(prob, solver; abstol=abstol, reltol=reltol)
-    orb = Orbit(sol.t*u_T, sol[1:3,:]*u_L, sol[4:6,:]*u_V)
+    orb = Orbit(sol.t, sol[1:3,:], sol[4:6,:])
     return orb
 end
 
-"""Evolution of a TestParticle in an AbstractPotential"""
-function evolve(pot::UnionAbstractPotentials, p::AbstractParticle, t_span::Tuple{<:U.Time, <:U.Time};options=SolverConfig())
-    x = p.x_u
-    v = p.v_u
-    return evolve(pot, x, v, t_span)
+"""Evolution of a unitful initial condition in an AbstractPotential"""
+function evolve(pot::UnionAbstractPotentials, x::Vector{<:Unitful.Length}, v::Vector{<:Unitful.Velocity},
+    Δt::Tuple{<:Unitful.Time, <:Unitful.Time}; kwargs...)
+    x = ustrip(uconvert.(𝕦.l, x))
+    v = ustrip(uconvert.(𝕦.v, v))
+    Δt = uconvert.(𝕦.τ, Δt)./𝕦.t
+    return evolve(pot, x, v, Δt; kwargs...)
+end
+
+"""Evolution of an Event in an AbstractPotential"""
+function evolve(pot::P, event::Event, Δt::Tuple{<:Unitful.Time, <:Unitful.Time}; kwargs...) where {P<:UnionAbstractPotentials}
+    Δt = uconvert.(𝕦.τ, Δt)./𝕦.t .+ event.t
+    x = event.x
+    v = event.v
+    return evolve(pot, x, v, Δt, kwargs...)
 end
 
 
+"""Evolution of a TestParticle in an AbstractPotential"""
+function evolve(pot::P, p::TestParticle, Δt::Tuple{<:Unitful.Time, <:Unitful.Time}; kwargs...) where {P<:UnionAbstractPotentials}
+    Δt = uconvert.(𝕦.τ, Δt)./𝕦.t .+ p.event.t
+    x = p.event.x
+    v = p.event.v
+    return evolve(pot, x, v, Δt; kwargs...)
+end
 

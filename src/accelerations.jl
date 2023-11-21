@@ -2,9 +2,9 @@
 
 
 """Unitful acceleration"""
-function acceleration(pot::UnionAbstractPotentials, x::Vector{<:Unitful.Length}; kargs...)
+function acceleration(pot::UnionAbstractPotentials, x::Vector{<:Unitful.Length}; kwargs...)
     x = ustrip(uconvert.(𝕦.l, x))
-    return acceleration(pot, x; kargs...)*𝕦.a
+    return acceleration(pot, x; kwargs...)*𝕦.a
 end
 
 
@@ -22,9 +22,6 @@ end
 function acceleration(pot::AbstractPotential, x::AbstractArray{T}; kargs...) where {T<:Real}
     return -1.0*gradient(y->potential(pot, y; kwargs...), x)[1]
 end
-
-
-
 
 
 
