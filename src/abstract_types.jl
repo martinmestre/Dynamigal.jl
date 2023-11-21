@@ -38,8 +38,8 @@ abstract type AbstractContinuousSubHalo <:AbstractContinuousDistribution end
 abstract type AbstractContinuousDisk <:AbstractContinuousDistribution end
 abstract type AbstractContinuousBulge <:AbstractContinuousDistribution end
 
-abstract type AbstractOrbit <: AbstractCosmos end
-abstract type AbstractEvent <: AbstractCosmos end
+abstract type AbstractOrbit <: AbstractSpaceTime end
+abstract type AbstractEvent <: AbstractSpaceTime end
 
 const UnionAbstractPotentials = Union{AbstractPotential, Vector{<:AbstractPotential}}
 
