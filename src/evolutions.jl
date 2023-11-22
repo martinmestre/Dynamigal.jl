@@ -15,7 +15,7 @@ end
 
 """Evolution of a unitful initial condition in an AbstractPotential"""
 function evolve(pot::UnionAbstractPotentials, x::Vector{<:Unitful.Length}, v::Vector{<:Unitful.Velocity},
-   t_span::Tuple{<:Unitful.Time, <:Unitful.Time}; kwargs...)
+    t_span::Tuple{<:Unitful.Time, <:Unitful.Time}; kwargs...)
     x, v = code_units(x, v)
     t_span = code_units.(tspan)
     return evolve(pot, x, v, t_span; kwargs...)
@@ -26,7 +26,7 @@ function evolve(pot::P, event::Event, t_span::Tuple{<:Unitful.Time, <:Unitful.Ti
     t_span = code_units.(t_span) .+ event.t
     x = event.x
     v = event.v
-    return evolve(pot, x, v, t_span, kwargs...)
+    return evolve(pot, x, v, t_span; kwargs...)
 end
 
 
