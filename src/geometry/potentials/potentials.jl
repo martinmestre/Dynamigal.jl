@@ -2,17 +2,17 @@
 
 
 """Unitful Potential for UnionAbstractPotentials"""
-function potential(pot::UnionAbstractPotentials, x::Vector{<:Unitful.Length}; kwargs...)
-    x = ustrip(uconvert.(𝕦.l, x))
-    return potential(pot, x; kwargs...)*𝕦.p
+function potential(pot::UnionAbstractPotentials, x::Vector{<:Unitful.Length}, t<:Unitful.Time)
+    x, t = code_units(x, t)
+    return potential(pot, x, t)*𝕦.p
 end
 
 
 """Potential of a sum of AbstractPotentials"""
-function potential(pot::Vector{<:AbstractPotential}, x::AbstractArray{T}; kwargs...) where {T<:Real}
+function potential(pot::Vector{<:AbstractPotential}, x::AbstractArray{T}, t::D) where {T<:Real, D<:Real}
     sum_pot = zeros(3)
     for i ∈ eachindex(pot)
-        sum_pot .+= potential(pot[i], x; kwargs...)
+        sum_pot .+= potential(pot[i], x, t)
     end
     return sum_pot
 end
