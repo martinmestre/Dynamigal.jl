@@ -19,7 +19,7 @@ end
 
 
 potential(pot::P, x::AbstractArray{T}, t=nothing) where {P<:AbstractPotential,T<:Real} = potential(pot, x)
-
+potential(pot::P, x::AbstractArray{T}, t=nothing) where {P<:AbstractPotential,T<:Unitful.Length} = potential(pot, x)
 
 """List of specific Potentials..."""
 
