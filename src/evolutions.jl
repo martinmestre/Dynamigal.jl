@@ -2,7 +2,7 @@
 
 
 """Evolution of a an initial condition in an AbstractPotential"""
-function evolve(pot::UnionAbstractPotentials, x::D, v::F,
+function evolve(pot::UnionAbstractPotentials, x::Vector{D}, v::Vector{F},
    t_span::Tuple{T,T}; options=SolverConfig()) where {D<:Real, F<:Real, T<:Real}
     (; solver, abstol, reltol ) = options
     p = pot
@@ -17,7 +17,7 @@ end
 function evolve(pot::UnionAbstractPotentials, x::Vector{<:Unitful.Length}, v::Vector{<:Unitful.Velocity},
     t_span::Tuple{<:Unitful.Time, <:Unitful.Time}; kwargs...)
     x, v = code_units(x, v)
-    t_span = code_units.(tspan)
+    t_span = code_units.(t_span)
     return evolve(pot, x, v, t_span; kwargs...)
 end
 

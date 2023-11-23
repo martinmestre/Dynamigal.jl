@@ -18,10 +18,13 @@ function potential(pot::Vector{<:AbstractPotential}, x::AbstractArray{T}, t::D) 
 end
 
 
+potential(pot::P, x::AbstractArray{T}, t=nothing) where {P<:AbstractPotential,T<:Real} = potential(pot, x)
+
+
 """List of specific Potentials..."""
 
 """TimeDependent potential"""
-function potential(pot::TimeDependent, x::AbstractArray{T}; t::T) where {T<:Real}
+function potential(pot::TimeDependent, x::AbstractArray{T}, t::T) where {T<:Real}
     return -G*pot.m / sqrt(t^2+x'x)
 end
 
