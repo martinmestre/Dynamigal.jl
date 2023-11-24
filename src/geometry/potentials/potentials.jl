@@ -17,10 +17,12 @@ function potential(pot::Vector{<:AbstractPotential}, x::AbstractArray{L}, t::T) 
     return sum_pot
 end
 
+"""Multiple dispatch when t variable is/is-not used"""
 potential(pot::P, x::AbstractArray{T}, t::D) where {P<:AbstractPotential, T<:Real, D<:Real} =
     potential(pot, x)
 potential(pot::P, x::AbstractArray{<:Unitful.Length}) where {P<:AbstractPotential} =
     potential(pot, x, 0𝕦.t)
+
 
     """List of specific Potentials..."""
 
