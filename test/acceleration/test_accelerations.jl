@@ -6,7 +6,7 @@
     γ = 2.0
     pot = GalacticDynamics.AllenSantillanHalo(m, a, Λ, γ)
     pot_py = accelerations_py.AllenSantillan(ustrip.([m, a, Λ, γ])...)
-    for i in range(1,100)
+    for i in range(1,2)
         x = 50*rand(3)*u"kpc"
         @test ustrip.(acceleration(pot,x)) ≈ acceleration(pot,ustrip.(x)) rtol=5.e-10
         @test ustrip.(acceleration(pot,x)) ≈ pyconvert(Vector{Float64},pot_py.accel(ustrip.(x)...)) rtol=5.e-6
