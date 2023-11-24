@@ -8,7 +8,7 @@ using StaticArrays
 @reexport using Unitful, UnitfulAstro
 
 
-export SolverConfig, UnitsConfig
+export SolverConfig, UnitsConfig, 𝕦
 export potential, acceleration, ode, evolve
 export Particle, TestParticle
 export Event, Orbit, Snapshot
