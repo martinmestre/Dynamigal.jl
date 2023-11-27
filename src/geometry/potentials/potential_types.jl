@@ -7,10 +7,10 @@ end
 TimeDependent(m::T) where {T<:Unitful.Mass} = TimeDependent( ustrip(uconvert(𝕦.m, m)) )
 
 
-@with_kw struct PointMass{T<:Real} <: AbstractPotential
+@with_kw struct Kepler{T<:Real} <: AbstractPotential
     m::T
 end
-PointMass(m::T) where {T<:Unitful.Mass} = PointMass( ustrip(uconvert(𝕦.m, m)) )
+Kepler(m::T) where {T<:Unitful.Mass} = Kepler( ustrip(uconvert(𝕦.m, m)) )
 
 
 @with_kw struct Plummer{T<:Real,D<:Real} <: AbstractPotential

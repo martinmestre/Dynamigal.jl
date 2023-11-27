@@ -17,3 +17,26 @@
     end
 end
 
+@testset "CircularOrbitsKepler" begin
+    m =1.0𝕦.m  # Msun
+    pot = Kepler(m)
+    function evolve_Kepler_circular(pot, x₀, t)
+        a = sqrt(x₀'x₀)
+        T = 2π√(a^3/(G*pot.m))
+        n =  2π/T
+        x = [ a*[cos(n*t[i]), sin(n*t[i])] for i ∈ eachindex(t)]
+        return x
+    end
+    for i in range(1,20)
+        r = 10.0*rand()
+        x₀ = [r, 0.0, 0.0]
+        speed = circular_velocity(pot, x₀)
+        v₀ = [0.0, speed, 0.0]
+        t_range = (0.0, 10.0)
+        sol = evolve(pot, x₀, v₀, t_range)
+        sol₂ = evolve_Kepler_circular(pot, x₀, sol.t)
+        for j ∈ eachindex(sol.t)
+            @test sol.x[1, j] ≈ sol₂[j][1] rtol=5.0e-6
+        end
+    end
+end

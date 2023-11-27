@@ -25,6 +25,7 @@ end
 
 
 
+
 """ODE for the Newtonian case"""
 function ode(u,p,t)
     return SA[u[4:6]..., acceleration(p, u[1:3], t)...]

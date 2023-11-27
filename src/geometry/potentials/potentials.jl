@@ -32,8 +32,8 @@ function potential(pot::TimeDependent, x::AbstractArray{L}, t::T) where {L<:Real
 end
 
 
-"""PointMass potential"""
-function potential(pot::PointMass, x::AbstractArray{T}) where {T<:Real}
+"""Kepler potential"""
+function potential(pot::Kepler, x::AbstractArray{T}) where {T<:Real}
     return -G*pot.m / sqrt(x'x)
 end
 

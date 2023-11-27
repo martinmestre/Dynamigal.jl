@@ -7,7 +7,7 @@ function evolve(pot::UnionAbstractPotentials, x::Vector{D}, v::Vector{F},
     (; solver, abstol, reltol ) = options
     p = pot
     u₀ = SA[x...,v...]
-    prob = ODEProblem(ode, u₀,t_span, p)
+    prob = ODEProblem(ode, u₀, t_span, p)
     sol=solve(prob, solver; abstol=abstol, reltol=reltol)
     orb = Orbit(sol.t, sol[1:3,:], sol[4:6,:])
     return orb
