@@ -10,6 +10,7 @@ using StaticArrays
 
 export SolverConfig, UnitsConfig, 𝕦
 export potential, acceleration, ode, evolve
+export circular_velocity
 export Particle, TestParticle
 export Event, Orbit, Snapshot
 export TimeDependent, PointMass, Plummer, AllenSantillanHalo, MiyamotoNagaiDisk
