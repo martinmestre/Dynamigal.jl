@@ -36,7 +36,7 @@ end
         sol = evolve(pot, x₀, v₀, t_range)
         sol₂ = evolve_Kepler_circular(pot, x₀, sol.t)
         for j ∈ eachindex(sol.t)
-            @test sol.x[1, j] ≈ sol₂[j][1] rtol=5.0e-6
+            @test sol.x[1:2, j] ≈ sol₂[j] rtol=5.0e-6
         end
     end
 end
