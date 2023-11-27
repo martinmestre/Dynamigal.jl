@@ -38,3 +38,16 @@ function evolve(pot::P, p::TestParticle, t_span::Tuple{<:Unitful.Time, <:Unitful
     return evolve(pot, x, v, t_span; kwargs...)
 end
 
+
+"""Evolution of a system of MacroParticle"""
+function evolve(smp::Vector{MacroParticle}, t_span::Tuple{T,T}; options=SolverConfig()) where {T<:Real}
+    (; solver, abstol, reltol ) = options
+    n = length(smp)
+    x = [[smp[i].x... for i ∈ eachindex(smp)]...]
+    @show x
+    u₀ = SA[x...,v...]
+    prob = ODEProblem(ode, u₀, t_span, p)
+    sol=solve(prob, solver; abstol=abstol, reltol=reltol)
+    orb = Orbit(sol.t, sol[1:3,:], sol[4:6,:])
+    return orb
+end

@@ -26,7 +26,7 @@ end
 
 
 
-"""ODE for the Newtonian case"""
+"""ODE for the Newtonian case: test particle in a potential."""
 function ode(u,p,t)
     return SA[u[4:6]..., acceleration(p, u[1:3], t)...]
 end
