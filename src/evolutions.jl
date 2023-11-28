@@ -40,14 +40,14 @@ end
 
 
 """Evolution of a system of MacroParticle"""
-function evolve(smp::Vector{MacroParticle}, t_span::Tuple{T,T}; options=SolverConfig()) where {T<:Real}
+function evolve(mps::Vector{P}, t_span::Tuple{T,T}; options=SolverConfig()) where {P<:AbstractMacroParticle,T<:Real}
     (; solver, abstol, reltol ) = options
-    n = length(smp)
-    x = [[smp[i].x... for i ∈ eachindex(smp)]...]
-    @show x
+    p = mps
+    x = vcat([[mps[i].event.x for i ∈ eachindex(mps)]...]...)
+    v = vcat([[mps[i].event.v for i ∈ eachindex(mps)]...]...)
     u₀ = SA[x...,v...]
     prob = ODEProblem(ode, u₀, t_span, p)
     sol=solve(prob, solver; abstol=abstol, reltol=reltol)
-    orb = Orbit(sol.t, sol[1:3,:], sol[4:6,:])
-    return orb
+    # orb = Orbit(sol.t, sol[1:3,:], sol[4:6,:])
+    return sol
 end

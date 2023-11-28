@@ -11,7 +11,7 @@ using StaticArrays
 export SolverConfig, UnitsConfig, 𝕦, G
 export potential, acceleration, ode, evolve
 export circular_velocity
-export Particle, TestParticle
+export Particle, TestParticle, MacroParticle
 export Event, Orbit, Snapshot
 export TimeDependent, Kepler, Plummer, AllenSantillanHalo, MiyamotoNagaiDisk
 export example_Plummer, example_MiyamotoNagai, example_sum_of_potentials
@@ -27,6 +27,7 @@ include("geometry/potentials/potentials.jl")
 include("geometry/spacetimes/orbit_types.jl")
 include("distributions/particle_types.jl")
 include("distributions/ensemble_types.jl")
+include("odes.jl")
 include("accelerations.jl")
 include("evolutions.jl")
 include("circular_velocity.jl")

@@ -34,6 +34,7 @@ Particle(m::M, x::Vector{D}, v::Vector{F}) where {M<:Unitful.Mass, D<:Unitful.Le
     pot::P
     event::Event = Event()
 end
+MacroParticle(p::P) where {P<:AbstractPotential} = MacroParticle(pot=p)
 MacroParticle(p::P, t::T, x::Vector{D}, v::Vector{F}) where {P<:AbstractPotential,T<:Real,D<:Real,F<:Real} =
     MacroParticle(p, Event(t, x, v))
 MacroParticle(p::P, x::Vector{D}, v::Vector{F}) where {P<:AbstractPotential, D<:Real,F<:Real} =
