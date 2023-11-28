@@ -28,15 +28,15 @@ end
 selec(i::I) where {I<:Integer} = 1+3(i-1)
 
 function complement(p::Vector{<:AbstractPotential}, x::AbstractArray{L}, i::I) where {L<:Real, I<:Integer}
-    p_c = copy(p)
-    x_cc = copy(x)
-    deleteat!(p_c, i)
-    deleteat!(x_cc, selec(i):selec(i)+2)
-    x_c = Vector{Vector{Float64}}(undef,length(p_c))
-    for j ∈ eachindex(x_c)
-        x_c[j] = x_cc[selec(j):selec(j)+2]
+    ρ = copy(p)
+    x_c = copy(x)
+    deleteat!(ρ, i)
+    deleteat!(x_c, selec(i):selec(i)+2)
+    χ = Vector{Vector{Float64}}(undef,length(ρ))
+    for j ∈ eachindex(χ)
+        χ[j] = x_c[selec(j):selec(j)+2]
     end
-    return p_c, x_c
+    return ρ, χ
 end
 
 """Acceleration of a system of macro particles"""
@@ -45,12 +45,8 @@ function acceleration(mps::Vector{<:AbstractMacroParticle}, x::AbstractArray{L},
     acc = Vector{Vector{Float64}}(undef,length(p))
     for i ∈ eachindex(p)
         y = x[selec(i):selec(i)+2]
-        p_c, x_c = complement(p, x, i)
-        acc[i] = sum( [acceleration(p_c, y-x_c[j]) for j ∈ eachindex(p_c)] )
-        @show i acc[i]
-        @show p p_c
-        @show y x
-        @show eachindex(p_c) eachindex(y)
+        ρ, χ = complement(p, x, i)
+        acc[i] = sum( [acceleration(ρ, y-χ[j]) for j ∈ eachindex(ρ)] )
     end
     return vcat(acc...)
 end

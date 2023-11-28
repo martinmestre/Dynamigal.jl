@@ -8,7 +8,7 @@ function evolve(pot::UnionAbstractPotentials, x::Vector{D}, v::Vector{F},
     p = pot
     u₀ = SA[x...,v...]
     prob = ODEProblem(ode, u₀, t_span, p)
-    sol=solve(prob, solver; abstol=abstol, reltol=reltol)
+    sol = solve(prob, solver; abstol=abstol, reltol=reltol)
     orb = Orbit(sol.t, sol[1:3,:], sol[4:6,:])
     return orb
 end
@@ -47,7 +47,13 @@ function evolve(mps::Vector{P}, t_span::Tuple{T,T}; options=SolverConfig()) wher
     v = vcat([[mps[i].event.v for i ∈ eachindex(mps)]...]...)
     u₀ = SA[x...,v...]
     prob = ODEProblem(ode, u₀, t_span, p)
-    sol=solve(prob, solver; abstol=abstol, reltol=reltol)
-    # orb = Orbit(sol.t, sol[1:3,:], sol[4:6,:])
-    return sol
+    sol  =solve(prob, solver; abstol=abstol, reltol=reltol)
+    sys_orb = Vector{Orbit}(undef, length(p))
+    n = length(x)
+    for i ∈ eachindex(p)
+        j_x = selec(i)
+        j_v = n+j_x
+        sys_orb[i] = Orbit(sol.t, sol[j_x:j_x+2,:], sol[j_v:j_v+2,:])
+    end
+    return sys_orb
 end
