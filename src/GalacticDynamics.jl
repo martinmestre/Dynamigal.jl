@@ -8,12 +8,14 @@ using StaticArrays
 @reexport using Unitful, UnitfulAstro
 
 
-export SolverConfig, UnitsConfig, 𝕦, G
+export SolverConfig, UnitsConfig, CosmosConfig
+export 𝕦, G, 𝕔, H₀
 export potential, acceleration, ode, evolve
 export circular_velocity
 export Particle, TestParticle, MacroParticle
 export Event, Orbit, Snapshot
 export TimeDependent, Kepler, Plummer, AllenSantillanHalo, MiyamotoNagaiDisk
+export Hernquist
 export example_Plummer, example_MiyamotoNagai, example_sum_of_potentials
 export example_AllenSantillan
 

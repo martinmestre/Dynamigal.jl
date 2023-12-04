@@ -1,6 +1,6 @@
 """Configuration structs and conversion functions"""
 
-"""Solver Configuration"""
+"""Solver configuration"""
 @with_kw struct SolverConfig
     solver::supertype(Vern9) = Vern9()
     abstol::Float64 = 0.5e-10
@@ -55,3 +55,10 @@ physical_units(x::Vector{L}, v::Vector{V}) where {L<:Real, V<:Real} =
     physical_units.(x,:l), physical_units_v.(v,:v)
 physical_units(x::Vector{L}, v::Vector{V}, t::T) where {L<:Real, V<:Real,T<:Real} =
     physical_units.(x,:l), physical_units.(v,:v), physical_units(t,:t)
+
+
+"""Cosmos configuration"""
+@with_kw struct CosmosConfig{F<:Unitful.Frequency, D<:Unitful.Density}
+    H₀::F = 67.66u"km/Mpc/s"
+    ρ_c::D = uconvert(u"Msun/kpc^3", 3H₀^2/(8π*u"G") )
+end
