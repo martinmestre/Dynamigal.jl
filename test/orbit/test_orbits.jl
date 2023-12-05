@@ -40,3 +40,22 @@ end
         end
     end
 end
+
+@testset "OrbitsNFWvsGala" begin
+    usys = gu.UnitSystem(au.kpc, au.Myr, au.Msun, au.radian, au.km/au.s, au.km/au.s/au.Myr)
+    t₁, t₂ = 0.0, 10.0
+    Δt = -0.5
+    m = 10^12*𝕦.m  # Msun
+    a = 20*𝕦.l
+    pot_Gala = gp.NFWPotential(Py(ustrip(m))*au.Msun, Py(ustrip(a))*au.kpc)
+    @show pot_Gala
+    for i in range(0,1)
+        w₀ = gd.PhaseSpacePosition(pos=Py(30*rand(3))*au.kpc, vel=Py(100*rand(3))*au.km/au.s)
+        orbit = pot_Gala.integrate_orbit(w₀, dt=Δt*au.Myr, t1=t₁, t2=t₂*au.Gyr )
+        # orbit_x = pyconvert(Vector{Float64}, orbit.x)
+        # orbit_y = pyconvert(Vector{Float64}, orbit.y)
+        # orbit_z = pyconvert(Vector{Float64}, orbit.z)
+        # @show orbit_x
+        # @test orbit_x ≈ orbit_x  rtol=5.e-10
+    end
+end
