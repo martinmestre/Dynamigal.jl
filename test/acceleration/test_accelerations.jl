@@ -10,7 +10,6 @@
         x = 50*rand(3)*u"kpc"
         @test ustrip.(acceleration(pot,x)) ≈ acceleration(pot, ustrip.(x)) rtol=5.e-10
         @test ustrip.(acceleration(pot,x)) ≈ pyconvert(Vector{Float64},pot_py.accel(ustrip.(x)...)) rtol=5.e-6
-
     end
 end
 
@@ -50,4 +49,15 @@ end
         x = 50*rand(3)
         @test acceleration(pot, x) ≈ Kepler_accel(pot, x) rtol=5.e-10
     end
+end
+
+@testset "ConcentrationNFW" begin
+    for i in range(1,200)
+        m = rand()*10^12*𝕦.m  # Msun
+        a = 20*rand()*𝕦.l
+        pot = NFW(m, a)
+        c = concentration(pot)
+        pot₂ = NFW(m, c)
+        @test pot₂.a ≈ pot.a rtol=5.e-10
+     end
 end

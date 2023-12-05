@@ -78,10 +78,3 @@ function concentration(p::NFW)
     return r/p.a
 end
 
-# function NFW(; m::M, c::G) where {M<:Unitful.Mass, G<:Real}
-#     m =  ustrip(uconvert(𝕦.m, m))
-#     @assert m>0 & c>0  "all fields should be possitive"
-#     r = (m/(200*𝕔.ρ_c*4.0/3.0*π))^(1.0/3.0)  # virial radius
-#     rₛ = r/c
-#     return NFW(m, rₛ, c)
-# end

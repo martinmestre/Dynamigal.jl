@@ -31,24 +31,25 @@ function potential(pot::TimeDependent, x::AbstractArray{L}, t::T) where {L<:Real
     return -G*pot.m / sqrt(t^2+x'x)
 end
 
-
 """Kepler potential"""
 function potential(pot::Kepler, x::AbstractArray{T}) where {T<:Real}
     return -G*pot.m / sqrt(x'x)
 end
 
-
 """Plummer potential"""
 function potential(pot::Plummer, x::AbstractArray{T}) where {T<:Real}
-    return -G*pot.m / sqrt(pot.b^2 + x'x)
+    return -G*pot.m / sqrt(pot.a^2 + x'x)
 end
 
+"""Hernquist potential"""
+function potential(pot::Hernquist, x::AbstractArray{T}) where {T<:Real}
+    return -G*pot.m / (pot.a + sqrt(x'x))
+end
 
 """Miyamoto-Nagai disk potential"""
 function potential(pot::MiyamotoNagaiDisk, x::AbstractArray{T}) where {T<:Real}
     return -G*pot.m/sqrt( x[1:2]'x[1:2] + (pot.a + sqrt(pot.b^2+x[3]^2))^2 )
 end
-
 
 """Allen and Santillan (generalized) halo"""
 function potential(pot::AllenSantillanHalo, x::AbstractArray{T}) where {T<:Real}
@@ -62,3 +63,10 @@ function potential(pot::AllenSantillanHalo, x::AbstractArray{T}) where {T<:Real}
     return res
 end
 
+"""NFW halo potential"""
+function potential(pot::NFW, x::AbstractArray{T}) where {T<:Real}
+    f(x) = log(1.0+x)-x/(1.0+x)
+    𝔸 = f(concentration(pot))
+    r = sqrt(x'x)
+    return -G*pot.m/𝔸*log(1.0+r/pot.a)/r
+end
