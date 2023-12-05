@@ -15,7 +15,8 @@ export circular_velocity
 export Particle, TestParticle, MacroParticle
 export Event, Orbit, Snapshot
 export TimeDependent, Kepler, Plummer, AllenSantillanHalo, MiyamotoNagaiDisk
-export Hernquist
+export Hernquist, NFW
+export concentration
 export example_Plummer, example_MiyamotoNagai, example_sum_of_potentials
 export example_AllenSantillan
 
