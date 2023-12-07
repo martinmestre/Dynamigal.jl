@@ -44,18 +44,25 @@ end
 @testset "OrbitsNFWvsGala" begin
     usys = gu.UnitSystem(au.kpc, au.Myr, au.Msun, au.radian, au.km/au.s, au.km/au.s/au.Myr)
     t₁, t₂ = 0.0, 10.0
+    t_range = (t₁, t₂)
     Δt = 0.5
+    x₀ = 30rand(3)
+    v₀ = 100rand(3)
     m = 10^12*𝕦.m  # Msun
     a = 20*𝕦.l
     pot_Gala = gp.NFWPotential(Py(ustrip(m))*au.Msun, Py(ustrip(a))*au.kpc, units=gu.galactic)
+    pot = NFW(m, a)
     @show pot_Gala
     for i in range(0,1)
-        w₀ = gd.PhaseSpacePosition(pos=Py(30*rand(3))*au.kpc, vel=Py(100*rand(3))*au.km/au.s)
-        orbit = pot_Gala.integrate_orbit(w₀, dt=Δt*au.Myr, t1=t₁, t2=t₂*au.Gyr )
-        orbit_x = pyconvert(Vector{Float64}, orbit.x)
-        orbit_y = pyconvert(Vector{Float64}, orbit.y)
-        orbit_z = pyconvert(Vector{Float64}, orbit.z)
-
-        @test orbit_x ≈ orbit_x  rtol=5.e-10
+        # Gala solution
+        w₀ = gd.PhaseSpacePosition(pos=Py(x₀)*au.kpc, vel=Py(v₀)*au.km/au.s)
+        orb_gala = pot_Gala.integrate_orbit(w₀, dt=Δt*au.Myr, t1=t₁, t2=t₂*au.Gyr )
+        orb_gala_t = pyconvert(Vector{Float64}, orb_gala.t)
+        orb_gala_x = pyconvert(Vector{Float64}, orb_gala.x)
+        orb_gala_y = pyconvert(Vector{Float64}, orb_gala.y)
+        orb_gala_z = pyconvert(Vector{Float64}, orb_gala.z)
+        # GalacticDynamics.jl solution
+        sol = evolve(pot, x₀, v₀, t_range; options=SolverConfig(saveat=Δt))
+        @show sol.t length(sol.t)
     end
 end
