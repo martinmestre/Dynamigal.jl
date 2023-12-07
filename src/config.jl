@@ -5,6 +5,7 @@
     solver::supertype(Vern9) = Vern9()
     abstol::Float64 = 0.5e-10
     reltol::Float64 = 5.0e-10
+    saveat=[]
 end
 
 """Units configuration"""
