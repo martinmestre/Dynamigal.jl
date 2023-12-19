@@ -64,7 +64,7 @@ end
 NFW(m::M, a::L) where {M<:Unitful.Mass, L<:Unitful.Length} =
     NFW( ustrip(uconvert(𝕦.m, m)),  ustrip(uconvert(𝕦.l, a)))
 
-function NFW(m::M, c::T) where {M<:Unitful.Mass, T<:Real}
+function NFW(m::M, c::T; 𝕔=𝕔) where {M<:Unitful.Mass, T<:Real}
     m = ustrip(uconvert(𝕦.m, m))
     @assert m>0 && c>0  "all fields should be possitive"
     ρ = ustrip( uconvert(𝕦.m/𝕦.l^3, 𝕔.ρ_c))
@@ -72,7 +72,7 @@ function NFW(m::M, c::T) where {M<:Unitful.Mass, T<:Real}
     a = r/c
     return NFW(m, a)
 end
-function concentration(p::NFW)
+function concentration(p::NFW; 𝕔=𝕔)
     ρ = ustrip( uconvert(𝕦.m/𝕦.l^3, 𝕔.ρ_c))
     r = (p.m/(200*ρ*4.0/3.0*π))^(1.0/3.0)  # virial radius
     return r/p.a

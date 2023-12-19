@@ -3,12 +3,12 @@
 
 """Evolution of a an initial condition in an AbstractPotential"""
 function evolve(pot::UnionAbstractPotentials, x::Vector{D}, v::Vector{F},
-   t_span::Tuple{T,T}; options=SolverConfig()) where {D<:Real, F<:Real, T<:Real}
-    (; solver, abstol, reltol ) = options
+   t_span::Tuple{T,T}; options=𝕤) where {D<:Real, F<:Real, T<:Real}
+    (; solver, opt ) = options
     p = pot
     u₀ = SA[x...,v...]
     prob = ODEProblem(ode, u₀, t_span, p)
-    sol = solve(prob, solver; abstol=abstol, reltol=reltol)
+    sol = solve(prob, solver; opt...)
     orb = Orbit(sol.t, sol[1:3,:], sol[4:6,:])
     return orb
 end
@@ -40,14 +40,14 @@ end
 
 
 """Evolution of a system of MacroParticle"""
-function evolve(mps::Vector{P}, t_span::Tuple{T,T}; options=SolverConfig()) where {P<:AbstractMacroParticle,T<:Real}
-    (; solver, abstol, reltol, saveat) = options
+function evolve(mps::Vector{P}, t_span::Tuple{T,T}; options=𝕤) where {P<:AbstractMacroParticle,T<:Real}
+    (; solver, opt ) = options
     p = mps
     x = vcat([[mps[i].event.x for i ∈ eachindex(mps)]...]...)
     v = vcat([[mps[i].event.v for i ∈ eachindex(mps)]...]...)
     u₀ = SA[x...,v...]
     prob = ODEProblem(ode, u₀, t_span, p)
-    sol  =solve(prob, solver; abstol=abstol, reltol=reltol, saveat=saveat)
+    sol  =solve(prob, solver; opt...)
     sys_orb = Vector{Orbit}(undef, length(p))
     n = length(x)
     for i ∈ eachindex(p)
@@ -57,3 +57,4 @@ function evolve(mps::Vector{P}, t_span::Tuple{T,T}; options=SolverConfig()) wher
     end
     return sys_orb
 end
+

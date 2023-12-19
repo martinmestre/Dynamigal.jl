@@ -1,12 +1,16 @@
 """Configuration structs and conversion functions"""
 
-"""Solver configuration"""
-@with_kw struct SolverConfig
-    solver::supertype(Vern9) = Vern9()
+"""Solver algorithm"""
+@with_kw struct SolverOptions
     abstol::Float64 = 0.5e-10
     reltol::Float64 = 5.0e-10
-    saveat=[]
 end
+
+@with_kw struct SolverConfig
+    solver::supertype(Vern9) = Vern9()
+    opt::SolverOptions = SolverOptions()
+end
+
 
 """Units configuration"""
 @with_kw struct UnitsConfig{M<:Unitful.Unitlike, L<:Unitful.Unitlike, V<:Unitful.Unitlike,
