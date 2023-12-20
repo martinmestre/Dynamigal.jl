@@ -6,7 +6,7 @@ function example_Plummer()
     x₀ = [10.0, 0.0, 0.0]*𝕦.l
     v₀ = [0.0,50.0,0.0]*𝕦.v
     t_range = (0.0,10.0).*𝕦.τ
-    sol = evolve(pot, x₀, v₀, t_range; options=SolverConfig(reltol=5.0e-12))
+    sol = evolve(pot, x₀, v₀, t_range; options=SolverOptions(reltol=5.0e-12))
     return sol
 end
 
@@ -19,7 +19,7 @@ function example_MiyamotoNagai()
     x₀ = [10.0, 0.0, 0.0]*𝕦.l
     v₀ = [0.0,10.0,0.0]*𝕦.v
     t_range = (0.0,10.0).*𝕦.τ
-    sol = evolve(pot, x₀, v₀, t_range; options=SolverConfig(reltol=5.0e-10))
+    sol = evolve(pot, x₀, v₀, t_range; options=SolverOptions(reltol=5.0e-10))
     return sol
 end
 

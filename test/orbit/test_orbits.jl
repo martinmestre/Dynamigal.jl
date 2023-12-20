@@ -11,7 +11,7 @@
         v₀ = w₀[4:6]u"km/s"
         t_range = (0.0,100.0).*𝕦.t
         sol = evolve(pot, x₀, v₀, t_range)
-        sol₂ = evolve(pot, x₀, v₀, t_range; options=SolverConfig(reltol=5.0e-12))
+        sol₂ = evolve(pot, x₀, v₀, t_range; options=ntSolverOptions(reltol=5.0e-12))
         @test sol.x[end] ≈ sol₂.x[end] rtol=5.0e-6
         @test sol.v[end] ≈ sol₂.v[end] rtol=5.0e-6
     end
@@ -62,7 +62,7 @@ end
         orb_gala_y = pyconvert(Vector{Float64}, orb_gala.y)
         orb_gala_z = pyconvert(Vector{Float64}, orb_gala.z)
         # GalacticDynamics.jl solution
-        sol = evolve(pot, x₀, v₀, t_range; options=SolverConfig(saveat=Δt))
+        sol = evolve(pot, x₀, v₀, t_range; options=ntSolverOptions())
         @show sol.t length(sol.t)
     end
 end

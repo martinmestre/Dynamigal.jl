@@ -1,14 +1,14 @@
-"""Configuration structs and conversion functions"""
+"""Configuration/option structs and conversion functions"""
 
 """Solver algorithm"""
 @with_kw struct SolverOptions
     abstol::Float64 = 0.5e-10
     reltol::Float64 = 5.0e-10
 end
+ntSolverOptions() = ntfromstruct(SolverOptions())
 
 @with_kw struct SolverConfig
-    solver::supertype(Vern9) = Vern9()
-    opt::SolverOptions = SolverOptions()
+    ode::supertype(Vern9) = Vern9()
 end
 
 

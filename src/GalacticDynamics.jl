@@ -6,9 +6,11 @@ using Parameters
 @reexport using Zygote
 using StaticArrays
 @reexport using Unitful, UnitfulAstro
+using NamedTupleTools
 
 
-export SolverConfig, UnitsConfig, CosmosConfig
+export SolverConfig, UnitsConfig, CosmosConfig, SolverOptions
+export ntSolverOptions
 export 𝕦, G, 𝕔, H₀
 export potential, acceleration, ode, evolve
 export circular_velocity
