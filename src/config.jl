@@ -14,24 +14,27 @@ end
 
 
 """Units configuration"""
-@with_kw struct UnitsConfig{M<:Unitful.Unitlike, L<:Unitful.Unitlike, V<:Unitful.Unitlike,
-                            A<:Unitful.Unitlike, T<:Unitful.Unitlike, Q<:Unitful.Time,
-                            P<:Unitful.Unitlike}
+@with_kw struct UnitsConfig{M<:Unitful.Unitlike, L<:Unitful.Unitlike, T<:Unitful.Unitlike,
+                            V<:Unitful.Unitlike, A<:Unitful.Unitlike,P<:Unitful.Unitlike,
+                            V₁<:Unitful.Unitlike, A₁<:Unitful.Unitlike}
     m::M = u"Msun"
     l::L = u"kpc"
-    v::V = u"km/s"
-    a::A = u"km/s/Myr"
-    τ::T = u"Gyr"
-    t::Q = uconvert(τ, 1.0*l/v ) # This is the code natural time unit corresponding to G.
+    t::T = u"Gyr"
+    v::V = l/t    # This is the code unit for velocity
+    ν::V₁ = u"km/s"  # Just for IC and display
+    a::A = v/t    # This is the code unit for acceleration
+    α::A₁ = u"km/s/Myr"  # Just for IC and display
     p::P = v^2
 end
 
 
+
+
 """Code units"""
 code_units(::Nothing) = nothing
-code_units(x::L) where {L<:Unitful.Length} = ustrip(uconvert(𝕦.l, x))
-code_units(v::V) where {V<:Unitful.Velocity} = ustrip(uconvert(𝕦.v, v))
-code_units(t::T) where {T<:Unitful.Time} = uconvert(𝕦.τ, t)/𝕦.t
+code_units(x::L) where {L<:Unitful.Length} = uconvert(𝕦.l, x)
+code_units(v::V) where {V<:Unitful.Velocity} = uconvert(𝕦.v, v)
+code_units(t::T) where {T<:Unitful.Time} = uconvert(𝕦.t, t)
 code_units(x::Vector{L}) where {L<:Unitful.Length} = code_units.(x)
 code_units(v::Vector{V}) where {V<:Unitful.Velocity} = code_units.(v)
 code_units(x::Vector{L}, t::T) where {L<:Unitful.Length, T<:Union{Unitful.Time,Nothing}} =
@@ -41,15 +44,17 @@ code_units(x::Vector{L}, v::Vector{V}) where {L<:Unitful.Length, V<:Unitful.Velo
 code_units(x::Vector{L}, v::Vector{V}, t::T) where {L<:Unitful.Length, V<:Unitful.Velocity, T<:Unitful.Time} =
     code_units(x), code_units(v), code_units(t)
 
+# adimensional(x...) = ustrip.(code_units(x...))
+adimensional(x...) = ustrip.(code_units(x...))
 
 """Physical units"""
 function physical_units(x::T, s::Symbol) where {T<:Real}
     if s==:l
         return x*𝕦.l
-    elseif s==:v
-        return  x*𝕦.v
     elseif s==:t
         return x*𝕦.t
+    elseif s==:v
+        return x*𝕦.v
     elseif s==:a
         return x*𝕦.a
     end

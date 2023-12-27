@@ -21,7 +21,7 @@ export Hernquist, NFW
 export concentration
 export example_Plummer, example_MiyamotoNagai, example_sum_of_potentials
 export example_AllenSantillan
-export code_units, physical_units
+export code_units, physical_units, adimensional
 
 
 
