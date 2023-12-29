@@ -3,7 +3,7 @@
 
 """Evolution of a an initial condition in an AbstractPotential"""
 function evolve(pot::UnionAbstractPotentials, x::Vector{D}, v::Vector{F},
-   t_span::Tuple{T,T}, solver=𝕤.ode; options=ntSolverOptions()) where {D<:Real, F<:Real, T<:Real}
+   t_span::Tuple{T,T}, solver=𝕤.ode; options=ntSolverOptions()) where {D, F, T}
     p = pot
     u₀ = SA[x...,v...]
     prob = ODEProblem(ode, u₀, t_span, p)
@@ -15,8 +15,8 @@ end
 """Evolution of a unitful initial condition in an AbstractPotential"""
 function evolve(pot::UnionAbstractPotentials, x::Vector{<:Unitful.Length}, v::Vector{<:Unitful.Velocity},
     t_span::Tuple{<:Unitful.Time, <:Unitful.Time}, solver=𝕤.ode; options=ntSolverOptions())
-    x, v = code_units(x, v)
-    t_span = code_units.(t_span)
+    x, v = adimensional(x, v)
+    t_span = adimensional.(t_span)
     return evolve(pot, x, v, t_span, solver; options)
 end
 

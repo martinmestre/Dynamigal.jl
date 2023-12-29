@@ -11,7 +11,7 @@ using NamedTupleTools
 
 export SolverConfig, UnitsConfig, CosmosConfig, SolverOptions
 export ntSolverOptions
-export 𝕦, G, 𝕔, H₀
+export 𝕦, G, 𝕤, 𝕔, H₀
 export potential, acceleration, ode, evolve
 export circular_velocity
 export Particle, TestParticle, MacroParticle
