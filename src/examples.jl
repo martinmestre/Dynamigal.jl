@@ -6,7 +6,7 @@ function example_Plummer()
     x₀ = [10.0, 0.0, 0.0]*𝕦.l
     v₀ = [0.0,50.0,0.0]*𝕦.v
     t_range = (0.0,10.0).*𝕦.t
-    sol = evolve(pot, x₀, v₀, t_range, ; options=ntSolverOptions(;reltol=5.0e-12))
+    sol = evolve(pot, x₀, v₀, t_range, ; options=ntSolverOptions(reltol=5.0e-12))
     return sol
 end
 
@@ -19,7 +19,7 @@ function example_MiyamotoNagai()
     x₀ = [10.0, 0.0, 0.0]*𝕦.l
     v₀ = [0.0,10.0,0.0]*𝕦.v
     t_range = (0.0,10.0).*𝕦.t
-    sol = evolve(pot, x₀, v₀, t_range; options=SolverOptions(reltol=5.0e-10))
+    sol = evolve(pot, x₀, v₀, t_range; options=ntSolverOptions(reltol=5.0e-10))
     return sol
 end
 
@@ -34,7 +34,7 @@ function example_AllenSantillan()
     x₀ = [10.0,-8.0,7.0]*𝕦.l
     v₀ = w₀[4:6]*𝕦.v
     t_range = (0.0,10.0).*𝕦.t
-    sol = evolve(pot, x₀, v₀, t_range)
+    sol = evolve(pot, x₀, v₀, t_range, TsitPap8())
     return sol
 end
 
@@ -46,8 +46,7 @@ function example_sum_of_potentials()
     pot_mn = MiyamotoNagaiDisk(m, a, b)
     pot_pl = Plummer(10.0^11*𝕦.m, 10.0𝕦.l)
     x₀ = [10.0, 0.0, 0.0]*𝕦.l
-    v₀ = [0.0,10.0,0.0]*𝕦.v
+    v₀ = [0.0,10.0,0.0]*𝕦.ν    # notice 𝕦.ν instead of 𝕦.v
     t_range = (0.0,10.0).*𝕦.t
-    sol = evolve(pot_mn+pot_pl, x₀, v₀, t_range)
-    return sol
+    sol = evolve(pot_mn+pot_pl, x₀, v₀, t_range, Vern8(), options=ntSolverOptions(reltol=5.0e-12))
 end
