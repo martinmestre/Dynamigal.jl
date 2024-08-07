@@ -13,7 +13,7 @@ abstract type AbstractPotential <: AbstractGeometry end
 abstract type AbstractDiskPotential <: AbstractPotential end
 abstract type AbstractBulgePotential <: AbstractPotential end
 abstract type AbstractHaloPotential <: AbstractPotential end
-
+abstract type AbstractDarkMatterPotential <: AbstractPotential end
 
 abstract type AbstractDistribution <: AbstractCosmos end
 abstract type AbstractDiscreteDistribution <: AbstractDistribution end
