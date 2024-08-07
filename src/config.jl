@@ -24,9 +24,8 @@ end
     ν::V₁ = u"km/s"  # Just for IC and display
     a::A = v/t    # This is the code unit for acceleration
     α::A₁ = u"km/s/Myr"  # Just for IC and display
-    p::P = v^2
+    p::P = v^2  # Code unit for potentials
 end
-
 
 
 
@@ -35,17 +34,14 @@ code_units(::Nothing) = nothing
 code_units(x::L) where {L<:Unitful.Length} = uconvert(𝕦.l, x)
 code_units(v::V) where {V<:Unitful.Velocity} = uconvert(𝕦.v, v)
 code_units(t::T) where {T<:Unitful.Time} = uconvert(𝕦.t, t)
+code_units(a::A) where {A<:Unitful.Acceleration} = uconvert(𝕦.a, a)
 code_units(x::Vector{L}) where {L<:Unitful.Length} = code_units.(x)
 code_units(v::Vector{V}) where {V<:Unitful.Velocity} = code_units.(v)
-code_units(x::Vector{L}, t::T) where {L<:Unitful.Length, T<:Union{Unitful.Time,Nothing}} =
-    code_units(x), code_units(t)
-code_units(x::Vector{L}, v::Vector{V}) where {L<:Unitful.Length, V<:Unitful.Velocity} =
-    code_units(x), code_units(v)
-code_units(x::Vector{L}, v::Vector{V}, t::T) where {L<:Unitful.Length, V<:Unitful.Velocity, T<:Unitful.Time} =
-    code_units(x), code_units(v), code_units(t)
+code_units(a::Vector{A}) where {A<:Unitful.Acceleration} = code_units.(a)
+code_units(x...) = code_units.([x...])
 
-# adimensional(x...) = ustrip.(code_units(x...))
-adimensional(x...) = ustrip.(code_units(x...))
+adimensional(x::T) where {T} = ustrip.(code_units(x))
+adimensional(x...) = adimensional.([x...])
 
 """Physical units"""
 function physical_units(x::T, s::Symbol) where {T<:Real}
