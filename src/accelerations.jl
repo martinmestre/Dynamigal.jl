@@ -3,7 +3,7 @@
 
 """Unitful acceleration"""
 function acceleration(pot::UnionAbstractPotentials, x::Vector{<:Unitful.Length}, t::T=0𝕦.t) where {T<:Unitful.Time}
-    x, t = code_units(x, t)
+    x, t = adimensional(x, t)
     return acceleration(pot, x, t)*𝕦.a
 end
 

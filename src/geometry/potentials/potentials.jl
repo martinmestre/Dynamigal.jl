@@ -3,7 +3,7 @@
 
 """Unitful Potential for UnionAbstractPotentials"""
 function potential(pot::UnionAbstractPotentials, x::Vector{<:Unitful.Length}, t::T) where {T<:Unitful.Time}
-    x, t = code_units(x, t)
+    x, t = adimensional(x, t)
     return potential(pot, x, t)*𝕦.p
 end
 
