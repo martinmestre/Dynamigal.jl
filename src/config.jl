@@ -30,18 +30,21 @@ end
 
 
 """Code units"""
-code_units(::Nothing) = nothing
+code_units(s::S) where {S} = s
 code_units(x::L) where {L<:Unitful.Length} = uconvert(𝕦.l, x)
 code_units(v::V) where {V<:Unitful.Velocity} = uconvert(𝕦.v, v)
 code_units(t::T) where {T<:Unitful.Time} = uconvert(𝕦.t, t)
 code_units(a::A) where {A<:Unitful.Acceleration} = uconvert(𝕦.a, a)
+code_units(m::M) where {M<:Unitful.Mass} = uconvert(𝕦.m, m)
 code_units(x::Vector{L}) where {L<:Unitful.Length} = code_units.(x)
 code_units(v::Vector{V}) where {V<:Unitful.Velocity} = code_units.(v)
 code_units(a::Vector{A}) where {A<:Unitful.Acceleration} = code_units.(a)
+code_units(m::Vector{M}) where {M<:Unitful.Mass} = code_units.(m)
 code_units(x...) = code_units.([x...])
 
+# adimensional(s::S) where {S} = s
 adimensional(x::T) where {T} = ustrip.(code_units(x))
-adimensional(x...) = adimensional.([x...])
+adimensional(x...) = adimensional([x...])
 
 """Physical units"""
 function physical_units(x::T, s::Symbol) where {T<:Real}
