@@ -2,7 +2,8 @@
 import numpy as np
 
 
-g = 4.300923924e-6  # kpc (km/s)^2 M_sun^{-1}
+g = 4.498502151469552e-6 # kpc Gyr^{-1} Msun^{-1}
+# g = 4.300923924e-6  # kpc (km/s)^2 M_sun^{-1}...This unit is not used in GalacticDynamics.jl
 
 
 class Plummer:

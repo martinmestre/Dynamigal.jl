@@ -5,11 +5,11 @@
     Λ = 200.0*u"kpc"    # kpc
     γ = 2.0
     pot = AllenSantillanHalo(m, a, Λ, γ)
-    pot_py = accelerations_py.AllenSantillan(adimensional(m, a, Λ, γ)...)
-    for i in range(1,2)
+    pot_py = accelerations_py.AllenSantillan(adimensional(m, a, Λ)...,γ)
+    for i in range(1,100)
         x = 50*rand(3)*u"kpc"
-        @test ustrip.(acceleration(pot,x)) ≈ acceleration(pot, ustrip.(x)) rtol=5.e-10
-        @test ustrip.(acceleration(pot,x)) ≈ pyconvert(Vector{Float64},pot_py.accel(ustrip.(x)...)) rtol=5.e-6
+        @test ustrip.(acceleration(pot,x)) ≈ acceleration(pot, adimensional(x)) rtol=5.e-14
+        @test ustrip.(acceleration(pot,x)) ≈ pyconvert(Vector{Float64},pot_py.accel(adimensional(x)...)) rtol=5.e-14
     end
 end
 
@@ -22,8 +22,8 @@ end
     pot_py = accelerations_py.MiyamotoNagai(ustrip.([m, a, b])...)
     for i in range(1,100)
         x = 50*rand(3)*u"kpc"
-        @test ustrip.(acceleration(pot,x)) ≈ acceleration(pot, ustrip.(x)) rtol=5.e-10
-        @test ustrip.(acceleration(pot,x)) ≈ pyconvert(Vector{Float64},pot_py.accel(ustrip.(x)...)) rtol=5.e-6
+        @test ustrip.(acceleration(pot,x)) ≈ acceleration(pot, ustrip.(x)) rtol=5.e-14
+        @test ustrip.(acceleration(pot,x)) ≈ pyconvert(Vector{Float64},pot_py.accel(ustrip.(x)...)) rtol=5.e-14
     end
 end
 
@@ -35,8 +35,8 @@ end
     pot_py = accelerations_py.Plummer(ustrip.([m, a])...)
     for i in range(1,100)
         x = 50*rand(3)*u"kpc"
-        @test ustrip.(acceleration(pot,x)) ≈ acceleration(pot, ustrip.(x)) rtol=5.e-10
-        @test ustrip.(acceleration(pot,x)) ≈ pyconvert(Vector{Float64},pot_py.accel(ustrip.(x)...)) rtol=5.e-6
+        @test ustrip.(acceleration(pot,x)) ≈ acceleration(pot, ustrip.(x)) rtol=5.e-14
+        @test ustrip.(acceleration(pot,x)) ≈ pyconvert(Vector{Float64},pot_py.accel(ustrip.(x)...)) rtol=5.e-14
 
     end
 end
@@ -47,7 +47,7 @@ end
     Kepler_accel(pot::Kepler, x::Vector{<:Real}) = -G*pot.m/sqrt(x'x)^3 .* x
     for i in range(1,200)
         x = 50*rand(3)
-        @test acceleration(pot, x) ≈ Kepler_accel(pot, x) rtol=5.e-10
+        @test acceleration(pot, x) ≈ Kepler_accel(pot, x) rtol=5.e-14
     end
 end
 
@@ -58,6 +58,6 @@ end
         pot = NFW(m, a)
         c = concentration(pot)
         pot₂ = NFW(m, c)
-        @test pot₂.a ≈ pot.a rtol=5.e-10
+        @test pot₂.a ≈ pot.a rtol=5.e-14
      end
 end
