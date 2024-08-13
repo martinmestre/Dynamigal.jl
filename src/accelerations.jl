@@ -20,7 +20,7 @@ end
 
 """Acceleration of single potential"""
 function acceleration(pot::AbstractPotential, x::AbstractArray{L}, t::T=0.0) where {L<:Real, T<:Real}
-    return -1.0*gradient(y->potential(pot, y, t), x)[1]
+    return -gradient(y->potential(pot, y, t), x)[1]
 end
 
 

@@ -53,10 +53,10 @@ end
 
 """Allen and Santillan (generalized) halo"""
 function potential(pot::AllenSantillanHalo, x::AbstractArray{T}) where {T<:Real}
-    f(y) = 1.0 + (y/pot.a)^(pot.γ-1.0)
+    f(y) = 1 + (y/pot.a)^(pot.γ-1)
     r  = sqrt( x'x )
     if r < pot.Λ
-        res = -G*(pot.m/pot.a)*( log(f(r)/f(pot.Λ))/(pot.γ-1.0) - (1.0-1.0/f(pot.Λ)) )
+        res = -G*(pot.m/pot.a)*( log(f(r)/f(pot.Λ))/(pot.γ-1) - (1-1/f(pot.Λ)) )
     else
         res = -G*(pot.m/r)*(pot.Λ/pot.a)^pot.γ/f(pot.Λ)
     end
@@ -65,8 +65,8 @@ end
 
 """NFW halo potential"""
 function potential(pot::NFW, x::AbstractArray{T}) where {T<:Real}
-    f(x) = log(1.0+x)-x/(1.0+x)
+    f(x) = log(1+x)-x/(1+x)
     𝔸 = f(concentration(pot))
     r = sqrt(x'x)
-    return -G*pot.m/𝔸*log(1.0+r/pot.a)/r
+    return -G*pot.m/𝔸*log(1+r/pot.a)/r
 end
