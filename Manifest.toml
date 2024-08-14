@@ -2,7 +2,7 @@
 
 julia_version = "1.10.4"
 manifest_format = "2.0"
-project_hash = "a5776b7f9ae115081c66e110d468a624a78015d8"
+project_hash = "47ca7bd25b76853d19b56c5fe7d92aaf2a903717"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "99a6f5d0ce1c7c6afdb759daa30226f71c54f6b0"
@@ -139,10 +139,12 @@ deps = ["ADTypes", "Adapt", "ArrayInterface", "BandedMatrices", "ConcreteStructs
 git-tree-sha1 = "6e039db00f02e8880f7f614fa82529b452404e57"
 uuid = "764a87c0-6b3e-53db-9096-fe964310641d"
 version = "5.9.1"
-weakdeps = ["ODEInterface"]
 
     [deps.BoundaryValueDiffEq.extensions]
     BoundaryValueDiffEqODEInterfaceExt = "ODEInterface"
+
+    [deps.BoundaryValueDiffEq.weakdeps]
+    ODEInterface = "54ca160b-1b9f-5127-a996-1867f4bc2a2c"
 
 [[deps.Bumper]]
 deps = ["StrideArraysCore"]
@@ -1004,24 +1006,6 @@ version = "3.14.0"
     SpeedMapping = "f1835b91-879b-4a3f-a438-e4baacf14412"
     Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
     Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
-
-[[deps.ODEInterface]]
-deps = ["Dates", "Libdl", "LinearAlgebra", "Markdown", "ODEInterface_jll", "Unicode"]
-git-tree-sha1 = "5dfb3d7199de97cfdc81f1971a2727e628ff472b"
-uuid = "54ca160b-1b9f-5127-a996-1867f4bc2a2c"
-version = "0.5.0"
-
-[[deps.ODEInterfaceDiffEq]]
-deps = ["Compat", "DataStructures", "DiffEqBase", "FunctionWrappers", "LinearAlgebra", "ODEInterface", "Reexport", "SciMLBase"]
-git-tree-sha1 = "a4816454042d72e4bae37d13e592591381356a17"
-uuid = "09606e27-ecf5-54fc-bb29-004bd9f985bf"
-version = "3.13.3"
-
-[[deps.ODEInterface_jll]]
-deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "3021aa85a1cd566a533635246b7ed31a29c72c93"
-uuid = "c771fb93-2439-5ece-a3b3-58fecce82101"
-version = "0.0.1+0"
 
 [[deps.OffsetArrays]]
 git-tree-sha1 = "1a27764e945a152f7ca7efa04de513d473e9542e"

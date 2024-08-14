@@ -9,7 +9,7 @@ end
 ntSolverOptions(; kwargs...) = (; ntfromstruct(SolverOptions())..., kwargs...)
 
 @with_kw struct SolverConfig
-    ode::supertype(Vern9) = AutoVern9()
+    ode::supertype(Vern9) = Vern8()
 end
 
 
