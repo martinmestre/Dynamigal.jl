@@ -64,9 +64,10 @@ function potential(pot::AllenSantillanHalo, x::AbstractArray{T}) where {T<:Real}
 end
 
 """NFW halo potential"""
+@inline f_nfw(x) = log(1+x)-x/(1+x)
+
 function potential(pot::NFW, x::AbstractArray{T}) where {T<:Real}
-    f(x) = log(1+x)-x/(1+x)
-    𝔸 = f(concentration(pot))
+    𝔸 = f_nfw(concentration(pot))
     r = sqrt(x'x)
     return -G*pot.m/𝔸*log(1+r/pot.a)/r
 end

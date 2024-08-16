@@ -1,7 +1,8 @@
 
 """ODE for the Newtonian case: test particle in a potential."""
 function ode(u::AbstractArray{<:Real}, p::UnionAbstractPotentials, t::T) where {T<:Real}
-    return SA[u[4:6]..., acceleration(p, u[1:3], t)...]
+#    return SA[u[4:6]..., acceleration(p, u[1:3], t)...]
+    return SVector{6,T}(u[4:6]..., acceleration(p, u[1:3], t)...)
 end
 
 """ODE for the Newtonian case: system of macro particles."""

@@ -5,12 +5,12 @@
 function evolve(pot::UnionAbstractPotentials, x::Vector{D}, v::Vector{F},
    t_span::Tuple{T,T}, solver=𝕤.ode; options=ntSolverOptions()) where {D, F, T}
     p = pot
-    # u₀ = SA[x...,v...]
-    u₀ = SVector{6,D}(x...,v...)
+#    u₀ = SA[x...,v...]
+    u₀ = SVector{6,T}(x...,v...)
     prob = ODEProblem(ode, u₀, t_span, p)
     sol = solve(prob, solver; options...)
-#     orb = Orbit(sol.t, sol[1:3,:], sol[4:6,:])
-#     return orb
+    orb = Orbit(sol.t, sol[1:3,:], sol[4:6,:])
+    return orb
 end
 
 """Evolution of a unitful initial condition in an AbstractPotential"""

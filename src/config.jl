@@ -5,11 +5,10 @@
     abstol::Float64 = 0.5e-9
     reltol::Float64 = 5.0e-9
 end
-
 ntSolverOptions(; kwargs...) = (; ntfromstruct(SolverOptions())..., kwargs...)
 
 @with_kw struct SolverConfig
-    ode::supertype(Vern9) = Vern8()
+    ode::supertype(Vern9) = Vern9()
 end
 
 

@@ -55,6 +55,15 @@ AllenSantillanHalo(m::T, a::D, Λ::F, γ::G) where {T<:Unitful.Mass, D<:Unitful.
                         ustrip(uconvert(𝕦.l, Λ)),  γ )
 
 
+# @with_kw struct NFW{T<:Real, F<:Real, D<:Real} <: AbstractHaloPotential
+#     m::T  # virial mass: M(r)
+#     r::F # virial radius
+#     a::D  # scale radius: r/c
+#     c::D  # concentration: r/A
+
+# end
+
+
 @with_kw struct NFW{T<:Real, D<:Real} <: AbstractHaloPotential
     m::T  # virial mass (200)
     a::D  # r_200/c
