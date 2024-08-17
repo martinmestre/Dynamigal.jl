@@ -7,7 +7,6 @@ using Parameters
 using StaticArrays
 @reexport using Unitful, UnitfulAstro
 using NamedTupleTools
-using BenchmarkTools
 
 
 export SolverConfig, UnitsConfig, CosmosConfig, SolverOptions
