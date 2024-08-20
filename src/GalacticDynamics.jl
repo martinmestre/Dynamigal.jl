@@ -1,7 +1,7 @@
 module GalacticDynamics
 
 using Reexport
-using OrdinaryDiffEq
+@reexport using OrdinaryDiffEq
 using Parameters
 @reexport using Zygote
 using StaticArrays
