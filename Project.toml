@@ -4,9 +4,8 @@ authors = ["Martín Mestre <mmestre@fcaglp.unlp.edu.ar> and contributors"]
 version = "1.0.0-DEV"
 
 [deps]
-DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
-DynamicQuantities = "06fc5a27-2a28-4c7c-a15d-362465fb6821"
 NamedTupleTools = "d9ec5142-1e00-5aa0-9d6a-321866360f50"
+OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
 Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
 PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
