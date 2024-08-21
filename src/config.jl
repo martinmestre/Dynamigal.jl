@@ -55,6 +55,8 @@ function physical_units(x::T, s::Symbol) where {T<:Real}
         return x*𝕦.v
     elseif s==:a
         return x*𝕦.a
+    elseif s==:m
+        return x*𝕦.m
     end
 end
 

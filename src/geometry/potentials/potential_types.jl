@@ -55,35 +55,46 @@ AllenSantillanHalo(m::T, a::D, Λ::F, γ::G) where {T<:Unitful.Mass, D<:Unitful.
                         ustrip(uconvert(𝕦.l, Λ)),  γ )
 
 
-# @with_kw struct NFW{T<:Real, F<:Real, D<:Real} <: AbstractHaloPotential
-#     m::T  # virial mass: M(r)
-#     r::F # virial radius
-#     a::D  # scale radius: r/c
-#     c::D  # concentration: r/A
 
-# end
+# NFW
 
+f_nfw(x::T) where {T<:Real} = log(1+x)-x/(1+x)
 
-@with_kw struct NFW{T<:Real, D<:Real} <: AbstractHaloPotential
-    m::T  # virial mass (200)
-    a::D  # r_200/c
-    @assert m>0 && a>0  "all fields should be possitive"
+function r_vir_nfw(m; 𝕔=𝕔)
+    ρ = ustrip( uconvert(𝕦.m/𝕦.l^3, 𝕔.ρ_c))
+    r = (m/(200*ρ*4.0/3.0*π))^(1.0/3.0)
+    return r
+end
+function r_vir_nfw(m::T; 𝕔=𝕔) where {T<:Real}
+    m = physical_units(m, :m)
+    return r_vir_nfw(m; 𝕔=𝕔)
 end
 
+@with_kw struct NFW{T<:Real, D<:Real, F<:Real} <: AbstractHaloPotential
+    m::T  # virial mass: M(r)
+    r::D = r_vir_nfw(m; 𝕔=𝕔) # virial radius
+    a::F  # scale radius: a=r/c
+    c::F = r/a # concentration: c=r/a
+    𝔸::F = f_nfw(c)
+    𝕔::typeof(𝕔) = 𝕔
+    @assert m>0 && a>0  "all fields should be possitive"
+end
+# NFW(m::T, a::F) where {T,F} = NFW(; m=m, a=a)
 NFW(m::M, a::L) where {M<:Unitful.Mass, L<:Unitful.Length} =
     NFW( ustrip(uconvert(𝕦.m, m)),  ustrip(uconvert(𝕦.l, a)))
 
+
 function NFW(m::M, c::T; 𝕔=𝕔) where {M<:Unitful.Mass, T<:Real}
-    m = ustrip(uconvert(𝕦.m, m))
+    m = adimensional(m)
     @assert m>0 && c>0  "all fields should be possitive"
-    ρ = ustrip( uconvert(𝕦.m/𝕦.l^3, 𝕔.ρ_c))
-    r = (m/(200*ρ*4.0/3.0*π))^(1.0/3.0)  # virial radius
+    r = r_vir_nfw(m; 𝕔=𝕔)  # virial radius
     a = r/c
-    return NFW(m, a)
+    𝔸 = f_nfw(c)
+    return NFW(m, r, a, c, 𝔸, 𝕔)
 end
+
 function concentration(p::NFW; 𝕔=𝕔)
     ρ = ustrip( uconvert(𝕦.m/𝕦.l^3, 𝕔.ρ_c))
     r = (p.m/(200*ρ*4.0/3.0*π))^(1.0/3.0)  # virial radius
     return r/p.a
 end
-
