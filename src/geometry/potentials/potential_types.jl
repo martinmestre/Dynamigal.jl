@@ -65,21 +65,19 @@ function r_vir_nfw(m; 𝕔=𝕔)
     r = (m/(200*ρ*4.0/3.0*π))^(1.0/3.0)
     return r
 end
-function r_vir_nfw(m::T; 𝕔=𝕔) where {T<:Real}
-    m = physical_units(m, :m)
-    return r_vir_nfw(m; 𝕔=𝕔)
-end
+r_vir_nfw(m::M; 𝕔=𝕔) where {M<:Unitful.Mass} = r_vir_nfw(adimensional(m); 𝕔=𝕔)
 
-@with_kw struct NFW{T<:Real, D<:Real, F<:Real} <: AbstractHaloPotential
-    m::T  # virial mass: M(r)
-    r::D = r_vir_nfw(m; 𝕔=𝕔) # virial radius
-    a::F  # scale radius: a=r/c
-    c::F = r/a # concentration: c=r/a
-    𝔸::F = f_nfw(c)
-    𝕔::typeof(𝕔) = 𝕔
+
+@with_kw struct NFW{T<:Real, F<:Real, D<:Real, C<:AbstractConfig} <: AbstractHaloPotential
     @assert m>0 && a>0  "all fields should be possitive"
+    m::T  # virial mass: M(r)
+    a::F  # scale radius: a=r/c
+    𝕔::C = 𝕔
+    r::D = r_vir_nfw(m; 𝕔=𝕔) # virial radius
+    c::D = r/a # concentration: c=r/a
+    𝔸::D = f_nfw(c)
 end
-# NFW(m::T, a::F) where {T,F} = NFW(; m=m, a=a)
+# NFW(m::T, a::F; 𝕔=𝕔) where {T,F} = NFW(; m=m, a=a, 𝕔=𝕔)
 NFW(m::M, a::L) where {M<:Unitful.Mass, L<:Unitful.Length} =
     NFW( ustrip(uconvert(𝕦.m, m)),  ustrip(uconvert(𝕦.l, a)))
 

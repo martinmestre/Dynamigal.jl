@@ -1,13 +1,14 @@
 """Configuration/option structs and conversion functions"""
 
+
 """Solver algorithm"""
-@with_kw struct SolverOptions
+@with_kw struct SolverOptions  <:AbstractConfig
     abstol::Float64 = 0.5e-9
     reltol::Float64 = 5.0e-9
 end
 ntSolverOptions(; kwargs...) = (; ntfromstruct(SolverOptions())..., kwargs...)
 
-@with_kw struct SolverConfig
+@with_kw struct SolverConfig  <:AbstractConfig
     ode::supertype(Vern9) = Vern9()
 end
 
@@ -15,7 +16,7 @@ end
 """Units configuration"""
 @with_kw struct UnitsConfig{M<:Unitful.Unitlike, L<:Unitful.Unitlike, T<:Unitful.Unitlike,
                             V<:Unitful.Unitlike, A<:Unitful.Unitlike,P<:Unitful.Unitlike,
-                            V₁<:Unitful.Unitlike, A₁<:Unitful.Unitlike}
+                            V₁<:Unitful.Unitlike, A₁<:Unitful.Unitlike}  <:AbstractConfig
     m::M = u"Msun"
     l::L = u"kpc"
     t::T = u"Gyr"
@@ -69,7 +70,7 @@ physical_units(x::Vector{L}, v::Vector{V}, t::T) where {L<:Real, V<:Real,T<:Real
 
 
 """Cosmos configuration"""
-@with_kw struct CosmosConfig{F<:Unitful.Frequency, D<:Unitful.Density}
+@with_kw struct CosmosConfig{F<:Unitful.Frequency, D<:Unitful.Density} <:AbstractConfig
     H₀::F = 67.66u"km/Mpc/s"
     ρ_c::D = uconvert(u"Msun/kpc^3", 3H₀^2/(8π*u"G") )
 end

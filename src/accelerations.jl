@@ -54,13 +54,11 @@ end
 
 
 # """Analytical accelerations"""
-𝔹 = 1.533297373418205
 """NFW halo acceleration"""
 function acceleration(pot::NFW, x::AbstractArray{T}, t::T=0.0) where {T<:Real}
     # 𝔸 = f(concentration(pot))
-    @inline begin
     r = sqrt(x'x)
-    𝕗 = -G*pot.m/𝔹*f_nfw(r/pot.a)/r^2
-    end
+    𝕗 = -G*pot.m/𝔸*f_nfw(r/pot.a)/r^2
+
     return SVector{3,T}((𝕗*x/r)...)
 end

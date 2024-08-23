@@ -22,12 +22,12 @@ export concentration
 export example_Plummer, example_MiyamotoNagai, example_sum_of_potentials
 export example_AllenSantillan
 export code_units, physical_units, adimensional
+export r_vir_nfw
 
 
-
+include("abstract_types.jl")
 include("config.jl")
 include("constants.jl")
-include("abstract_types.jl")
 include("geometry/potentials/potential_types.jl")
 include("geometry/potentials/potentials.jl")
 include("geometry/spacetimes/orbit_types.jl")

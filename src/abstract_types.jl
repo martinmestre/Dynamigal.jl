@@ -5,6 +5,7 @@ import Base.:getindex
 import Base.:firstindex, Base.:lastindex
 
 """Abstract types"""
+abstract type AbstractConfig end
 abstract type AbstractCosmos end
 
 abstract type AbstractGeometry <: AbstractCosmos end
