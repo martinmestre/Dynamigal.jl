@@ -77,7 +77,7 @@ r_vir_nfw(m::M; 𝕔=𝕔) where {M<:Unitful.Mass} = r_vir_nfw(adimensional(m); 
     c::D = r/a # concentration: c=r/a
     𝔸::D = f_nfw(c)
 end
-# NFW(m::T, a::F; 𝕔=𝕔) where {T,F} = NFW(; m=m, a=a, 𝕔=𝕔)
+NFW(m::T, a::F; 𝕔=𝕔) where {T,F} = NFW(; m=m, a=a, 𝕔=𝕔)
 NFW(m::M, a::L) where {M<:Unitful.Mass, L<:Unitful.Length} =
     NFW( ustrip(uconvert(𝕦.m, m)),  ustrip(uconvert(𝕦.l, a)))
 
