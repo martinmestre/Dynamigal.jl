@@ -56,8 +56,8 @@ end
 # """Analytical accelerations"""
 """NFW halo acceleration"""
 function acceleration(pot::NFW, x::AbstractArray{T}, t::T=0.0) where {T<:Real}
-    𝔸 = f_nfw(concentration(pot))
+    @unpack m, a, 𝔸 = pot
     r = sqrt(x'x)
-    𝕗 = -G*pot.m/𝔸*f_nfw(r/pot.a)/r^2
+    𝕗 = -G*m/𝔸*f_nfw(r/a)/r^2
     return 𝕗*x/r
 end

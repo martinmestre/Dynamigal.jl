@@ -4,7 +4,7 @@ using Reexport
 @reexport using OrdinaryDiffEq
 using Parameters
 @reexport using Zygote
-using StaticArrays
+@reexport using StaticArrays
 @reexport using Unitful, UnitfulAstro
 using NamedTupleTools
 

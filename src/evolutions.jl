@@ -2,13 +2,12 @@
 
 
 """Evolution of a an initial condition in an AbstractPotential"""
-function evolve(pot::UnionAbstractPotentials, x::Vector{D}, v::Vector{F},
+function evolve(pot::UnionAbstractPotentials, x::AbstractVector{D}, v::AbstractVector{F},
    t_span::Tuple{T,T}, solver=𝕤.ode; options=ntSolverOptions()) where {D, F, T}
     p = pot
     u₀ = SA[x...,v...]
     prob = ODEProblem(ode, u₀, t_span, p)
     sol = solve(prob, solver; options...)
-    # return sol
     orb = Orbit(sol.t, sol[sis,:], sol[siss,:])
     return orb
 end
