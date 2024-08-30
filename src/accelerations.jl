@@ -59,6 +59,5 @@ function acceleration(pot::NFW, x::AbstractArray{T}, t::T=0.0) where {T<:Real}
     𝔸 = f_nfw(concentration(pot))
     r = sqrt(x'x)
     𝕗 = -G*pot.m/𝔸*f_nfw(r/pot.a)/r^2
-
-    return SVector{3,T}((𝕗*x/r)...)
+    return 𝕗*x/r
 end

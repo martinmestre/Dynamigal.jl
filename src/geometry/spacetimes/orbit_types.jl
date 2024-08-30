@@ -20,9 +20,9 @@ Event(x::Vector{D}, v::Vector{F}) where {D<:Unitful.Length, F<:Unitful.Velocity}
 end
 Orbit(t::Vector{T}, x::Matrix{D}, v::Matrix{F}) where {T<:Unitful.Time, D<:Unitful.Length, F<:Unitful.Velocity} = Orbit( ustrip(uconvert(𝕦.t, t)),  ustrip(uconvert.(𝕦.l, x)), ustrip(uconvert.(𝕦.v, v)) )
 
-getindex(orb::Orbit, i) = Event(orb.t[i], orb.x[1:3,i], orb.v[1:3,i])
-firstindex(orb::Orbit) = Event(orb.t[begin], orb.x[1:3,begin], orb.v[1:3,begin])
-lastindex(orb::Orbit) = Event(orb.t[end], orb.x[1:3,end], orb.v[1:3,end])
+getindex(orb::Orbit, i) = Event(orb.t[i], orb.x[sis,i], orb.v[sis,i])
+firstindex(orb::Orbit) = Event(orb.t[begin], orb.x[sis,begin], orb.v[sis,begin])
+lastindex(orb::Orbit) = Event(orb.t[end], orb.x[sis,end], orb.v[sis,end])
 
 
 @with_kw struct Snapshot{T<:Real,D<:Real,F<:Real} <: AbstractOrbit
