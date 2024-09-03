@@ -88,7 +88,7 @@ function NFW(m::M, c::T; 𝕔=𝕔) where {M<:Unitful.Mass, T<:Real}
     r = r_vir_nfw(m; 𝕔=𝕔)  # virial radius
     a = r/c
     𝔸 = f_nfw(c)
-    return NFW(m, r, a, c, 𝔸, 𝕔)
+    return NFW(m, a, 𝕔, r, c, 𝔸)
 end
 
 function concentration(p::NFW; 𝕔=𝕔)

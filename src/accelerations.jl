@@ -52,8 +52,8 @@ function acceleration(mps::Vector{<:AbstractMacroParticle}, x::AbstractArray{L},
 end
 
 
+"""Analytical accelerations"""
 
-# """Analytical accelerations"""
 """NFW halo acceleration"""
 function acceleration(pot::NFW, x::AbstractArray{T}, t::T=0.0) where {T<:Real}
     @unpack m, a, 𝔸 = pot

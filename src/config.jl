@@ -3,8 +3,8 @@
 
 """Solver algorithm"""
 @with_kw struct SolverOptions  <:AbstractConfig
-    abstol::Float64 = 0.5e-9
-    reltol::Float64 = 5.0e-9
+    abstol::Float64 = 0.5e-10
+    reltol::Float64 = 5.0e-10
 end
 ntSolverOptions(; kwargs...) = (; ntfromstruct(SolverOptions())..., kwargs...)
 

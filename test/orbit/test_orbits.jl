@@ -65,7 +65,7 @@ end
         orb_gala_y = pyconvert(Vector{Float64}, orb_gala.y)
         orb_gala_z = pyconvert(Vector{Float64}, orb_gala.z)
         # GalacticDynamics.jl solution
-        sol = evolve(pot, x₀, v₀, t_range; options=ntSolverOptions(; saveat=Δt))
+        sol = evolve(pot, x₀, v₀, t_range, Tsit5(); options=ntSolverOptions(; saveat=Δt))
         @show sol.t
         orb_t = ustrip.(physical_units.(sol.t,:t))
         orb_x = sol.x[1,:]
