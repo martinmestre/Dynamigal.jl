@@ -41,13 +41,60 @@ end
     end
 end
 
-@testset "OrbitsNFWvsGala" begin
-    usys = gu.UnitSystem(au.kpc, au.Gyr, au.Msun, au.radian, au.km/au.s, au.km/au.Gyr^2)
-    t₁, t₂ = 0.0, 3.0
+
+
+"""Precision test between Gala and GalacticDynamics for the NFW
+Adding `atol=0.5e-16` in both Gala and GalacticDynamics improves the precision by two orders of magnitude, only when `rtol` is already very small (`< 10^{-16}`)."""
+
+
+@testset "SingleOrbitNFWvsGala" begin
+    Δt = 0.01
+    n_step = 1000
+    t₁ = 0.0
+    t₂ = t₁ + n_step*Δt
+    @show t₂
     t_range = (t₁, t₂)
-    Δt = 0.1
-    x₀ = 30ones(3)
-    v₀ = 100ones(3)
+    x₀ = -50.0*SA[1,0,0]
+    v₀ = 200.0*SA[0,1,0]
+    m = 10.0^12*𝕦.m  # Msun
+    a = 20.0*𝕦.l
+    pot = NFW(m, a)
+    c = concentration(pot)
+    f(x) = log(1+x)-x/(1+x)
+    m_g = m/f(c)
+    usys = gu.UnitSystem(au.kpc, au.Gyr, au.Msun, au.radian, au.kpc/au.Gyr, au.kpc/au.Gyr^2)
+    pot_Gala = gp.NFWPotential(Py(adimensional(m_g))*au.Msun, Py(adimensional(a))*au.kpc, units=usys)
+    w₀ = gd.PhaseSpacePosition(pos=Py(x₀)*au.kpc, vel=Py(v₀)*au.kpc/au.Gyr)
+
+    orb₁ = pot_Gala.integrate_orbit(w₀, dt=Δt*au.Gyr, t1=t₁, t2=t₂*au.Gyr,
+                                Integrator=gi.DOPRI853Integrator,
+                                Integrator_kwargs=Py(Dict("rtol"=>5.0e-8)))
+    orb₂ = pot_Gala.integrate_orbit(w₀, dt=Δt*au.Gyr, t1=t₁, t2=(t₂)*au.Gyr,
+                                    Integrator=gi.DOPRI853Integrator,
+                                    Integrator_kwargs=Py(Dict("rtol"=>5.0e-11)))
+    orb₃ = pot_Gala.integrate_orbit(w₀, dt=Δt*au.Gyr, t1=t₁, t2=(t₂)*au.Gyr,
+                                    Integrator=gi.DOPRI853Integrator,
+                                    Integrator_kwargs=Py(Dict("rtol"=>5.0e-20, "atol"=>0.5e-20)))
+    orb₄ = evolve(pot, x₀, v₀, t_range, Vern7(); options=ntSolverOptions(;reltol=5.0e-8, saveat=Δt))
+    orb₅ = evolve(pot, x₀, v₀, t_range, Vern7(); options=ntSolverOptions(;reltol=5.0e-11,saveat=Δt))
+    orb₆ = evolve(pot, x₀, v₀, t_range, Vern7(); options=ntSolverOptions(;reltol=5.0e-16, abstol=0.5e-16, saveat=Δt))
+    orb₀ = evolve(pot, x₀, v₀, t_range, Vern7(); options=ntSolverOptions(; saveat=Δt))
+    @test orb₄.x[1,end] ≈ pyconvert(Float64,orb₁.x[-1].value)  rtol=5.0e-8
+    @test orb₅.x[1,end] ≈ pyconvert(Float64,orb₂.x[-1].value)  rtol=5.0e-10
+    @test orb₆.x[1,end] ≈ pyconvert(Float64,orb₃.x[-1].value)  rtol=5.0e-12
+    @test orb₀.x[1,end] ≈ pyconvert(Float64,orb₃.x[-1].value)  rtol=5.0e-12
+end
+
+
+@testset "OrbitsNFWvsGala" begin
+    usys = gu.UnitSystem(au.kpc, au.Gyr, au.Msun, au.radian, au.kpc/au.Gyr, au.kpc/au.Gyr^2)
+    Δt = 0.01
+    n_step = 1000
+    t₁ = 0.0
+    t₂ = t₁ + n_step*Δt
+    t_range = (t₁, t₂)
+    x₀ = 30*[1,0,1]
+    v₀ = 200*[0,1,0]
     m = 10^12*𝕦.m  # Msun
     a = 20*𝕦.l
     pot = NFW(m, a)
@@ -56,24 +103,21 @@ end
     m_g = m/f(c)
     pot_Gala = gp.NFWPotential(Py(adimensional(m_g))*au.Msun, Py(adimensional(a))*au.kpc, units=usys)
     @show pot_Gala
-    for i in range(0,1)
-        # Gala.py solution
-        w₀ = gd.PhaseSpacePosition(pos=Py(x₀)*au.kpc, vel=Py(v₀)*au.km/au.s)
-        orb_gala = pot_Gala.integrate_orbit(w₀, dt=Δt*au.Gyr, t1=t₁, t2=(t₂+Δt)*au.Gyr)
-        orb_gala_t = pyconvert(Vector{Float64}, orb_gala.t)
-        orb_gala_x = pyconvert(Vector{Float64}, orb_gala.x)
-        orb_gala_y = pyconvert(Vector{Float64}, orb_gala.y)
-        orb_gala_z = pyconvert(Vector{Float64}, orb_gala.z)
-        # GalacticDynamics.jl solution
-        sol = evolve(pot, x₀, v₀, t_range, Tsit5(); options=ntSolverOptions(; saveat=Δt))
-        @show sol.t
-        orb_t = ustrip.(physical_units.(sol.t,:t))
-        orb_x = sol.x[1,:]
-        @show orb_t
-        @show orb_gala_t
-        @show orb_x
-        @show orb_gala_x
-        @test orb_t[end] ≈ orb_gala_t[end] rtol=5.0e-3
-        @test orb_x[end] ≈ orb_gala_x[end] rtol=5.0e-3
-    end
+
+    # Gala.py solution
+    w₀ = gd.PhaseSpacePosition(pos=Py(x₀)*au.kpc, vel=Py(v₀)*au.kpc/au.Gyr)
+    orb_gala = pot_Gala.integrate_orbit(w₀, dt=Δt*au.Gyr, t1=t₁, t2=t₂*au.Gyr,
+            Integrator=gi.DOPRI853Integrator,Integrator_kwargs=Py(Dict("rtol"=>5.0e-14, "atol"=>0.5e-14)))
+    orb_gala_t = pyconvert(Vector{Float64}, orb_gala.t)
+    orb_gala_x = pyconvert(Vector{Float64}, orb_gala.x)
+    orb_gala_y = pyconvert(Vector{Float64}, orb_gala.y)
+    orb_gala_z = pyconvert(Vector{Float64}, orb_gala.z)
+    # GalacticDynamics.jl solution
+    sol = evolve(pot, x₀, v₀, t_range, Tsit5(); options=ntSolverOptions(; reltol=5.0e-14, abstol=0.5e-14,saveat=Δt))
+    orb_t = ustrip.(physical_units.(sol.t,:t))
+    orb_x = sol.x[1,:]
+
+    @test orb_t[end] ≈ orb_gala_t[end] rtol=5.0e-12
+    @test orb_x[end] ≈ orb_gala_x[end] rtol=5.0e-12
+
 end
