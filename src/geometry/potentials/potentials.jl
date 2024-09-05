@@ -38,34 +38,38 @@ end
 
 """Plummer potential"""
 function potential(pot::Plummer, x::AbstractArray{T}) where {T<:Real}
-    return -G*pot.m / sqrt(pot.a^2 + x'x)
+    @unpack m, a = pot
+    return -G*m / sqrt(a^2 + x'x)
 end
 
 """Hernquist potential"""
 function potential(pot::Hernquist, x::AbstractArray{T}) where {T<:Real}
-    return -G*pot.m / (pot.a + sqrt(x'x))
+    @unpack m, a = pot
+    return -G*m / (a + sqrt(x'x))
 end
 
 """Miyamoto-Nagai disk potential"""
 function potential(pot::MiyamotoNagaiDisk, x::AbstractArray{T}) where {T<:Real}
-    return -G*pot.m/sqrt( x[1:2]'x[1:2] + (pot.a + sqrt(pot.b^2+x[3]^2))^2 )
+    @unpack m, a, b = pot
+    return -G*m/sqrt( x[1:2]'x[1:2] + (a + sqrt(b^2+x[3]^2))^2 )
 end
 
 """Allen and Santillan (generalized) halo"""
 function potential(pot::AllenSantillanHalo, x::AbstractArray{T}) where {T<:Real}
-    f(y) = 1 + (y/pot.a)^(pot.γ-1)
+    @unpack_AllenSantillanHalo pot
+    f(y) = 1 + (y/a)^(γ-1)
     r  = sqrt( x'x )
-    if r < pot.Λ
-        res = -G*(pot.m/pot.a)*( log(f(r)/f(pot.Λ))/(pot.γ-1) - (1-1/f(pot.Λ)) )
+    if r < Λ
+        res = -G*(m/a)*( log(f(r)/f(Λ))/(γ-1) - (1-1/f(Λ)) )
     else
-        res = -G*(pot.m/r)*(pot.Λ/pot.a)^pot.γ/f(pot.Λ)
+        res = -G*(m/r)*(Λ/a)^γ/f(Λ)
     end
     return res
 end
 
 """NFW halo potential"""
 function potential(pot::NFW, x::AbstractArray{T}) where {T<:Real}
-    𝔸 = f_nfw(concentration(pot))
+    @unpack m, a, 𝔸 = pot
     r = sqrt(x'x)
-    return -G*pot.m/𝔸*log(1+r/pot.a)/r
+    return -G*m/𝔸*log(1+r/a)/r
 end
