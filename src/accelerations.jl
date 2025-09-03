@@ -2,24 +2,23 @@
 
 
 """Unitful acceleration"""
-function acceleration(pot::UnionAbstractPotentials, x::Vector{<:Unitful.Length}, t::T=0𝕦.t) where {T<:Unitful.Time}
+function acceleration(pot::P, x::Vector{<:Unitful.Length}, t::T=0𝕦.t) where {P<:AbstractPotential, T<:Unitful.Time}
     x, t = adimensional(x, t)
     return acceleration(pot, x, t)*𝕦.a
 end
 
 
 """Acceleration of a sum of AbstractPotentials"""
-function acceleration(pot::Vector{<:AbstractPotential}, x::AbstractArray{L}, t::T=0.0) where {L<:Real, T<:Real}
-    sum_acc = zeros(3)
-    for i ∈ eachindex(pot)
-        sum_acc .+= acceleration(pot[i], x, t)
+function acceleration(pot::CompositePotential, x::AbstractArray{L}, t::T=0.0) where {L<:Real, T<:Real}
+    sum_acc = zeros(L, 3)
+    for p ∈ pot
+        sum_acc .+= acceleration(p, x, t)
     end
     return sum_acc
 end
 
-
 """Acceleration of single potential"""
-function acceleration(pot::AbstractPotential, x::AbstractArray{L}, t::T=0.0) where {L<:Real, T<:Real}
+function acceleration(pot::P, x::AbstractArray{L}, t::T=0.0) where {P<:AbstractPotential, L<:Real, T<:Real}
     return -gradient(y->potential(pot, y, t), x)[1]
 end
 
@@ -38,6 +37,18 @@ function complement(p::Vector{<:AbstractPotential}, x::AbstractArray{L}, i::I) w
     end
     return ρ, χ
 end
+
+# function complement(p::Vector{<:AbstractPotential}, x::AbstractArray{L}, i::I) where {L<:Real, I<:Integer}
+#     n = length(p)
+#     ρ = [p[j] for j in 1:n if j != i]
+#     χ = [SVector{3,L}(
+#             x[selec(j)],
+#             x[selec(j)+1],
+#             x[selec(j)+2]
+#         ) for j in 1:n if j != i]
+
+#     return ρ, χ
+# end
 
 """Acceleration of a system of macro particles"""
 function acceleration(mps::Vector{<:AbstractMacroParticle}, x::AbstractArray{L}, t::T=0.0) where {L<:Real, T<:Real}

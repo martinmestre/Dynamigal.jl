@@ -12,17 +12,3 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 UnitfulAstro = "6112ee07-acf9-5e0f-b108-d242c714bf9f"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
-
-[compat]
-julia = "1"
-
-[extras]
-BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
-CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
-ProfileSVG = "132c30aa-f267-4189-9183-c8a63c7e05e6"
-ProfileView = "c46f51b8-102a-5cf2-8d2c-8597cb0e0da7"
-PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test", "BenchmarkTools", "PythonCall", "CairoMakie", "ProfileView", "ProfileSVG"]

@@ -1,39 +1,49 @@
 """Potential functions"""
 
+"""General trait dispatch"""
+function potential(pot::P, x::AbstractArray{T}, t::D) where {P<:AbstractPotential, T, D}
+    return potential(time_dependence(P), pot, x, t)
+end
 
-"""Unitful Potential for UnionAbstractPotentials"""
-function potential(pot::UnionAbstractPotentials, x::Vector{<:Unitful.Length}, t::T) where {T<:Unitful.Time}
+function potential(::TimeIndependent, pot::P, x::AbstractArray{T}, t::D) where {P<:AbstractPotential, T, D}
+    return potential(pot, x)
+end
+function potential(::TimeDependent, pot::P, x::AbstractArray{T}, t::D) where {P<:AbstractPotential, T, D}
+    return potential(pot, x, t)
+end
+
+"""Unitful Potential for AbstractPotentials"""
+function potential(pot::P, x::Vector{<:Unitful.Length}, t::T) where {P<:AbstractPotential, T<:Unitful.Time}
     x, t = adimensional(x, t)
     return potential(pot, x, t)*𝕦.p
 end
+function potential(pot::P, x::Vector{<:Unitful.Length}) where {P<:AbstractPotential}
+    x = adimensional(x)
+    return potential(pot, x)*𝕦.p
+end
 
-
-"""Potential of a sum of AbstractPotentials"""
-function potential(pot::Vector{<:AbstractPotential}, x::AbstractArray{L}, t::T) where {L<:Real, T<:Real}
-    sum_pot = zeros(3)
-    for i ∈ eachindex(pot)
-        sum_pot .+= potential(pot[i], x, t)
+"""Composite Potential"""
+function potential(pot::CompositePotential, x::AbstractArray{L}, t::T) where {L<:Real, T<:Real}
+    sum_pot = zero(L)
+    for p ∈ pot
+        sum_pot += potential(p, x, t)
     end
     return sum_pot
 end
 
-"""Multiple dispatch when t variable is/is-not used"""
-potential(pot::UnionAbstractPotentials, x::AbstractArray{T}, t::D) where {T<:Real, D<:Real} =
-    potential(pot, x)
-potential(pot::UnionAbstractPotentials, x::AbstractArray{<:Unitful.Length}) =
-    potential(pot, x, 0𝕦.t)
 
+"""List of specific Potentials..."""
 
-    """List of specific Potentials..."""
-
-"""TimeDependent potential"""
-function potential(pot::TimeDependent, x::AbstractArray{L}, t::T) where {L<:Real, T<:Real}
-    return -G*pot.m / sqrt(t^2+x'x)
-end
 
 """Kepler potential"""
 function potential(pot::Kepler, x::AbstractArray{T}) where {T<:Real}
     return -G*pot.m / sqrt(x'x)
+end
+
+"""Kepler time dependent"""
+function potential(pot::OscillatoryKepler, x::AbstractArray{L}, t::T) where {L<:Real, T<:Real}
+    @unpack m, τ = pot
+    return -G*m*sin((2π/τ)*t) / sqrt(t^2 + x'x)
 end
 
 """Plummer potential"""

@@ -18,14 +18,19 @@ export Particle, TestParticle, MacroParticle
 export Event, Orbit, Snapshot
 export TimeDependent, Kepler, Plummer, AllenSantillanHalo, MiyamotoNagaiDisk
 export Hernquist, NFW
+export OscillatoryKepler
+export CompositePotential
 export concentration
 export example_Plummer, example_MiyamotoNagai, example_sum_of_potentials
 export example_AllenSantillan
+export example_of_mps
 export code_units, physical_units, adimensional
 export r_vir_nfw
-
+export SystemTrait
+export TimeDependenceTrait
 
 include("abstract_types.jl")
+include("traits.jl")
 include("config.jl")
 include("constants.jl")
 include("geometry/potentials/potential_types.jl")
@@ -37,6 +42,7 @@ include("odes.jl")
 include("accelerations.jl")
 include("evolutions.jl")
 include("circular_velocity.jl")
+include("overloads.jl")
 include("examples.jl")
 
 # include("metrics.jl")

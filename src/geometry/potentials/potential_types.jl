@@ -1,13 +1,6 @@
 """Potential types"""
 
 
-@with_kw struct TimeDependent{T<:Real} <: AbstractPotential
-    m::T
-    @assert m>0 "m must be possitive"
-end
-TimeDependent(m::T) where {T<:Unitful.Mass} = TimeDependent( ustrip(uconvert(𝕦.m, m)) )
-
-
 @with_kw struct Kepler{T<:Real} <: AbstractPotential
     m::T
     @assert m>0 "m must be possitive"
@@ -96,3 +89,26 @@ function concentration(p::NFW; 𝕔=𝕔)
     r = (p.m/(200*ρ*4.0/3.0*π))^(1.0/3.0)  # virial radius
     return r/p.a
 end
+
+
+"""Time dependent potentials"""
+@with_kw struct OscillatoryKepler{T<:Real, D<:Real} <: AbstractPotential
+    m::T
+    τ::D
+    @assert (m>0 && τ::D) "all fields should be possitive"
+end
+OscillatoryKepler(m::T, τ::D) where {T<:Unitful.Mass, D<:Unitful.Time} = OscillatoryKepler( ustrip(uconvert(𝕦.m, m)), ustrip(uconvert(𝕦.t, τ) ) )
+time_dependence(::Type{<:OscillatoryKepler}) = TimeDependent()
+
+
+
+"""Composite types"""
+struct CompositePotential{P <: NTuple{N, AbstractPotential} where N} <: AbstractPotential
+    potentials::P
+end
+
+function CompositePotential(potentials::NTuple{N, T}) where {N, T <: AbstractPotential}
+    return CompositePotential{typeof(potentials)}(potentials)
+end
+CompositePotential(p...) = CompositePotential(p)
+CompositePotential(p::T) where {T <: AbstractPotential} = CompositePotential((p,))

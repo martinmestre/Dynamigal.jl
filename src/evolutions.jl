@@ -2,8 +2,8 @@
 
 
 """Evolution of a an initial condition in an AbstractPotential"""
-function evolve(pot::UnionAbstractPotentials, x::AbstractVector{D}, v::AbstractVector{F},
-   t_span::Tuple{T,T}, solver=𝕤.ode; options=ntSolverOptions()) where {D, F, T}
+function evolve(pot::P, x::AbstractVector{D}, v::AbstractVector{F},
+   t_span::Tuple{T,T}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractPotential, D, F, T}
     p = pot
     u₀ = SA[x...,v...]
     prob = ODEProblem(ode, u₀, t_span, p)
@@ -13,15 +13,15 @@ function evolve(pot::UnionAbstractPotentials, x::AbstractVector{D}, v::AbstractV
 end
 
 """Evolution of a unitful initial condition in an AbstractPotential"""
-function evolve(pot::UnionAbstractPotentials, x::Vector{<:Unitful.Length}, v::Vector{<:Unitful.Velocity},
-    t_span::Tuple{<:Unitful.Time, <:Unitful.Time}, solver=𝕤.ode; options=ntSolverOptions())
+function evolve(pot::P, x::Vector{<:Unitful.Length}, v::Vector{<:Unitful.Velocity},
+    t_span::Tuple{<:Unitful.Time, <:Unitful.Time}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractPotential}
     x, v = adimensional(x, v)
     t_span = adimensional.(t_span)
     return evolve(pot, x, v, t_span, solver; options)
 end
 
 """Evolution of an Event in an AbstractPotential"""
-function evolve(pot::P, event::Event, t_span::Tuple{<:Unitful.Time, <:Unitful.Time}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:UnionAbstractPotentials}
+function evolve(pot::P, event::Event, t_span::Tuple{<:Unitful.Time, <:Unitful.Time}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractPotential}
     t_span = code_units.(t_span) .+ event.t
     x = event.x
     v = event.v
@@ -30,7 +30,7 @@ end
 
 
 """Evolution of a TestParticle in an AbstractPotential"""
-function evolve(pot::P, p::TestParticle, t_span::Tuple{<:Unitful.Time, <:Unitful.Time}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:UnionAbstractPotentials}
+function evolve(pot::P, p::TestParticle, t_span::Tuple{<:Unitful.Time, <:Unitful.Time}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractPotential}
     t_span = code_units.(t_span) .+ p.event.t
     x = p.event.x
     v = p.event.v
@@ -38,13 +38,39 @@ function evolve(pot::P, p::TestParticle, t_span::Tuple{<:Unitful.Time, <:Unitful
 end
 
 
-"""Evolution of a system of MacroParticle"""
-function evolve(mps::Vector{P}, t_span::Tuple{T,T}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractMacroParticle,T<:Real}
+"""Evolution of a system of MacroParticle, main method"""
+function evolve(mps::T, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {T,R<:Real}
+    println("paso por el caso main")
+    @show T
+    return evolve(SystemTrait(T), mps, t_span, solver; options=ntSolverOptions())
+end
+
+"""Evolution of a system of MacroParticle, general type"""
+function evolve(::GenSys, mps::Vector{P}, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractMacroParticle,R<:Real}
+    println("Caso GenSys")
     p = mps
     x = vcat([[mps[i].event.x for i ∈ eachindex(mps)]...]...)
     v = vcat([[mps[i].event.v for i ∈ eachindex(mps)]...]...)
     u₀ = SA[x...,v...]
     prob = ODEProblem(ode, u₀, t_span, p)
+    sol  = solve(prob, solver; options...)
+    sys_orb = Vector{Orbit}(undef, length(p))
+    n = length(x)
+    for i ∈ eachindex(p)
+        j_x = selec(i)
+        j_v = n+j_x
+        sys_orb[i] = Orbit(sol.t, sol[j_x:j_x+2,:], sol[j_v:j_v+2,:])
+    end
+    return sys_orb
+end
+
+"""Evolution of a system of MacroParticle, general performant type"""
+function evolve(::GenPerfSys, mps::Vector{P}, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractMacroParticle,R<:Real}
+    p = mps
+    x = vcat([[mps[i].event.x for i ∈ eachindex(mps)]...]...)
+    v = vcat([[mps[i].event.v for i ∈ eachindex(mps)]...]...)
+    u₀ = SA[x...,v...]
+    prob = ODEProblem(ode!, u₀, t_span, p)
     sol  =solve(prob, solver; options...)
     sys_orb = Vector{Orbit}(undef, length(p))
     n = length(x)
@@ -55,4 +81,10 @@ function evolve(mps::Vector{P}, t_span::Tuple{T,T}, solver=𝕤.ode; options=ntS
     end
     return sys_orb
 end
+
+"""Evolution of a system of MacroParticle, Clouds & MW type"""
+#evolve(::CloudsMW, mps::T, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {T,R<:Real} =
+
+
+
 

@@ -1,8 +1,5 @@
 """Types"""
 
-import Base.:+
-import Base.:getindex
-import Base.:firstindex, Base.:lastindex
 
 """Abstract types"""
 abstract type AbstractConfig end
@@ -41,21 +38,4 @@ abstract type AbstractContinuousBulge <:AbstractContinuousDistribution end
 
 abstract type AbstractOrbit <: AbstractSpaceTime end
 abstract type AbstractEvent <: AbstractSpaceTime end
-
-const UnionAbstractPotentials = Union{AbstractPotential, Vector{<:AbstractPotential}}
-const UnionAbstractParticles = Union{AbstractParticle, Vector{<:AbstractParticle}}
-
-
-"""Overloading sum in order to sum potentials"""
-function Base.:+(a::UnionAbstractPotentials, b::UnionAbstractPotentials)
-    return vcat(a,b)
-end
-
-
-"""Overloading sum in order to sum particles"""
-function Base.:+(a::UnionAbstractParticles, b::UnionAbstractParticles)
-    return vcat(a,b)
-end
-
-
 

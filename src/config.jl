@@ -17,7 +17,7 @@ end
 @with_kw struct UnitsConfig{M<:Unitful.Unitlike, L<:Unitful.Unitlike, T<:Unitful.Unitlike,
                             V<:Unitful.Unitlike, A<:Unitful.Unitlike,P<:Unitful.Unitlike,
                             V₁<:Unitful.Unitlike, A₁<:Unitful.Unitlike}  <:AbstractConfig
-    m::M = u"Msun"
+    m::M = u"Msun" # ver si cambio a Giga Msun
     l::L = u"kpc"
     t::T = u"Gyr"
     v::V = l/t    # This is the code unit for velocity
