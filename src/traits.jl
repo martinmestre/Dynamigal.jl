@@ -1,11 +1,6 @@
 
 """Traits"""
 
-abstract type TimeDependenceTrait end
-struct TimeIndependent <: TimeDependenceTrait end
-struct TimeDependent <: TimeDependenceTrait end
-
-time_dependece(::Type) = TimeIndependent()
 
 abstract type SystemTrait end
 struct GenSys <: SystemTrait end

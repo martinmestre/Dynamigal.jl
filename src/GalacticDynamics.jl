@@ -7,7 +7,7 @@ using Parameters
 @reexport using StaticArrays
 @reexport using Unitful, UnitfulAstro
 using NamedTupleTools
-
+@reexport using LinearAlgebra
 
 export SolverConfig, UnitsConfig, CosmosConfig, SolverOptions
 export ntSolverOptions
