@@ -10,7 +10,7 @@ function potential(pot::P, x::Vector{<:Unitful.Length}, t::T) where {P<:Abstract
     x, t = adimensional(x, t)
     return potential(pot, x, t)*𝕦.p
 end
-function potential(pot::P, x::Vector{<:Unitful.Length},) where {P<:AbstractPotential}
+function potential(pot::P, x::Vector{<:Unitful.Length}) where {P<:AbstractPotential}
     x = adimensional(x)
     return potential(pot, x)*𝕦.p
 end
@@ -19,7 +19,7 @@ end
     potential(pot::CompositePotential, x::AbstractArray{L}, t::T) where {L<:Real, T<:Real}
 Composite Potential
 """
-function potential(pot::CompositePotential, x::AbstractArray{L}, t::T) where {L<:Real, T<:Real}
+function potential(pot::CompositePotential, x::AbstractArray{L}, t::T=0.0) where {L<:Real, T<:Real}
     sum_pot = zero(L)
     for p ∈ pot
         sum_pot += potential(p, x, t)

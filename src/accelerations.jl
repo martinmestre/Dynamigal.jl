@@ -2,9 +2,13 @@
 
 
 """Unitful acceleration"""
-function acceleration(pot::P, x::Vector{<:Unitful.Length}, t::T=0𝕦.t) where {P<:AbstractPotential, T<:Unitful.Time}
+function acceleration(pot::P, x::Vector{<:Unitful.Length}, t::T) where {P<:AbstractPotential, T<:Unitful.Time}
     x, t = adimensional(x, t)
     return acceleration(pot, x, t)*𝕦.a
+end
+function acceleration(pot::P, x::Vector{<:Unitful.Length}) where {P<:AbstractPotential}
+    x = adimensional(x)
+    return acceleration(pot, x)*𝕦.a
 end
 
 
@@ -17,11 +21,21 @@ function acceleration(pot::CompositePotential, x::AbstractArray{L}, t::T=0.0) wh
     return sum_acc
 end
 
-"""Acceleration of single potential"""
-function acceleration(pot::P, x::AbstractArray{L}, t::T=0.0) where {P<:AbstractPotential, L<:Real, T<:Real}
-    return -gradient(y->potential(pot, y, t), x)[1]
+"""
+    acceleration(pot::P, x::AbstractArray{L}, t::T) where {P<:AbstractStaticPotential, L<:Real, T<:Real}
+Bridge function for static potentials
+"""
+function acceleration(pot::P, x::AbstractArray{L}, t::T) where {P<:AbstractStaticPotential, L<:Real, T<:Real}
+    return acceleration(pot, x)
 end
 
+"""Acceleration of single potential. Static and time-dependent method."""
+function acceleration(pot::P, x::AbstractArray{L}, t::T) where {P<:AbstractPotential, L<:Real, T<:Real}
+    return -gradient(y->potential(pot, y, t), x)[1]
+end
+function acceleration(pot::P, x::AbstractArray{L}) where {P<:AbstractPotential, L<:Real}
+    return -gradient(y->potential(pot, y), x)[1]
+end
 
 """Complement function to be used in acceleration computation"""
 selec(i::I) where {I<:Integer} = 1+3(i-1)
