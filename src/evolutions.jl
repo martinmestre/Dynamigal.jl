@@ -22,7 +22,7 @@ end
 
 """Evolution of an Event in an AbstractPotential"""
 function evolve(pot::P, event::Event, t_span::Tuple{<:Unitful.Time, <:Unitful.Time}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractPotential}
-    t_span = code_units.(t_span) .+ event.t
+    t_span = adimensional.(t_span) .+ event.t
     x = event.x
     v = event.v
     return evolve(pot, x, v, t_span, solver; options)
@@ -38,25 +38,22 @@ function evolve(pot::P, p::TestParticle, t_span::Tuple{<:Unitful.Time, <:Unitful
 end
 
 
-"""Evolution of a system of MacroParticle, main method"""
+"""Evolution of a MacroParticleSystem, main method"""
 function evolve(mps::T, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {T,R<:Real}
-    println("paso por el caso main")
-    @show T
     return evolve(SystemTrait(T), mps, t_span, solver; options=ntSolverOptions())
 end
 
 """Evolution of a system of MacroParticle, general type"""
-function evolve(::GenSys, mps::Vector{P}, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractMacroParticle,R<:Real}
+function evolve(::GenSys, mps::MacroParticleSystem, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {R<:Real}
     println("Caso GenSys")
-    p = mps
     x = vcat([[mps[i].event.x for i ∈ eachindex(mps)]...]...)
     v = vcat([[mps[i].event.v for i ∈ eachindex(mps)]...]...)
     u₀ = SA[x...,v...]
-    prob = ODEProblem(ode, u₀, t_span, p)
+    prob = ODEProblem(ode, u₀, t_span, mps)
     sol  = solve(prob, solver; options...)
-    sys_orb = Vector{Orbit}(undef, length(p))
+    sys_orb = Vector{Orbit}(undef, length(mps))
     n = length(x)
-    for i ∈ eachindex(p)
+    for i ∈ eachindex(mps)
         j_x = selec(i)
         j_v = n+j_x
         sys_orb[i] = Orbit(sol.t, sol[j_x:j_x+2,:], sol[j_v:j_v+2,:])
@@ -65,14 +62,14 @@ function evolve(::GenSys, mps::Vector{P}, t_span::Tuple{R,R}, solver=𝕤.ode; o
 end
 
 """Evolution of a system of MacroParticle, general performant type"""
-function evolve(::GenPerfSys, mps::Vector{P}, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractMacroParticle,R<:Real}
-    p = mps
+function evolve(::GenPerfSys, mps::MacroParticleSystem, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {R<:Real}
+    println("Caso GenPerfSys")
     x = vcat([[mps[i].event.x for i ∈ eachindex(mps)]...]...)
     v = vcat([[mps[i].event.v for i ∈ eachindex(mps)]...]...)
     u₀ = SA[x...,v...]
-    prob = ODEProblem(ode!, u₀, t_span, p)
+    prob = ODEProblem(ode!, u₀, t_span, mps)
     sol  =solve(prob, solver; options...)
-    sys_orb = Vector{Orbit}(undef, length(p))
+    sys_orb = Vector{Orbit}(undef, length(mps))
     n = length(x)
     for i ∈ eachindex(p)
         j_x = selec(i)

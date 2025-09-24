@@ -1,26 +1,6 @@
 
 
 """Potential types"""
-# function Base.show(io::IO, pot::T) where {T <: AbstractPotential}
-#     fields = fieldnames(T)
-#     if isempty(fields)
-#         print(io, T.name.name, "()")
-#     else
-#         field_str = join(["$f=$(getfield(pot, f))" for f in fields], ", ")
-#         print(io, T.name.name, "(", field_str, ")")
-#     end
-# end
-
-# function Base.show(io::IO, ::MIME"text/plain", pot::T) where {T <: AbstractPotential}
-#     # Misma implementación que show(io::IO, pot)
-#     fields = fieldnames(T)
-#     if isempty(fields)
-#         print(io, T.name.name, "()")
-#     else
-#         field_str = join(["$f=$(getfield(pot, f))" for f in fields], ", ")
-#         print(io, T.name.name, "(", field_str, ")")
-#     end
-# end
 
 """CompositePotential types"""
 Base.length(cp::CompositePotential) = length(cp.potentials)
@@ -28,17 +8,6 @@ Base.getindex(cp::CompositePotential, i::Int) = cp.potentials[i]
 Base.iterate(cp::CompositePotential, state...) = iterate(cp.potentials, state...)
 Base.eachindex(cp::CompositePotential) = eachindex(cp.potentials)
 
-# function Base.show(io::IO, cp::CompositePotential)
-#     print(io, "CompositePotential($(length(cp)) components)")
-# end
-
-# function Base.show(io::IO, ::MIME"text/plain", cp::CompositePotential)
-#     n = length(cp)
-#     println(io, "CompositePotential with $n components:")
-#     for (i, p) in enumerate(cp)
-#         println(io, "  [$i] ", p)
-#     end
-# end
 
 function Base.:+(p1::T, p2::U) where {T <: AbstractPotential, U <: AbstractPotential}
     return CompositePotential((p1, p2))
@@ -56,4 +25,25 @@ function Base.:+(cp1::CompositePotential, cp2::CompositePotential)
     return CompositePotential((cp1.potentials..., cp2.potentials...))
 end
 
-print("estoy aca")
+"""MacroParticleSystem types"""
+Base.length(mps::MacroParticleSystem) = length(mps.macroparticles)
+Base.getindex(mps::MacroParticleSystem, i::Int) = mps.macroparticles[i]
+Base.iterate(mps::MacroParticleSystem, state...) = iterate(mps.macroparticles, state...)
+Base.eachindex(mps::MacroParticleSystem) = eachindex(mps.macroparticles)
+
+
+function Base.:+(p1::T, p2::U) where {T <: AbstractMacroParticle, U <: AbstractMacroParticle}
+    return MacroParticleSystem((p1, p2))
+end
+
+function Base.:+(mps::MacroParticleSystem, p::T) where {T <: AbstractMacroParticle}
+    return MacroParticleSystem((mps.macroparticles..., p))
+end
+
+function Base.:+(p::T, mps::MacroParticleSystem) where {T <: AbstractMacroParticle}
+    return MacroParticleSystem((p, mps.macroparticles...))
+end
+
+function Base.:+(mps1::MacroParticleSystem, mps2::MacroParticleSystem)
+    return MacroParticleSystem((mps1.macroparticles..., mps2.macroparticles...))
+end

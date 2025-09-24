@@ -12,9 +12,12 @@ using NamedTupleTools
 export SolverConfig, UnitsConfig, CosmosConfig, SolverOptions
 export ntSolverOptions
 export 𝕦, G, 𝕤, 𝕔, H₀, sis, six
-export potential, acceleration, ode, evolve
+export potential
+export acceleration, acceleration!, acceleration_c!
+export ode, evolve
 export circular_velocity
 export Particle, TestParticle, MacroParticle
+export MacroParticleSystem
 export Event, Orbit, Snapshot
 export TimeDependent, Kepler, Plummer, AllenSantillanHalo, MiyamotoNagaiDisk
 export Hernquist, NFW
@@ -28,6 +31,7 @@ export code_units, physical_units, adimensional
 export r_vir_nfw
 export SystemTrait
 export TimeDependenceTrait
+export @set_trait, SystemTrait, GenSys, GenPerfSys, SagCloudsMW
 
 include("abstract_types.jl")
 include("traits.jl")

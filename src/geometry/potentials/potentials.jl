@@ -43,11 +43,6 @@ function potential(pot::Kepler, x::AbstractArray{L}) where {L<:Real}
     return -G*pot.m / sqrt( dot(x,x) )
 end
 
-"""Oscillatory Kepler dependent"""
-function potential(pot::OscillatoryKepler, x::AbstractArray{L}, t::T) where {L<:Real, T<:Real}
-    @unpack m, τ = pot
-    return -G*m*sin((2π/τ)*t) / sqrt(t^2 +  dot(x,x) )
-end
 
 """Plummer potential"""
 function potential(pot::Plummer, x::AbstractArray{L}) where {L<:Real}
@@ -87,5 +82,9 @@ function potential(pot::NFW, x::AbstractArray{L}) where {L<:Real}
     return -G*m/𝔸*log(1+r/a)/r
 end
 
-
+"""Oscillatory Kepler dependent"""
+function potential(pot::OscillatoryKepler, x::AbstractArray{L}, t::T) where {L<:Real, T<:Real}
+    @unpack m, τ = pot
+    return -G*m*sin((2π/τ)*t) / sqrt(t^2 +  dot(x,x) )
+end
 

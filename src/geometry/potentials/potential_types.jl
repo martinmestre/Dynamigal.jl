@@ -1,14 +1,14 @@
 """Potential types"""
 
 
-@with_kw struct Kepler{T<:Real} <: AbstractPotential
+@with_kw struct Kepler{T<:Real} <: AbstractStaticPotential
     m::T
     @assert m>0 "m must be possitive"
 end
 Kepler(m::T) where {T<:Unitful.Mass} = Kepler( ustrip(uconvert(𝕦.m, m)) )
 
 
-@with_kw struct Plummer{T<:Real,D<:Real} <: AbstractPotential
+@with_kw struct Plummer{T<:Real,D<:Real} <: AbstractStaticPotential
     m::T
     a::D
     @assert (m>0 && a>0) "all fields should be possitive"
@@ -17,7 +17,7 @@ Plummer(m::T, a::D) where {T<:Unitful.Mass, D<:Unitful.Length} =
     Plummer( ustrip(uconvert(𝕦.m, m)),  ustrip(uconvert(𝕦.l, a)) )
 
 
-@with_kw struct Hernquist{T<:Real,D<:Real} <: AbstractPotential
+@with_kw struct Hernquist{T<:Real,D<:Real} <: AbstractStaticPotential
     m::T
     a::D
     @assert m>0 && a>0 "all fields should be possitive"
@@ -26,7 +26,7 @@ Hernquist(m::T, a::D) where {T<:Unitful.Mass, D<:Unitful.Length} =
     Hernquist( ustrip(uconvert(𝕦.m, m)),  ustrip(uconvert(𝕦.l, a)) )
 
 
-@with_kw struct MiyamotoNagaiDisk{T<:Real,D<:Real,F<:Real} <: AbstractDiskPotential
+@with_kw struct MiyamotoNagaiDisk{T<:Real,D<:Real,F<:Real} <: AbstractStaticPotential
     m::T
     a::D
     b::F
@@ -36,7 +36,7 @@ MiyamotoNagaiDisk(m::T, a::D, b::F) where {T<:Unitful.Mass, D<:Unitful.Length, F
     MiyamotoNagaiDisk( ustrip(uconvert(𝕦.m, m)),  ustrip(uconvert(𝕦.l, a)), ustrip(uconvert(𝕦.l, b)) )
 
 
-@with_kw struct AllenSantillanHalo{T<:Real,D<:Real,F<:Real,G<:Real} <: AbstractHaloPotential
+@with_kw struct AllenSantillanHalo{T<:Real,D<:Real,F<:Real,G<:Real} <: AbstractStaticPotential
     m::T
     a::D
     Λ::F
@@ -61,7 +61,7 @@ end
 r_vir_nfw(m::M; 𝕔=𝕔) where {M<:Unitful.Mass} = r_vir_nfw(adimensional(m); 𝕔=𝕔)
 
 
-@with_kw struct NFW{T<:Real, F<:Real, D<:Real, C<:AbstractConfig} <: AbstractHaloPotential
+@with_kw struct NFW{T<:Real, F<:Real, D<:Real, C<:AbstractConfig} <: AbstractStaticPotential
     @assert m>0 && a>0  "all fields should be possitive"
     m::T  # virial mass: M(r)
     a::F  # scale radius: a=r/c
@@ -108,7 +108,9 @@ struct CompositePotential{P <: NTuple{N, AbstractPotential} where N} <: Abstract
 end
 
 function CompositePotential(potentials::NTuple{N, T}) where {N, T <: AbstractPotential}
+    if N == 1
+        throw(ArgumentError("CompositePotential requires at least 2 elements, got $N"))
+    end
     return CompositePotential{typeof(potentials)}(potentials)
 end
 CompositePotential(p...) = CompositePotential(p)
-CompositePotential(p::T) where {T <: AbstractPotential} = CompositePotential((p,))

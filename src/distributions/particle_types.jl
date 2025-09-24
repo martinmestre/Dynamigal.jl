@@ -1,7 +1,5 @@
 """Particle types"""
 
-
-
 @with_kw struct TestParticle <: AbstractTestParticle
     event::Event
 end
@@ -41,7 +39,44 @@ MacroParticle(p::P, x::Vector{D}, v::Vector{F}) where {P<:AbstractPotential, D<:
     MacroParticle(p, Event(x, v))
 Particle(p::P, t::T, x::Vector{D}, v::Vector{F}) where {P<:AbstractPotential, T<:Unitful.Time, D<:Unitful.Length, F<:Unitful.Velocity} =
     MacroParticle(p, Event(t, x, v))
-MacroParticle(p::P, x::Vector{D}, v::Vector{F}) where {P<:AbstractPotential, D<:Unitful.Length, F<:Unitful.Velocity} =
-    MacroParticle(p, Event(x, v))
+MacroParticle(p::P, x::Vector{D}, v::Vector{F}) where {P<:AbstractPotential, D<:Unitful.Length, F<:Unitful.Velocity} = MacroParticle(p, Event(x, v))
 
 
+
+# """MacroParticleSystem"""
+# mutable struct MacroParticleSystem{T, A} <: AbstractMacroParticle
+#     macroparticles::T  # NTuple{N, AbstractMacroParticle}
+#     accelerations::A
+
+#     function MacroParticleSystem(macroparticles::Tuple{Vararg{AbstractMacroParticle}})
+#         N = length(macroparticles)
+#         if N == 1
+#             throw(ArgumentError("MacroParticleSystem requires at least 2 elements, got $N"))
+#         end
+
+#         R = eltype(first(macroparticles).event.x)
+#         accelerations = zeros(MVector{3*N, R})
+
+#         return new{typeof(macroparticles), typeof(accelerations)}(macroparticles, accelerations)
+#     end
+# end
+
+# MacroParticleSystem(macroparticles::AbstractMacroParticle...) =
+#     MacroParticleSystem(macroparticles)
+
+"""MacroParticleSystem"""
+@with_kw mutable struct MacroParticleSystem{P <: NTuple{N, AbstractMacroParticle} where N, A} <: AbstractMacroParticle
+    macroparticles::P
+    accelerations::A
+end
+
+function MacroParticleSystem(macroparticles::NTuple{N, AbstractMacroParticle}) where {N}
+    if N == 1
+        throw(ArgumentError("MacroParticleSystem requires at least 2 elements, got $N"))
+    end
+    R = eltype(first(macroparticles).event.x)
+    accelerations = zeros(MVector{3N, R})
+    return MacroParticleSystem{typeof(macroparticles), typeof(accelerations)}(macroparticles, accelerations)
+end
+
+MacroParticleSystem(macroparticles::AbstractMacroParticle...) = MacroParticleSystem(macroparticles)
