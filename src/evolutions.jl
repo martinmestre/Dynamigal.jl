@@ -40,6 +40,7 @@ end
 
 """Evolution of a MacroParticleSystem, main method"""
 function evolve(mps::T, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {T,R<:Real}
+    @show T SystemTrait(T) SystemTrait(typeof(mps))
     return evolve(SystemTrait(T), mps, t_span, solver; options=ntSolverOptions())
 end
 
@@ -66,12 +67,12 @@ function evolve(::GenPerfSys, mps::MacroParticleSystem, t_span::Tuple{R,R}, solv
     println("Caso GenPerfSys")
     x = vcat([[mps[i].event.x for i ∈ eachindex(mps)]...]...)
     v = vcat([[mps[i].event.v for i ∈ eachindex(mps)]...]...)
-    u₀ = SA[x...,v...]
+    u₀ = [x...,v...]
     prob = ODEProblem(ode!, u₀, t_span, mps)
     sol  =solve(prob, solver; options...)
     sys_orb = Vector{Orbit}(undef, length(mps))
     n = length(x)
-    for i ∈ eachindex(p)
+    for i ∈ eachindex(mps)
         j_x = selec(i)
         j_v = n+j_x
         sys_orb[i] = Orbit(sol.t, sol[j_x:j_x+2,:], sol[j_v:j_v+2,:])

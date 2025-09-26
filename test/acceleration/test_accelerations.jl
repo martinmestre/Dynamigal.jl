@@ -61,3 +61,36 @@ end
         @test pot₂.a ≈ pot.a rtol=5.e-14
      end
 end
+
+
+
+
+@testset "AccelerationsMacroParticleSystem" begin
+    n = 3
+    m_p = 1.0e8
+    a_p = 5.0
+    m_d = 1.0e10
+    a_d = 7.0
+    b_d = 2.0
+    m_h = 5.0e11
+    a_h = 50.0
+    pot = Vector{CompositePotential}(undef, n+1)
+    mp_array = Vector{MacroParticle}(undef, n+1)
+    for i in eachindex(pot)
+        pot₁ = Plummer(m_p*rand(), a_p*rand())
+        pot₂ = MiyamotoNagaiDisk(m_d*rand(), a_d*rand(), b_d*rand())
+        pot₃ = Hernquist(m_h*rand(), a_h*rand())
+        pot[i] = CompositePotential(pot₁,pot₂,pot₃)
+        event = Event(30rand(3), 200rand(3))
+        mp_array[i] = MacroParticle(pot[i], event)
+    end
+    pot[n+1] =  CompositePotential(Kepler(1.0e7), Kepler(0.1))
+    mp_array[n+1] = MacroParticle(pot[n+1])
+    mps = MacroParticleSystem(mp_array...)
+    t_span = (0., 7.)
+    SystemTrait(::Type{typeof(mps)}) = GenPerfSys()
+    orbits = evolve(mps, t_span)
+    @show SystemTrait(typeof(mps))
+    # @set_trait typeof(mps) GenPerfSys()
+    # orbits₂ = evolve(mps, t_span)
+end

@@ -30,8 +30,8 @@ export example_of_mps
 export code_units, physical_units, adimensional
 export r_vir_nfw
 export SystemTrait
-export TimeDependenceTrait
-export @set_trait, SystemTrait, GenSys, GenPerfSys, SagCloudsMW
+export GenSys, GenPerfSys, SagCloudsMW
+export AbstractMacroParticleSystem
 
 include("abstract_types.jl")
 include("traits.jl")

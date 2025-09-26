@@ -43,40 +43,21 @@ MacroParticle(p::P, x::Vector{D}, v::Vector{F}) where {P<:AbstractPotential, D<:
 
 
 
-# """MacroParticleSystem"""
-# mutable struct MacroParticleSystem{T, A} <: AbstractMacroParticle
-#     macroparticles::T  # NTuple{N, AbstractMacroParticle}
-#     accelerations::A
-
-#     function MacroParticleSystem(macroparticles::Tuple{Vararg{AbstractMacroParticle}})
-#         N = length(macroparticles)
-#         if N == 1
-#             throw(ArgumentError("MacroParticleSystem requires at least 2 elements, got $N"))
-#         end
-
-#         R = eltype(first(macroparticles).event.x)
-#         accelerations = zeros(MVector{3*N, R})
-
-#         return new{typeof(macroparticles), typeof(accelerations)}(macroparticles, accelerations)
-#     end
-# end
-
-# MacroParticleSystem(macroparticles::AbstractMacroParticle...) =
-#     MacroParticleSystem(macroparticles)
 
 """MacroParticleSystem"""
-@with_kw mutable struct MacroParticleSystem{P <: NTuple{N, AbstractMacroParticle} where N, A} <: AbstractMacroParticle
-    macroparticles::P
+
+@with_kw mutable struct MacroParticleSystem{N, A} <: AbstractMacroParticleSystem
+    macroparticles::NTuple{N,MacroParticle}
     accelerations::A
 end
 
-function MacroParticleSystem(macroparticles::NTuple{N, AbstractMacroParticle}) where {N}
+function MacroParticleSystem(macroparticles::NTuple{N, MacroParticle}) where {N}
     if N == 1
         throw(ArgumentError("MacroParticleSystem requires at least 2 elements, got $N"))
     end
     R = eltype(first(macroparticles).event.x)
     accelerations = zeros(MVector{3N, R})
-    return MacroParticleSystem{typeof(macroparticles), typeof(accelerations)}(macroparticles, accelerations)
+    return MacroParticleSystem{N, typeof(accelerations)}(macroparticles, accelerations)
 end
 
-MacroParticleSystem(macroparticles::AbstractMacroParticle...) = MacroParticleSystem(macroparticles)
+MacroParticleSystem(macroparticles::MacroParticle...) = MacroParticleSystem(macroparticles)

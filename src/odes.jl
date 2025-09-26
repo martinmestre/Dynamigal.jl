@@ -13,7 +13,7 @@ end
 ODE for the Newtonian case: system of macro particles.
 This function is called when calling evolve while using SystemTrait: GenSys.
 """
-function ode(u::AbstractArray{<:Real}, p::MacroParticleSystem, t::T) where {T<:Real}
+function ode(u::AbstractArray{L}, p::MacroParticleSystem, t::T) where {L<:Real,T<:Real}
     n = Integer(length(u)/2)
     return SA[u[n+1:end]..., acceleration_c!(p, u[begin:n], t)...]
 end
@@ -23,7 +23,7 @@ end
 ODE for the Newtonian case: system of macro particles.
 This function is called when calling evolve while using SystemTrait: GenPerfSys.
 """
-function ode!(du, u, p::Vector{<:AbstractMacroParticle}, t::T) where {T<:Real}
+function ode!(du::AbstractArray{L}, u::AbstractArray{L}, p::MacroParticleSystem, t::T) where {L<:Real,T<:Real}
     n = length(p)
     @inbounds for i in 1:n
         # posiciones y velocidades
@@ -31,12 +31,12 @@ function ode!(du, u, p::Vector{<:AbstractMacroParticle}, t::T) where {T<:Real}
         vi = @view u[n*3+selec(i):n*3+selec(i)+2]
 
         # acumulador de aceleración
-        acc_i = MVector{3,Float64}(0.0,0.0,0.0)
+        acc_i = zero(MVector{3,L})
 
         @inbounds for j in 1:n
             if j != i
                 xj = @view u[selec(j):selec(j)+2]
-                acc_i .+= acceleration(p[j].pot, xi - xj, t)
+                acc_i += acceleration(p[j].pot, xi - xj, t)
             end
         end
 
