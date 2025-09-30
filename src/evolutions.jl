@@ -12,6 +12,16 @@ function evolve(pot::P, x::AbstractVector{D}, v::AbstractVector{F},
     return orb
 end
 
+function _evolve(pot::P, x::AbstractVector{D}, v::AbstractVector{F},
+   t_span::Tuple{T,T}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractPotential, D, F, T}
+    p = pot
+    u₀ = SA[x...,v...]
+    prob = ODEProblem(_ode, u₀, t_span, p)
+    sol = solve(prob, solver; options...)
+    orb = Orbit(sol.t, sol[sis,:], sol[siss,:])
+    return orb
+end
+
 """Evolution of a unitful initial condition in an AbstractPotential"""
 function evolve(pot::P, x::Vector{<:Unitful.Length}, v::Vector{<:Unitful.Velocity},
     t_span::Tuple{<:Unitful.Time, <:Unitful.Time}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractPotential}
