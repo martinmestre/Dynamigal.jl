@@ -64,8 +64,8 @@ end
 
 
 
-
 @testset "AccelerationsMacroParticleSystem" begin
+    m = 5
     n = 3
     m_p = 1.0e8
     a_p = 5.0
@@ -88,9 +88,12 @@ end
     mp_array[n+1] = MacroParticle(pot[n+1])
     mps = MacroParticleSystem(mp_array...)
     t_span = (0., 7.)
-    SystemTrait(::Type{typeof(mps)}) = GenPerfSys()
-    orbits = evolve(mps, t_span)
-    @show SystemTrait(typeof(mps))
-    # @set_trait typeof(mps) GenPerfSys()
-    # orbits₂ = evolve(mps, t_span)
+    for i in 1:m
+        x = 50rand(3)
+        @time acc = acceleration(mps,x)
+    end
+    for Δx ∈ [0.01, 0.001, 0.0001, 0.00001, 0.000001]
+        x = Δx*[1,0,0]
+        @show acceleration(mps,x)
+    end
 end

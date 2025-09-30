@@ -15,7 +15,7 @@ This function is called when calling evolve while using SystemTrait: GenSys.
 """
 function ode(u::AbstractArray{L}, p::MacroParticleSystem, t::T) where {L<:Real,T<:Real}
     n = Integer(length(u)/2)
-    return SA[u[n+1:end]..., acceleration_c!(p, u[begin:n], t)...]
+    return SA[u[n+1:end]..., acceleration!(p, u[begin:n], t)...]
 end
 
 
@@ -46,3 +46,4 @@ function ode!(du::AbstractArray{L}, u::AbstractArray{L}, p::MacroParticleSystem,
     end
     return nothing
 end
+

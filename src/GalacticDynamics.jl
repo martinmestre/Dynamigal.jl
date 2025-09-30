@@ -29,8 +29,8 @@ export example_AllenSantillan
 export example_of_mps
 export code_units, physical_units, adimensional
 export r_vir_nfw
-export SystemTrait
-export GenSys, GenPerfSys, SagCloudsMW
+export SystemTrait, @set_system_trait
+export GenSys, GenPerfSys, CloudsMW, SagCloudsMW
 export AbstractMacroParticleSystem
 
 include("abstract_types.jl")

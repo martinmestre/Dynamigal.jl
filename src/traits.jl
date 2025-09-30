@@ -14,5 +14,15 @@ SystemTrait(::Type) = GenSys()
 # warning: this sets the same SystemTrait function for all the struct of the same
 # type of "mps".
 
+"""Macro to set system trait"""
+macro set_system_trait(system, trait)
+    return :(SystemTrait(::Type{typeof($(esc(system)))}) = $(esc(trait))())
+end
+# luego se corre:
+# Más simple y readable
+# @set_trait system CloudsMW
+
+# Para cambiar
+# @set_trait system SagCloudsMW
 
 

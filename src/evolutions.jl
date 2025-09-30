@@ -40,13 +40,14 @@ end
 
 """Evolution of a MacroParticleSystem, main method"""
 function evolve(mps::T, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {T,R<:Real}
-    @show T SystemTrait(T) SystemTrait(typeof(mps))
-    return evolve(SystemTrait(T), mps, t_span, solver; options=ntSolverOptions())
+    @show T SystemTrait(T)
+    return evolve(SystemTrait(T), mps, t_span, solver; options=options)
 end
 
 """Evolution of a system of MacroParticle, general type"""
 function evolve(::GenSys, mps::MacroParticleSystem, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {R<:Real}
     println("Caso GenSys")
+    @show options
     x = vcat([[mps[i].event.x for i ∈ eachindex(mps)]...]...)
     v = vcat([[mps[i].event.v for i ∈ eachindex(mps)]...]...)
     u₀ = SA[x...,v...]
@@ -65,6 +66,7 @@ end
 """Evolution of a system of MacroParticle, general performant type"""
 function evolve(::GenPerfSys, mps::MacroParticleSystem, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {R<:Real}
     println("Caso GenPerfSys")
+    @show options
     x = vcat([[mps[i].event.x for i ∈ eachindex(mps)]...]...)
     v = vcat([[mps[i].event.v for i ∈ eachindex(mps)]...]...)
     u₀ = [x...,v...]

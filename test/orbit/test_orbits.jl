@@ -121,3 +121,56 @@ end
     @test orb_x[end] ≈ orb_gala_x[end] rtol=5.0e-12
 
 end
+
+# @testset "ODEAllenSantillanHalo" begin
+#     m_gal = 2.325e7*u"Msun"
+#     m =1018.0*m_gal  # Msun
+#     a = 2.562*u"kpc"     # kpc
+#     Λ = 200.0*u"kpc"    # kpc
+#     γ = 2.0
+#     pot = AllenSantillanHalo(m, a, Λ, γ)
+#     for i in range(1,20)
+#         w₀ = 50*rand(6)
+#         x₀ = w₀[1:3]u"kpc"
+#         v₀ = w₀[4:6]u"km/s"
+#         t_range = (0.0,100.0).*𝕦.t
+#         sol = evolve(pot, x₀, v₀, t_range)
+#         sol₂ = evolve(pot, x₀, v₀, t_range; options=ntSolverOptions(; reltol=5.0e-12))
+#         @test sol.x[end] ≈ sol₂.x[end] rtol=5.0e-7
+#         @test sol.v[end] ≈ sol₂.v[end] rtol=5.0e-7
+#     end
+# end
+
+@testset "OrbitsMacroParticleSystem" begin
+    m = 500
+    n = 3
+    m_p = 1.0e8
+    a_p = 5.0
+    m_d = 1.0e10
+    a_d = 7.0
+    b_d = 2.0
+    m_h = 5.0e11
+    a_h = 50.0
+    pot = Vector{CompositePotential}(undef, n+1)
+    mp_array = Vector{MacroParticle}(undef, n+1)
+    for i in eachindex(pot)
+        pot₁ = Plummer(m_p*rand(), a_p*rand())
+        pot₂ = MiyamotoNagaiDisk(m_d*rand(), a_d*rand(), b_d*rand())
+        pot₃ = Hernquist(m_h*rand(), a_h*rand())
+        pot[i] = CompositePotential(pot₁,pot₂,pot₃)
+        event = Event(30rand(3), 200rand(3))
+        mp_array[i] = MacroParticle(pot[i], event)
+    end
+    pot[n+1] =  CompositePotential(Kepler(1.0e7), Kepler(0.1))
+    mp_array[n+1] = MacroParticle(pot[n+1])
+    mps = MacroParticleSystem(mp_array...)
+    t_span = (0., 7.)
+    @set_system_trait mps GenSys
+    @time orbits = evolve(mps, t_span; options=ntSolverOptions(saveat=0.1))
+    @set_system_trait mps GenPerfSys
+    @time orbits₂ = evolve(mps, t_span; options=ntSolverOptions(saveat=0.1))
+    for i in eachindex(pot)
+        @test orbits[i].x ≈ orbits₂[i].x  rtol=1.e-8
+        @test orbits[i].v ≈ orbits₂[i].v  rtol=1.e-8
+    end
+end
