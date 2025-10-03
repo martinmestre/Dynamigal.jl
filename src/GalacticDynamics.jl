@@ -14,8 +14,8 @@ export ntSolverOptions
 export 𝕦, G, 𝕤, 𝕔, H₀, sis, six
 export potential
 export acceleration, acceleration!, acceleration_c!
-export ode, _ode
-export evolve, _evolve
+export ode, _ode, ode_c
+export evolve, _evolve, evolve_c
 export circular_velocity
 export Particle, TestParticle, MacroParticle
 export MacroParticleSystem

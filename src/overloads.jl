@@ -7,6 +7,8 @@ Base.length(cp::CompositePotential) = length(cp.potentials)
 Base.getindex(cp::CompositePotential, i::Int) = cp.potentials[i]
 Base.iterate(cp::CompositePotential, state...) = iterate(cp.potentials, state...)
 Base.eachindex(cp::CompositePotential) = eachindex(cp.potentials)
+Base.getindex(cp::CompositePotential, r::AbstractRange{Int}) = MacroParticleSystem(cp.potentials[r])
+Base.getindex(cp::CompositePotential, v::AbstractVector{Int}) = MacroParticleSystem(cp.potentials[v])
 
 
 function Base.:+(p1::T, p2::U) where {T <: AbstractPotential, U <: AbstractPotential}
@@ -30,6 +32,8 @@ Base.length(mps::MacroParticleSystem) = length(mps.macroparticles)
 Base.getindex(mps::MacroParticleSystem, i::Int) = mps.macroparticles[i]
 Base.iterate(mps::MacroParticleSystem, state...) = iterate(mps.macroparticles, state...)
 Base.eachindex(mps::MacroParticleSystem) = eachindex(mps.macroparticles)
+Base.getindex(mps::MacroParticleSystem, r::AbstractRange{Int}) = MacroParticleSystem(mps.macroparticles[r])
+Base.getindex(mps::MacroParticleSystem, v::AbstractVector{Int}) = MacroParticleSystem(mps.macroparticles[v])
 
 
 function Base.:+(p1::T, p2::U) where {T <: AbstractMacroParticle, U <: AbstractMacroParticle}

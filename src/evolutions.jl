@@ -2,21 +2,21 @@
 
 
 """Evolution of a an initial condition in an AbstractPotential"""
-function evolve(pot::P, x::AbstractVector{D}, v::AbstractVector{F},
-   t_span::Tuple{T,T}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractPotential, D, F, T}
-    p = pot
-    u₀ = SA[x...,v...]
-    prob = ODEProblem(ode, u₀, t_span, p)
-    sol = solve(prob, solver; options...)
-    orb = Orbit(sol.t, sol[sis,:], sol[siss,:])
-    return orb
-end
-
 function _evolve(pot::P, x::AbstractVector{D}, v::AbstractVector{F},
    t_span::Tuple{T,T}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractPotential, D, F, T}
     p = pot
     u₀ = SA[x...,v...]
     prob = ODEProblem(_ode, u₀, t_span, p)
+    sol = solve(prob, solver; options...)
+    orb = Orbit(sol.t, sol[sis,:], sol[siss,:])
+    return orb
+end
+# evolve(below) is a little faster than _evolve(above)
+function evolve(pot::P, x::AbstractVector{D}, v::AbstractVector{F},
+   t_span::Tuple{T,T}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractPotential, D, F, T}
+    p = pot
+    u₀ = SA[x...,v...]
+    prob = ODEProblem(ode, u₀, t_span, p)
     sol = solve(prob, solver; options...)
     orb = Orbit(sol.t, sol[sis,:], sol[siss,:])
     return orb
@@ -73,9 +73,10 @@ function evolve(::GenSys, mps::MacroParticleSystem, t_span::Tuple{R,R}, solver=�
     return sys_orb
 end
 
+
 """Evolution of a system of MacroParticle, general performant type"""
-function evolve(::GenPerfSys, mps::MacroParticleSystem, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {R<:Real}
-    println("Caso GenPerfSys")
+function evolve(::GenSysMutODE, mps::MacroParticleSystem, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {R<:Real}
+    println("Caso GenSysMutODE")
     @show options
     x = vcat([[mps[i].event.x for i ∈ eachindex(mps)]...]...)
     v = vcat([[mps[i].event.v for i ∈ eachindex(mps)]...]...)

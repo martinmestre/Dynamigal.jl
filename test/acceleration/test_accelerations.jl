@@ -87,13 +87,24 @@ end
     pot[n+1] =  CompositePotential(Kepler(1.0e7), Kepler(0.1))
     mp_array[n+1] = MacroParticle(pot[n+1])
     mps = MacroParticleSystem(mp_array...)
-    t_span = (0., 7.)
-    for i in 1:m
-        x = 50rand(3)
-        @time acc = acceleration(mps,x)
+    x = vcat([[mps[i].event.x for i ∈ eachindex(mps)]...]...)
+    v = vcat([[mps[i].event.v for i ∈ eachindex(mps)]...]...)
+    for j = 1:2
+        u = SA[x...,v...].*rand(6*(n+1))
+        acc = acceleration!(mps,u)
+        acc₂ = acceleration_c!(mps,u)
+        @test acc ≈ acc₂ rtol=5.e-14
+        a = @benchmark acceleration!($mps,$u) samples=100 seconds=1000
+        b = @benchmark acceleration_c!($mps,$u) samples=100 seconds=1000
+        println("j = $j")
+        display(a)
+        display(b)
     end
     for Δx ∈ [0.01, 0.001, 0.0001, 0.00001, 0.000001]
         x = Δx*[1,0,0]
         @show acceleration(mps,x)
+        c = @benchmark acceleration($mps,$x) samples=100 seconds=1000
+        println("Δx = $(Δx)")
+        display(c)
     end
 end

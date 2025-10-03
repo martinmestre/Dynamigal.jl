@@ -18,8 +18,9 @@ Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 LinearAlgebra = "1.11.0"
 
 [extras]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test","PythonCall"]
+test = ["Test", "PythonCall", "BenchmarkTools"]

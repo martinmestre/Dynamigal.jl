@@ -97,6 +97,33 @@ cache acceleration is modified in-place, but not used by the ode(...).
 I will have an alternative ode!(...) function that doesn't call any acceleration!(...).
 ------------------------------------------------------------------------------------
 Two algorithms:
+acceleration_c! and acceleration!
+
+Example benchmark from testset AccelerationsMacroParticleSystem:
+
+BenchmarkTools.Trial: 100 samples with 1 evaluation per sample.
+ Range (min … max):  24.056 μs … 58.068 μs  ┊ GC (min … max): 0.00% … 0.00%
+ Time  (median):     24.424 μs              ┊ GC (median):    0.00%
+ Time  (mean ± σ):   25.954 μs ±  5.371 μs  ┊ GC (mean ± σ):  0.00% ± 0.00%
+
+  █▅
+  ███▆▁▁▁▄▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▄▆▁▁▁▆▁▁▁▁▄▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▄ ▄
+  24.1 μs      Histogram: log(frequency) by time      51.5 μs <
+
+ Memory estimate: 14.94 KiB, allocs estimate: 373.
+
+BenchmarkTools.Trial: 100 samples with 1 evaluation per sample.
+ Range (min … max):  37.776 μs … 91.976 μs  ┊ GC (min … max): 0.00% … 0.00%
+ Time  (median):     38.600 μs              ┊ GC (median):    0.00%
+ Time  (mean ± σ):   39.977 μs ±  7.462 μs  ┊ GC (mean ± σ):  0.00% ± 0.00%
+
+  █▅▂
+  ████▆▁▁▁▁▁▄▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▄ ▄
+  37.8 μs      Histogram: log(frequency) by time      90.5 μs <
+
+ Memory estimate: 20.86 KiB, allocs estimate: 458.
+
+Conclusion: acceleration! is more performant than acceleration_c!
 """
 
 selec(i::I) where {I<:Integer} = 1+3(i-1)

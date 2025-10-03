@@ -26,6 +26,11 @@ Hernquist(m::T, a::D) where {T<:Unitful.Mass, D<:Unitful.Length} =
     Hernquist( ustrip(uconvert(𝕦.m, m)),  ustrip(uconvert(𝕦.l, a)) )
 
 
+@with_kw struct PowerLawCutoff{T<:Real,D<:Real} <: AbstractStaticPotential
+    m::T
+    a::D
+end
+
 @with_kw struct MiyamotoNagaiDisk{T<:Real,D<:Real,F<:Real} <: AbstractStaticPotential
     m::T
     a::D
@@ -50,7 +55,6 @@ AllenSantillanHalo(m::T, a::D, Λ::F, γ::G) where {T<:Unitful.Mass, D<:Unitful.
 
 
 # NFW
-
 f_nfw(x::T) where {T<:Real} = log(1+x)-x/(1+x)
 
 function r_vir_nfw(m; 𝕔=𝕔)

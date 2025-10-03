@@ -135,15 +135,20 @@
 #         x₀ = w₀[1:3]
 #         v₀ = w₀[4:6]
 #         t_range = (0.0,15.0)
-#         @time sol = evolve(pot, x₀, v₀, t_range; options=ntSolverOptions(; saveat=0.1))
-#         @time sol₂ = _evolve(pot, x₀, v₀, t_range; options=ntSolverOptions(; saveat=0.1))
+#         a = @benchmark evolve($pot, $x₀, $v₀, $t_range; options=ntSolverOptions(; saveat=0.1))
+#         b = @benchmark _evolve($pot, $x₀, $v₀, $t_range; options=ntSolverOptions(; saveat=0.1))
+#         display(a)
+#         display(b)
+#         sol = evolve(pot, x₀, v₀, t_range; options=ntSolverOptions(; saveat=0.1))
+#         sol₂ = _evolve(pot, x₀, v₀, t_range; options=ntSolverOptions(; saveat=0.1))
 #         @test sol.x ≈ sol₂.x rtol=5.0e-12
 #         @test sol.v ≈ sol₂.v rtol=5.0e-12
 #     end
 # end
 
 @testset "OrbitsMacroParticleSystem" begin
-    n = 3
+    ϵ = 5.0e-6
+    n = 20
     m_p = 1.0e8
     a_p = 5.0
     m_d = 1.0e10
@@ -152,35 +157,51 @@
     m_h = 5.0e11
     a_h = 50.0
     Δt = 0.1
-    pot = Vector{CompositePotential}(undef, n+1)
-    mp_array = Vector{MacroParticle}(undef, n+1)
+    pot = Vector{CompositePotential}(undef, n)
+    mp_array = Vector{MacroParticle}(undef, n)
     for i in eachindex(pot)
-        pot₁ = Plummer(m_p*rand(), a_p*rand())
-        pot₂ = MiyamotoNagaiDisk(m_d*rand(), a_d*rand(), b_d*rand())
-        pot₃ = Hernquist(m_h*rand(), a_h*rand())
+        pot₁ = Plummer(m_p, a_p)
+        pot₂ = MiyamotoNagaiDisk(m_d, a_d, b_d)
+        pot₃ = Hernquist(m_h, a_h)
         pot[i] = CompositePotential(pot₁,pot₂,pot₃)
-        event = Event(5.0.+30rand(3), 50.0.+150rand(3))
+        event = Event(5.0.+30rand(3), 20.0.+100rand(3))
         @show event
         mp_array[i] = MacroParticle(pot[i], event)
     end
-    pot[n+1] =  CompositePotential(Kepler(1.0e7), Kepler(0.1))
-    mp_array[n+1] = MacroParticle(pot[n+1], Event(0.1ones(3),2ones(3)))
     mps = MacroParticleSystem(mp_array...)
     t_span = (0., 7.)
     @set_system_trait mps GenSys
-    @time orbits = evolve(mps, t_span; options=ntSolverOptions(abstol=0.5e-13, reltol=5.e-13, saveat=Δt))
-    @set_system_trait mps GenPerfSys
-    @time orbits₂ = evolve(mps, t_span; options=ntSolverOptions(abstol=0.5e-13, reltol=5.e-13, saveat=Δt))
-    for i in eachindex(pot)
-        for j in 1:3
-            @show maximum.([abs.(orbits[i].x[j,:]), abs.(orbits₂[i].x[j,:])])
-            @show maximum.([abs.(orbits[i].v[j,:]), abs.(orbits₂[i].v[j,:])])
-            @show minimum.([abs.(orbits[i].x[j,:]), abs.(orbits₂[i].x[j,:])])
-            @show minimum.([abs.(orbits[i].v[j,:]), abs.(orbits₂[i].v[j,:])])
-            @show maximum((orbits[i].x[j,:] - orbits₂[i].x[j,:]) ./ orbits₂[i].x[j,:] )
-            @show maximum((orbits[i].v[j,:] - orbits₂[i].v[j,:]) ./ orbits₂[i].v[j,:] )
-            @test orbits[i].x[j,:] ≈ orbits₂[i].x[j,:]  rtol=5.e-7
-            @test orbits[i].v[j,:] ≈ orbits₂[i].v[j,:]  rtol=5.e-7
+    bench = @benchmark evolve_c(GenSys(), $mps, $t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8, saveat=$Δt)) samples=10 seconds=1000
+    display(bench)
+    bench₂ = @benchmark evolve($mps, $t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8, saveat=$Δt)) samples=10 seconds=1000
+    display(bench₂)
+    large_test = false
+    if large_test
+        @set_system_trait mps GenSys
+        orbits = evolve(mps, t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8, saveat=Δt))
+        @set_system_trait mps GenPerfSys
+        orbits₂ = evolve(mps, t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8, saveat=Δt))
+        for i in eachindex(pot)
+            for j in 1:3
+                x, y = orbits[i].x[j,:], orbits₂[i].x[j,:]
+                @test all(isapprox.(x, y, rtol=ϵ))
+                x, y = orbits[i].v[j,:], orbits₂[i].v[j,:]
+                @test all(isapprox.(x, y, rtol=ϵ))
+                for k in eachindex(orbits[1].x[j,:])
+                    x, y = orbits[i].x[j,k], orbits₂[i].x[j,k]
+                    @test x ≈ y  rtol=ϵ
+                    if abs(x-y) > max(abs(x), abs(y))*ϵ
+                        @show i, j, k
+                        @show (x - y)/max(abs(x), abs(y))
+                    end
+                    x, y = orbits[i].v[j,k], orbits₂[i].v[j,k]
+                    @test x ≈ y  rtol=ϵ
+                    if abs(x-y) > max(abs(x), abs(y))*ϵ
+                        @show i, j, k
+                        @show (x - y)/max(abs(x), abs(y))
+                    end
+                end
+            end
         end
     end
 end

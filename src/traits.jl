@@ -4,7 +4,7 @@
 
 abstract type SystemTrait end
 struct GenSys <: SystemTrait end
-struct GenPerfSys <: SystemTrait end
+struct GenSysMutODE <: SystemTrait end
 struct CloudsMW <: SystemTrait end
 struct SagCloudsMW <: SystemTrait end
 
