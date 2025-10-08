@@ -90,7 +90,8 @@ end
 """
 ------------------------------------------------------------------------------------
 
-Accelerations received by each MacroParticle of a system at time t (mutating cache).
+Accelerations received by each MacroParticle of a system at time t (mutating cache in some
+of the methods below but not in specific ones, i.e. Clouds+MW, Sagittarius+Clouds+MW, etc.).
 
 This are the accelerations needed by the ode(...).
 cache acceleration is modified in-place, but not used by the ode(...).
@@ -176,5 +177,29 @@ function acceleration!(mps::P, x::AbstractVector{L}, t::T=0.0) where {P<:Abstrac
     return acc
 end
 
+"""Acceleration of an AbstractGalacticSystem, main method"""
+function acceleration(system::P, u::AbstractVector{L}, t::T=0.0) where {P<:AbstractGalacticSystem, L<:Real, T<:Real}
+    return acceleration(FrictionTrait(P), system, u, t)
+end
 
+"""Acceleration for LargeCloudMW system without friction"""
+function acceleration(::FrictionlessTrait, system::LargeCloudMW, u::AbstractVector{L}, t::T=0.0) where {L<:Real, T<:Real}
+    @unpack mw, cloud = system
+    Δx = SVector{3,L}(u[4]-u[1], u[5]-u[2], u[6]-u[3])
+    acc_at_cloud = acceleration(mw.pot, Δx, t)
+    acc_at_mw = acceleration(cloud.pot, -Δx, t)
+    return SVector{6,L}(acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
+             acc_at_cloud[1], acc_at_cloud[2], acc_at_cloud[3])
+end
 
+"""Acceleration for LargeCloudMW system with dynamical friction"""
+function acceleration(::FrictionIncludedTrait, system::LargeCloudMW, u::AbstractVector{L}, t::T=0.0) where {L<:Real, T<:Real}
+    @unpack mw, cloud = system
+    Δx = SVector{3,L}(u[4]-u[1], u[5]-u[2], u[6]-u[3])
+    Δv = SVector{3,L}(u[10]-u[7], u[11]-u[8], u[12]-u[9])
+    acc_friction = 0.0
+    acc_at_cloud = acceleration(mw.pot, Δx, t) + acc_friction
+    acc_at_mw = acceleration(cloud.pot, -Δx, t)
+    return SVector{6,L}(acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
+             acc_at_cloud[1], acc_at_cloud[2], acc_at_cloud[3])
+end

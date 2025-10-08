@@ -59,5 +59,37 @@ function MacroParticleSystem(macroparticles::NTuple{N, MacroParticle}) where {N}
     accelerations = zeros(MVector{3N, R})
     return MacroParticleSystem{N, typeof(accelerations)}(macroparticles, accelerations)
 end
-
 MacroParticleSystem(macroparticles::MacroParticle...) = MacroParticleSystem(macroparticles)
+
+function MacroParticleSystem(galactic::P) where {P<:AbstractGalacticSystem}
+    macroparticles = ntuple(i -> getfield(galactic, i), fieldcount(P))
+    return MacroParticleSystem(macroparticles)
+end
+
+
+@with_kw struct LargeCloudMW{P,T} <: AbstractGalacticSystem
+    mw::P
+    cloud::T
+end
+function LargeCloudMW(mps::T) where {T<:AbstractMacroParticleSystem}
+    return LargeCloudMW{typeof(mps[1]),typeof(mps[2]) }(mw=mps[1], cloud=mps[2])
+end
+
+@with_kw struct CloudsMW{P,T,W} <: AbstractGalacticSystem
+    mw::P
+    large::T
+    small::W
+end
+function CloudsMW(mps::T) where {T<:AbstractMacroParticleSystem}
+    return CloudsMW{typeof(mps[1]),typeof(mps[2]),typeof(mps[3])}(mw=mps[1], large=mps[2], small=mps[3])
+end
+
+@with_kw struct SagCloudsMW{P,T,W,Q} <: AbstractGalacticSystem
+    mw::P
+    large::T
+    small::W
+    sag::Q
+end
+function SagCloudsMW(mps::T) where {T<:AbstractMacroParticleSystem}
+    return SagCloudsMW{typeof(mps[1]),typeof(mps[2]),typeof(mps[3]),typeof(mps[4])}(mw=mps[1], large=mps[2], small=mps[3], sag=mps[4])
+end

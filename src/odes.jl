@@ -35,6 +35,8 @@ Benchmark with 20 macroparticles with compound potentials:
 
     Conclusion (tested upto 20 macro particles): better to use "ode" with "acceleration!"
         but not so much difference if using "acceleration_c"
+
+The function below is mutation only in the system's acceleration, but no in du argument
 """
 function ode(u::AbstractArray{L}, p::MacroParticleSystem, t::T) where {L<:Real,T<:Real}
     n = Integer(length(u)/2)
@@ -79,3 +81,8 @@ function ode!(du::AbstractArray{L}, u::AbstractArray{L}, p::MacroParticleSystem,
     return nothing
 end
 
+"""ODE for the Newtonian case: LargeCloudMW system."""
+function ode(u::AbstractArray{L}, p::LargeCloudMW, t::T) where {L<:Real,T<:Real}
+    n = Integer(length(u)/2)
+    return SA[u[n+1:end]..., acceleration(p, u, t)...]
+end

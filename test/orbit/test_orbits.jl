@@ -146,9 +146,67 @@
 #     end
 # end
 
-@testset "OrbitsMacroParticleSystem" begin
-    ϵ = 5.0e-6
-    n = 20
+# @testset "OrbitsMacroParticleSystem" begin
+#     ϵ = 5.0e-6
+#     n = 4
+#     m_p = 1.0e8
+#     a_p = 5.0
+#     m_d = 1.0e10
+#     a_d = 7.0
+#     b_d = 2.0
+#     m_h = 5.0e11
+#     a_h = 50.0
+#     Δt = 0.1
+#     pot = Vector{CompositePotential}(undef, n)
+#     mp_array = Vector{MacroParticle}(undef, n)
+#     for i in eachindex(pot)
+#         pot₁ = Plummer(m_p, a_p)
+#         pot₂ = MiyamotoNagaiDisk(m_d, a_d, b_d)
+#         pot₃ = Hernquist(m_h, a_h)
+#         pot[i] = CompositePotential(pot₁,pot₂,pot₃)
+#         event = Event(5.0.+30rand(3), 20.0.+100rand(3))
+#         @show event
+#         mp_array[i] = MacroParticle(pot[i], event)
+#     end
+#     mps = MacroParticleSystem(mp_array...)
+#     t_span = (0., 7.)
+#     # @set_system_trait mps GenSysTrait
+#     # bench = @benchmark evolve_c(GenSysTrait(), $mps, $t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8, saveat=$Δt)) samples=10 seconds=1000
+#     # display(bench)
+#     # bench₂ = @benchmark evolve($mps, $t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8, saveat=$Δt)) samples=10 seconds=1000
+#     # display(bench₂)
+#     large_test = false
+#     if large_test
+#         @set_system_trait mps GenSysTrait
+#         orbits = evolve(mps, t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8, saveat=Δt))
+#         @set_system_trait mps GenSysMutOdeTrait
+#         orbits₂ = evolve(mps, t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8, saveat=Δt))
+#         for i in eachindex(pot)
+#             for j in 1:3
+#                 x, y = orbits[i].x[j,:], orbits₂[i].x[j,:]
+#                 @test all(isapprox.(x, y, rtol=ϵ))
+#                 x, y = orbits[i].v[j,:], orbits₂[i].v[j,:]
+#                 @test all(isapprox.(x, y, rtol=ϵ))
+#                 for k in eachindex(orbits[1].x[j,:])
+#                     x, y = orbits[i].x[j,k], orbits₂[i].x[j,k]
+#                     @test x ≈ y  rtol=ϵ
+#                     if abs(x-y) > max(abs(x), abs(y))*ϵ
+#                         @show i, j, k
+#                         @show (x - y)/max(abs(x), abs(y))
+#                     end
+#                     x, y = orbits[i].v[j,k], orbits₂[i].v[j,k]
+#                     @test x ≈ y  rtol=ϵ
+#                     if abs(x-y) > max(abs(x), abs(y))*ϵ
+#                         @show i, j, k
+#                         @show (x - y)/max(abs(x), abs(y))
+#                     end
+#                 end
+#             end
+#         end
+#     end
+# end
+
+@testset "OrbitsLargeCloudMW" begin
     m_p = 1.0e8
     a_p = 5.0
     m_d = 1.0e10
@@ -156,52 +214,27 @@
     b_d = 2.0
     m_h = 5.0e11
     a_h = 50.0
-    Δt = 0.1
-    pot = Vector{CompositePotential}(undef, n)
-    mp_array = Vector{MacroParticle}(undef, n)
-    for i in eachindex(pot)
-        pot₁ = Plummer(m_p, a_p)
-        pot₂ = MiyamotoNagaiDisk(m_d, a_d, b_d)
-        pot₃ = Hernquist(m_h, a_h)
-        pot[i] = CompositePotential(pot₁,pot₂,pot₃)
-        event = Event(5.0.+30rand(3), 20.0.+100rand(3))
-        @show event
-        mp_array[i] = MacroParticle(pot[i], event)
-    end
+    mp_array = Vector{MacroParticle}(undef, 2)
+    pot₁ = Plummer(m_p, a_p)
+    pot₂ = MiyamotoNagaiDisk(m_d, a_d, b_d)
+    event₁ = Event(30ones(3), 200ones(3))
+    event₂ = Event(-30ones(3), 100ones(3))
+    mp_array[1] = MacroParticle(pot₁ + pot₂, event₁)
+    mp_array[2] = MacroParticle(pot₁ + pot₂, event₂)
     mps = MacroParticleSystem(mp_array...)
-    t_span = (0., 7.)
-    @set_system_trait mps GenSys
-    bench = @benchmark evolve_c(GenSys(), $mps, $t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8, saveat=$Δt)) samples=10 seconds=1000
-    display(bench)
-    bench₂ = @benchmark evolve($mps, $t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8, saveat=$Δt)) samples=10 seconds=1000
-    display(bench₂)
-    large_test = false
-    if large_test
-        @set_system_trait mps GenSys
-        orbits = evolve(mps, t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8, saveat=Δt))
-        @set_system_trait mps GenPerfSys
-        orbits₂ = evolve(mps, t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8, saveat=Δt))
-        for i in eachindex(pot)
-            for j in 1:3
-                x, y = orbits[i].x[j,:], orbits₂[i].x[j,:]
-                @test all(isapprox.(x, y, rtol=ϵ))
-                x, y = orbits[i].v[j,:], orbits₂[i].v[j,:]
-                @test all(isapprox.(x, y, rtol=ϵ))
-                for k in eachindex(orbits[1].x[j,:])
-                    x, y = orbits[i].x[j,k], orbits₂[i].x[j,k]
-                    @test x ≈ y  rtol=ϵ
-                    if abs(x-y) > max(abs(x), abs(y))*ϵ
-                        @show i, j, k
-                        @show (x - y)/max(abs(x), abs(y))
-                    end
-                    x, y = orbits[i].v[j,k], orbits₂[i].v[j,k]
-                    @test x ≈ y  rtol=ϵ
-                    if abs(x-y) > max(abs(x), abs(y))*ϵ
-                        @show i, j, k
-                        @show (x - y)/max(abs(x), abs(y))
-                    end
-                end
-            end
-        end
-    end
+    cloudMW = LargeCloudMW(mps)
+    x = reduce(vcat, [mps[i].event.x for i in eachindex(mps)])
+    v = reduce(vcat, [mps[i].event.v for i in eachindex(mps)])
+    u = SA[x...,v...].*rand(12)
+    t_span = (0.0, 15.0)
+    trait = FrictionlessTrait()
+    orb₁ = evolve(mps, t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8))
+    orb₂ = evolve(cloudMW, t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8))
+    @test orb₁[1].x[:,end] ≈ orb₂[1].x[:,end]  rtol=5.e-14
+    @test orb₁[1].v[:,end] ≈ orb₂[1].v[:,end]  rtol=5.e-14
+    @show orb₁[1].x[:,end] orb₂[1].x[:,end] orb₁[1].v[:,end] orb₂[1].v[:,end]
+    a = @benchmark evolve($mps, $t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8)) samples=10 seconds=100
+    b = @benchmark evolve($cloudMW, $t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8)) samples=10 seconds=100
+    display(a)
+    display(b)
 end

@@ -19,6 +19,7 @@ export evolve, _evolve, evolve_c
 export circular_velocity
 export Particle, TestParticle, MacroParticle
 export MacroParticleSystem
+export LargeCloudMW, CloudsMW, SagCloudsMW
 export Event, Orbit, Snapshot
 export TimeDependent, Kepler, Plummer, AllenSantillanHalo, MiyamotoNagaiDisk
 export Hernquist, NFW
@@ -28,11 +29,12 @@ export concentration
 export example_Plummer, example_MiyamotoNagai, example_sum_of_potentials
 export example_AllenSantillan
 export example_of_mps
+export example_GalacticSystems
 export code_units, physical_units, adimensional
 export r_vir_nfw
-export SystemTrait, @set_system_trait
-export GenSys, GenSysMutODE, LargeCloudMW, CloudsMW, SagCloudsMW
-export AbstractMacroParticleSystem
+export SystemTrait, @set_system_trait, GenSysTrait, GenSysMutOdeTrait
+export FrictionTrait, @set_friction_trait, FrictionlessTrait, FrictionIncludedTrait
+
 
 include("abstract_types.jl")
 include("traits.jl")

@@ -30,6 +30,8 @@ abstract type AbstractParticleSystem <: AbstractDiscreteDistribution end
 abstract type AbstractMacroParticleSystem <: AbstractParticleSystem end
 abstract type AbstractEnsemble <: AbstractParticleSystem end
 
+abstract type AbstractGalacticSystem <: AbstractMacroParticleSystem end
+
 abstract type AbstractGlobularCluster <: AbstractEnsemble end
 abstract type AbstractGalaxy <: AbstractEnsemble end
 
