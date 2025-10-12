@@ -5,8 +5,12 @@
 abstract type SystemTrait end
 struct GenSysTrait <: SystemTrait end
 struct GenSysMutOdeTrait <: SystemTrait end
+struct GalacticTrait <: SystemTrait end
+struct PerfGalacticTrait <: SystemTrait end
 
 SystemTrait(::Type) = GenSysTrait()
+SystemTrait(::Type{<:AbstractGalacticSystem}) = GalacticTrait()
+
 # then in code I do if and only if I want to use the customize function:
 # SystemTrait(::Type{typeof(mps)}) = CloudsMW()
 # warning: this sets the same SystemTrait function for all the struct of the same
@@ -18,10 +22,10 @@ macro set_system_trait(system, trait)
 end
 # luego se corre:
 # Más simple y readable
-# @set_trait system CloudsMW
+# @set_trait system GenSysMutOdeTrait
 
 # Para cambiar
-# @set_trait system SagCloudsMW
+# @set_trait system GenSysTrait
 
 """Acceleration traits"""
 abstract type FrictionTrait end

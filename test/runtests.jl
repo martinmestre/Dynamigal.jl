@@ -1,4 +1,4 @@
-using GalacticDynamics
+using Dinamigal
 using Test
 using PythonCall
 using BenchmarkTools

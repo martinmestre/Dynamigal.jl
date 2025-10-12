@@ -50,7 +50,6 @@ end
 
 """Evolution of a MacroParticleSystem, main method"""
 function evolve(mps::T, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {T,R<:Real}
-    # @show T SystemTrait(T)
     return evolve(SystemTrait(T), mps, t_span, solver; options=options)
 end
 
@@ -90,7 +89,7 @@ function evolve(::GenSysMutOdeTrait, mps::MacroParticleSystem, t_span::Tuple{R,R
 end
 
 """Evolution of a LargeCloudMW (<: GalacticSystem)"""
-function evolve(cloudMW::LargeCloudMW, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {R<:Real}
+function evolve(::GalacticTrait, cloudMW::LargeCloudMW, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {R<:Real}
     x_mw = cloudMW.mw.event.x
     x_cl = cloudMW.cloud.event.x
     v_mw = cloudMW.mw.event.v
@@ -105,6 +104,20 @@ function evolve(cloudMW::LargeCloudMW, t_span::Tuple{R,R}, solver=𝕤.ode; opti
     return sys_orb
 end
 
-
+"""Evolution of a LargeCloudMW (<: GalacticSystem)"""
+function evolve(::PerfGalacticTrait, cloudMW::LargeCloudMW, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {R<:Real}
+    x_mw = cloudMW.mw.event.x
+    x_cl = cloudMW.cloud.event.x
+    v_mw = cloudMW.mw.event.v
+    v_cl = cloudMW.cloud.event.v
+    u₀ = SVector{12,typeof(x_mw[1])}(x_mw[1], x_mw[2], x_mw[3], x_cl[1], x_cl[2], x_cl[3],
+                                    v_mw[1], v_mw[2], v_mw[3], v_cl[1], v_cl[2], v_cl[3])
+    prob = ODEProblem(ode_perf, u₀, t_span, cloudMW)
+    sol  = solve(prob, solver; options...)
+    sys_orb = Vector{Orbit}(undef, 2)
+    sys_orb[1] = Orbit(sol.t, sol[1:3,:], sol[7:9,:])
+    sys_orb[2] = Orbit(sol.t, sol[4:6,:], sol[10:12,:])
+    return sys_orb
+end
 
 

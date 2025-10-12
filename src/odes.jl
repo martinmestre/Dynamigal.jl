@@ -81,8 +81,22 @@ function ode!(du::AbstractArray{L}, u::AbstractArray{L}, p::MacroParticleSystem,
     return nothing
 end
 
-"""ODE for the Newtonian case: LargeCloudMW system."""
+"""ODE for the Newtonian case: LargeCloudMW system
+    called from evolution() when using GalacticTrait."""
 function ode(u::AbstractArray{L}, p::LargeCloudMW, t::T) where {L<:Real,T<:Real}
-    n = Integer(length(u)/2)
-    return SA[u[n+1:end]..., acceleration(p, u, t)...]
+    return SVector{12,L}(u[7],u[8],u[9],u[10],u[11],u[12],
+                        acceleration(p, u, t)... )
+end
+
+"""ODE for the Newtonian case: LargeCloudMW system
+    called from evolution() when using PerfGalacticTrait."""
+function ode_perf(u::AbstractArray{L}, p::LargeCloudMW, t::T) where {L<:Real,T<:Real}
+    @unpack mw, cloud = p
+    Δx = SVector{3,L}(u[4]-u[1], u[5]-u[2], u[6]-u[3])
+    acc_at_cloud = acceleration(mw.pot, Δx, t)
+    acc_at_mw = acceleration(cloud.pot, -Δx, t)
+    return SVector{12,L}(u[7],u[8],u[9],
+                        u[10],u[11],u[12],
+                        acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
+                        acc_at_cloud[1], acc_at_cloud[2], acc_at_cloud[3])
 end

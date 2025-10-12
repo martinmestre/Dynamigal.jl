@@ -1,4 +1,4 @@
-module GalacticDynamics
+module Dinamigal
 
 using Reexport
 @reexport using OrdinaryDiffEq
@@ -14,7 +14,7 @@ export ntSolverOptions
 export 𝕦, G, 𝕤, 𝕔, H₀, sis, six
 export potential
 export acceleration, acceleration!, acceleration_c!
-export ode, _ode, ode_c
+export ode, _ode, ode_c, ode_perf
 export evolve, _evolve, evolve_c
 export circular_velocity
 export Particle, TestParticle, MacroParticle
@@ -32,8 +32,11 @@ export example_of_mps
 export example_GalacticSystems
 export code_units, physical_units, adimensional
 export r_vir_nfw
-export SystemTrait, @set_system_trait, GenSysTrait, GenSysMutOdeTrait
-export FrictionTrait, @set_friction_trait, FrictionlessTrait, FrictionIncludedTrait
+export SystemTrait, @set_system_trait
+export GenSysTrait, GenSysMutOdeTrait
+export GalacticTrait, PerfGalacticTrait
+export FrictionTrait, @set_friction_trait
+export FrictionlessTrait, FrictionIncludedTrait
 
 
 include("abstract_types.jl")

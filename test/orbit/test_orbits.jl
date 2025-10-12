@@ -217,24 +217,41 @@
     mp_array = Vector{MacroParticle}(undef, 2)
     pot₁ = Plummer(m_p, a_p)
     pot₂ = MiyamotoNagaiDisk(m_d, a_d, b_d)
-    event₁ = Event(30ones(3), 200ones(3))
-    event₂ = Event(-30ones(3), 100ones(3))
+    event₁ = Event(20ones(3), 150ones(3))
+    event₂ = Event(-15ones(3), 10ones(3))
     mp_array[1] = MacroParticle(pot₁ + pot₂, event₁)
     mp_array[2] = MacroParticle(pot₁ + pot₂, event₂)
     mps = MacroParticleSystem(mp_array...)
     cloudMW = LargeCloudMW(mps)
     x = reduce(vcat, [mps[i].event.x for i in eachindex(mps)])
     v = reduce(vcat, [mps[i].event.v for i in eachindex(mps)])
-    u = SA[x...,v...].*rand(12)
-    t_span = (0.0, 15.0)
-    trait = FrictionlessTrait()
+    u = SA[x...,v...]
+    t_span = (0.0, 5.0)
     orb₁ = evolve(mps, t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8))
     orb₂ = evolve(cloudMW, t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8))
+    @set_system_trait cloudMW PerfGalacticTrait
+    orb₃ = evolve(cloudMW, t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8))
     @test orb₁[1].x[:,end] ≈ orb₂[1].x[:,end]  rtol=5.e-14
+    @test orb₁[1].x[:,end] ≈ orb₃[1].x[:,end]  rtol=5.e-14
     @test orb₁[1].v[:,end] ≈ orb₂[1].v[:,end]  rtol=5.e-14
-    @show orb₁[1].x[:,end] orb₂[1].x[:,end] orb₁[1].v[:,end] orb₂[1].v[:,end]
-    a = @benchmark evolve($mps, $t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8)) samples=10 seconds=100
-    b = @benchmark evolve($cloudMW, $t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8)) samples=10 seconds=100
+    @test orb₁[1].v[:,end] ≈ orb₃[1].v[:,end]  rtol=5.e-14
+    @show orb₁[1].x[:,end] orb₂[1].x[:,end] orb₃[1].x[:,end]
+    @show orb₁[1].v[:,end] orb₂[1].v[:,end] orb₃[1].v[:,end]
+    a = @benchmark evolve($mps, $t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8)) samples=10
+    @set_system_trait cloudMW GalacticTrait
+    b = @benchmark evolve($cloudMW, $t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8)) samples=10
+    @set_system_trait cloudMW PerfGalacticTrait
+    c = @benchmark evolve($cloudMW, $t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8)) samples=10
+    trait = GenSysTrait()
+    d = @benchmark evolve($trait, $mps, $t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8)) samples=10
+    trait = GalacticTrait()
+    e = @benchmark evolve($trait, $cloudMW, $t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8)) samples=10
+    trait = PerfGalacticTrait()
+    f = @benchmark evolve($trait, $cloudMW, $t_span; options=ntSolverOptions(abstol=0.5e-8, reltol=5.e-8)) samples=10
     display(a)
     display(b)
+    display(c)
+    display(d)
+    display(e)
+    display(f)
 end
