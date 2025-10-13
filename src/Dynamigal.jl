@@ -1,4 +1,4 @@
-module Dinamigal
+module Dynamigal
 
 using Reexport
 @reexport using OrdinaryDiffEq

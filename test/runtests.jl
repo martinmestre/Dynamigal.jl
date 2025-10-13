@@ -1,4 +1,4 @@
-using Dinamigal
+using Dynamigal
 using Test
 using PythonCall
 using BenchmarkTools
