@@ -8,6 +8,7 @@ using Parameters
 @reexport using Unitful, UnitfulAstro
 using NamedTupleTools
 @reexport using LinearAlgebra
+@reexport using SpecialFunctions
 
 export SolverConfig, UnitsConfig, CosmosConfig, SolverOptions
 export ntSolverOptions

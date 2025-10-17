@@ -16,7 +16,7 @@ end
 """Units configuration"""
 @with_kw struct UnitsConfig{M<:Unitful.Unitlike, L<:Unitful.Unitlike, T<:Unitful.Unitlike,
                             V<:Unitful.Unitlike, A<:Unitful.Unitlike,P<:Unitful.Unitlike,
-                            V₁<:Unitful.Unitlike, A₁<:Unitful.Unitlike}  <:AbstractConfig
+                            V₁<:Unitful.Unitlike, A₁<:Unitful.Unitlike, R<:Unitful.Unitlike}  <:AbstractConfig
     m::M = u"Msun" # ver si cambio a Giga Msun
     l::L = u"kpc"
     t::T = u"Gyr"
@@ -25,6 +25,7 @@ end
     a::A = v/t    # This is the code unit for acceleration
     α::A₁ = u"km/s/Myr"  # Just for IC and display
     p::P = v^2  # Code unit for potentials
+    ρ::R = m/l^3
 end
 
 
@@ -73,4 +74,11 @@ physical_units(x::Vector{L}, v::Vector{V}, t::T) where {L<:Real, V<:Real,T<:Real
 @with_kw struct CosmosConfig{F<:Unitful.Frequency, D<:Unitful.Density} <:AbstractConfig
     H₀::F = 67.66u"km/Mpc/s"
     ρ_c::D = uconvert(u"Msun/kpc^3", 3H₀^2/(8π*u"G") )
+end
+
+"""Chandrasekhar dynamical friction configuration"""
+@with_kw struct ChandrasekharFrictionConfig{T<:Real, R<:Real} <:AbstractConfig
+    lnΛ::T  # Coulomb logarithm
+    mₚ::R # perturber mass
+    σₕ::R # host's mean velocity dispersion
 end
