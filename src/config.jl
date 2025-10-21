@@ -76,9 +76,4 @@ physical_units(x::Vector{L}, v::Vector{V}, t::T) where {L<:Real, V<:Real,T<:Real
     ρ_c::D = uconvert(u"Msun/kpc^3", 3H₀^2/(8π*u"G") )
 end
 
-"""Chandrasekhar dynamical friction configuration"""
-@with_kw struct ChandrasekharFrictionConfig{T<:Real, R<:Real} <:AbstractConfig
-    lnΛ::T  # Coulomb logarithm
-    mₚ::R # perturber mass
-    σₕ::R # host's mean velocity dispersion
-end
+

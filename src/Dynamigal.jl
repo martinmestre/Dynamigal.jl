@@ -30,14 +30,18 @@ export concentration
 export example_Plummer, example_MiyamotoNagai, example_sum_of_potentials
 export example_AllenSantillan
 export example_of_mps
-export example_GalacticSystems
+export example_cloudsMW
+export example_cloudsMW_friction
 export code_units, physical_units, adimensional
 export r_vir_nfw
+export ChandrasekharFriction
+export drag
+export MilkyWayBovy2014
 export SystemTrait, @set_system_trait
 export GenSysTrait, GenSysMutOdeTrait
 export GalacticTrait, PerfGalacticTrait
-export FrictionTrait, @set_friction_trait
-export FrictionlessTrait, FrictionIncludedTrait
+
+
 
 
 include("abstract_types.jl")
@@ -46,9 +50,12 @@ include("config.jl")
 include("constants.jl")
 include("geometry/potentials/potential_types.jl")
 include("geometry/potentials/potentials.jl")
+include("geometry/potentials/customized.jl")
 include("geometry/spacetimes/orbit_types.jl")
 include("distributions/particle_types.jl")
 include("distributions/ensemble_types.jl")
+include("dissipative/dissipative_types.jl")
+include("dissipative/drags.jl")
 include("odes.jl")
 include("accelerations.jl")
 include("evolutions.jl")

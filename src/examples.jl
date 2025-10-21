@@ -68,7 +68,7 @@ function example_of_mps()
     return sol
 end
 
-function example_GalacticSystems()
+function example_cloudsMW()
     m_gal = 2.325e7*𝕦.m
     m =2856.0*m_gal  # Msun
     a = 4.22*𝕦.l     # kpc
@@ -85,5 +85,28 @@ function example_GalacticSystems()
     @show mps
     t_range = (0.0,10.0)
     sol = evolve(mps, t_range, Vern8(), options=ntSolverOptions(reltol=5.0e-12))
+    return sol
+end
+
+function example_cloudsMW_friction()
+    m_gal = 2.325e7*𝕦.m
+    m =2856.0*m_gal  # Msun
+    a = 4.22*𝕦.l     # kpc
+    b =0.292*𝕦.l    # kpc
+    pot_mn = MiyamotoNagaiDisk(m, a, b)
+    pot_pl = Plummer(10.0^11*𝕦.m, 10.0𝕦.l)
+    x₀ = [10.0, 0.0, 0.0]
+    v₀ = [0.0,10.0,0.0]   # notice 𝕦.ν instead of 𝕦.v
+    mp₀ = MacroParticle(pot_mn+pot_pl, x₀, v₀)
+    mp₁ = MacroParticle(pot_pl, -x₀, v₀)
+    mps = MacroParticleSystem(mp₀,mp₁)
+    lnΛ = 3.0  # Coulomb logarithm
+    σₕ = 120.0u"km/s"
+    𝕗 = ChandrasekharFriction(lnΛ, m, σₕ)
+    galactic = LargeCloudMW(mps)
+    @show galactic
+    @show mps
+    t_range = (0.0,10.0)
+    sol = evolve(𝕗, galactic, t_range, Vern8(), options=ntSolverOptions(reltol=5.0e-12))
     return sol
 end

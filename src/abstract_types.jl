@@ -41,4 +41,6 @@ abstract type AbstractContinuousDistribution <: AbstractDistribution end
 abstract type AbstractContinuousGlobularCluster <: AbstractContinuousDistribution end
 abstract type AbstractContinuousGalaxy <:AbstractContinuousDistribution end
 
-abstract type AbstractFrictionConfig <: AbstractConfig end
+abstract type AbstractDissipativeForce <: AbstractCosmos end
+
+abstract type AbstractFriction <: AbstractDissipativeForce end

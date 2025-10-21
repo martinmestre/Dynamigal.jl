@@ -27,13 +27,4 @@ end
 # Para cambiar
 # @set_trait system GenSysTrait
 
-"""Acceleration traits"""
-abstract type FrictionTrait end
-struct FrictionIncludedTrait <: FrictionTrait end
-struct FrictionlessTrait <: FrictionTrait end
 
-FrictionTrait(::Type) = FrictionlessTrait()
-
-macro set_friction_trait(system, trait)
-    return :(FrictionTrait(::Type{typeof($(esc(system)))}) = $(esc(trait))())
-end

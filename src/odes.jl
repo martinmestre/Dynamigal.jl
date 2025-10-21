@@ -100,3 +100,12 @@ function ode_perf(u::AbstractArray{L}, p::LargeCloudMW, t::T) where {L<:Real,T<:
                         acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
                         acc_at_cloud[1], acc_at_cloud[2], acc_at_cloud[3])
 end
+
+
+#aca estoy...
+"""ODE for the Newtonian case: LargeCloudMW system
+    called from evolution() when using GalacticTrait."""
+function ode(u::AbstractArray{L}, p::Tuple{<:AbstractFriction,LargeCloudMW}, t::T) where {L<:Real,T<:Real}
+    return SVector{12,L}(u[7],u[8],u[9],u[10],u[11],u[12],
+                        acceleration(p[1], p[2], u, t)... )
+end
