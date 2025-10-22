@@ -17,6 +17,7 @@ export potential
 export acceleration, acceleration!, acceleration_c!
 export ode, _ode, ode_c, ode_perf
 export evolve, _evolve, evolve_c
+export density
 export circular_velocity
 export Particle, TestParticle, MacroParticle
 export MacroParticleSystem
@@ -59,6 +60,7 @@ include("dissipative/drags.jl")
 include("odes.jl")
 include("accelerations.jl")
 include("evolutions.jl")
+include("densities.jl")
 include("circular_velocity.jl")
 include("overloads.jl")
 include("examples.jl")

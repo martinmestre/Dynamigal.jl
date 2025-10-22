@@ -16,10 +16,10 @@ function potential(pot::P, x::Vector{<:Unitful.Length}) where {P<:AbstractPotent
 end
 
 """
-    potential(pot::CompositePotential, x::AbstractArray{L}, t::T) where {L<:Real, T<:Real}
+    potential(pot::CompositePotential, x::AbstractVector{L}, t::T) where {L<:Real, T<:Real}
 Composite Potential
 """
-function potential(pot::CompositePotential, x::AbstractArray{L}, t::T=0.0) where {L<:Real, T<:Real}
+function potential(pot::CompositePotential, x::AbstractVector{L}, t::T=0.0) where {L<:Real, T<:Real}
     sum_pot = zero(L)
     for p ∈ pot
         sum_pot += potential(p, x, t)
@@ -29,41 +29,41 @@ end
 
 
 """
-potential(pot::P, x::AbstractArray{L}, t::T) where {P<:AbstractStaticPotential, L<:Real, T<:Real}
+potential(pot::P, x::AbstractVector{L}, t::T) where {P<:AbstractStaticPotential, L<:Real, T<:Real}
 Bridge function for static potentials
 """
-function potential(pot::P, x::AbstractArray{L}, t::T) where {P<:AbstractStaticPotential, L<:Real, T<:Real}
+function potential(pot::P, x::AbstractVector{L}, t::T) where {P<:AbstractStaticPotential, L<:Real, T<:Real}
     return potential(pot, x)
 end
 
 """List of specific Potentials..."""
 
 """Kepler potential"""
-function potential(pot::Kepler, x::AbstractArray{L}) where {L<:Real}
+function potential(pot::Kepler, x::AbstractVector{L}) where {L<:Real}
     return -G*pot.m / sqrt( dot(x,x) )
 end
 
 
 """Plummer potential"""
-function potential(pot::Plummer, x::AbstractArray{L}) where {L<:Real}
+function potential(pot::Plummer, x::AbstractVector{L}) where {L<:Real}
      @unpack m, a = pot
     return -G*m / sqrt(a^2 +  dot(x,x) )
 end
 
 """Hernquist potential"""
-function potential(pot::Hernquist, x::AbstractArray{L}) where {L<:Real}
+function potential(pot::Hernquist, x::AbstractVector{L}) where {L<:Real}
     @unpack m, a = pot
     return -G*m / (a + sqrt( dot(x,x) ))
 end
 
 """Miyamoto-Nagai disk potential"""
-function potential(pot::MiyamotoNagaiDisk, x::AbstractArray{L}) where {L<:Real}
+function potential(pot::MiyamotoNagaiDisk, x::AbstractVector{L}) where {L<:Real}
     @unpack m, a, b = pot
     return -G*m/sqrt( x[1:2]'x[1:2] + (a + sqrt(b^2+x[3]^2))^2 )
 end
 
 """Allen and Santillan (generalized) halo"""
-function potential(pot::AllenSantillanHalo, x::AbstractArray{L}) where {L<:Real}
+function potential(pot::AllenSantillanHalo, x::AbstractVector{L}) where {L<:Real}
     @unpack_AllenSantillanHalo pot
     f(y) = 1 + (y/a)^(γ-1)
     r  = sqrt(  dot(x,x)  )
@@ -76,14 +76,14 @@ function potential(pot::AllenSantillanHalo, x::AbstractArray{L}) where {L<:Real}
 end
 
 """NFW halo potential"""
-function potential(pot::NFW, x::AbstractArray{L}) where {L<:Real}
+function potential(pot::NFW, x::AbstractVector{L}) where {L<:Real}
     @unpack m, a, 𝔸 = pot
     r = sqrt( dot(x,x) )
     return -G*m/𝔸*log(1+r/a)/r
 end
 
 """Oscillatory Kepler dependent"""
-function potential(pot::OscillatoryKepler, x::AbstractArray{L}, t::T) where {L<:Real, T<:Real}
+function potential(pot::OscillatoryKepler, x::AbstractVector{L}, t::T) where {L<:Real, T<:Real}
     @unpack m, τ = pot
     return -G*m*sin((2π/τ)*t) / sqrt(t^2 +  dot(x,x) )
 end

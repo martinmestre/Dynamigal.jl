@@ -1,10 +1,10 @@
 
 """ODE for the Newtonian case: test particle in a potential."""
-function _ode(u::AbstractArray{<:Real}, p::P, t::T) where {P<:AbstractPotential, T<:Real}
+function _ode(u::AbstractVector{<:Real}, p::P, t::T) where {P<:AbstractPotential, T<:Real}
     return SA[u[siss]..., acceleration(p, u[sis], t)...]
 end
 # ode(below) is a little faster than _ode(above)
-function ode(u::AbstractArray{<:Real}, p::P, t::T) where {P<:AbstractPotential, T<:Real}
+function ode(u::AbstractVector{<:Real}, p::P, t::T) where {P<:AbstractPotential, T<:Real}
     a = acceleration(p, u[sis], t)
     return SVector{6}(u[4], u[5], u[6], a[1], a[2], a[3])
 end
@@ -38,7 +38,7 @@ Benchmark with 20 macroparticles with compound potentials:
 
 The function below is mutation only in the system's acceleration, but no in du argument
 """
-function ode(u::AbstractArray{L}, p::MacroParticleSystem, t::T) where {L<:Real,T<:Real}
+function ode(u::AbstractVector{L}, p::MacroParticleSystem, t::T) where {L<:Real,T<:Real}
     n = Integer(length(u)/2)
     return SA[u[n+1:end]..., acceleration!(p, u[begin:n], t)...]
 end
@@ -57,7 +57,7 @@ Benchmark with 20 macroparticles with compound potentials:
 
     Conclusion (tested upto 20 macro particles): better to use "ode" above with "acceleration!"
 """
-function ode!(du::AbstractArray{L}, u::AbstractArray{L}, p::MacroParticleSystem, t::T) where {L<:Real,T<:Real}
+function ode!(du::AbstractVector{L}, u::AbstractVector{L}, p::MacroParticleSystem, t::T) where {L<:Real,T<:Real}
     n = length(p)
     @inbounds for i in 1:n
         # posiciones y velocidades
@@ -83,14 +83,14 @@ end
 
 """ODE for the Newtonian case: LargeCloudMW system
     called from evolution() when using GalacticTrait."""
-function ode(u::AbstractArray{L}, p::LargeCloudMW, t::T) where {L<:Real,T<:Real}
+function ode(u::AbstractVector{L}, p::LargeCloudMW, t::T) where {L<:Real,T<:Real}
     return SVector{12,L}(u[7],u[8],u[9],u[10],u[11],u[12],
                         acceleration(p, u, t)... )
 end
 
 """ODE for the Newtonian case: LargeCloudMW system
     called from evolution() when using PerfGalacticTrait."""
-function ode_perf(u::AbstractArray{L}, p::LargeCloudMW, t::T) where {L<:Real,T<:Real}
+function ode_perf(u::AbstractVector{L}, p::LargeCloudMW, t::T) where {L<:Real,T<:Real}
     @unpack mw, cloud = p
     Δx = SVector{3,L}(u[4]-u[1], u[5]-u[2], u[6]-u[3])
     acc_at_cloud = acceleration(mw.pot, Δx, t)
@@ -105,7 +105,7 @@ end
 #aca estoy...
 """ODE for the Newtonian case: LargeCloudMW system
     called from evolution() when using GalacticTrait."""
-function ode(u::AbstractArray{L}, p::Tuple{<:AbstractFriction,LargeCloudMW}, t::T) where {L<:Real,T<:Real}
+function ode(u::AbstractVector{L}, p::Tuple{<:AbstractFriction,LargeCloudMW}, t::T) where {L<:Real,T<:Real}
     return SVector{12,L}(u[7],u[8],u[9],u[10],u[11],u[12],
                         acceleration(p[1], p[2], u, t)... )
 end

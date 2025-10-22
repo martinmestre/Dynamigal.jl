@@ -11,15 +11,15 @@ function density(pot::P, x::Vector{<:Unitful.Length}) where {P<:AbstractPotentia
 end
 
 """
-    density(pot::P, x::AbstractArray{L}, t::T) where {P<:AbstractStaticPotential, L<:Real, T<:Real}
+    density(pot::P, x::AbstractVector{L}, t::T) where {P<:AbstractStaticPotential, L<:Real, T<:Real}
 Bridge function for static potentials
 """
-function density(pot::P, x::AbstractArray{L}, t::T) where {P<:AbstractStaticPotential, L<:Real, T<:Real}
+function density(pot::P, x::AbstractVector{L}, t::T) where {P<:AbstractStaticPotential, L<:Real, T<:Real}
     return density(pot, x)
 end
 
 """Density of a CompositePotential"""
-function density(pot::CompositePotential, x::AbstractArray{L}, t::T=0.0) where {L<:Real, T<:Real}
+function density(pot::CompositePotential, x::AbstractVector{L}, t::T=0.0) where {L<:Real, T<:Real}
     ρ = zero(L)
     for p ∈ pot
         ρ += density(p, x, t)
@@ -30,10 +30,13 @@ end
 
 """List of specific densities"""
 
-function density(pot::PowerLawCutoff, r::AbstractArray{L}) where {L<:Real}
-    @unpack_PowerLawCutoff
-# Galpy: return amp * pow(r,-alpha) * exp ( -r2 / rc / rc );
-# Gala:      pars:
+
+"""
+    PowerLawCutoff density
+
+    density(pot::PowerLawCutoff, r::AbstractVector{L}) where {L<:Real}
+
+    This functions follows Gala:
     #         0 - G (Gravitational constant)
     #         1 - m (total mass)
     #         2 - a (power-law index)
@@ -43,6 +46,9 @@ function density(pot::PowerLawCutoff, r::AbstractArray{L}) where {L<:Real}
     # r = sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2]);
     # A = pars[1] / (2*M_PI) * pow(pars[3], pars[2] - 3) / gsl_sf_gamma(0.5 * (3 - pars[2]));
     # return A * pow(r, -pars[2]) * exp(-r*r / (pars[3]*pars[3]));
+"""
+function density(pot::PowerLawCutoff, r::AbstractVector{L}) where {L<:Real}
+    @unpack_PowerLawCutoff
     r = sqrt( dot(x,x) )
     A = (m/2π)*c^(α-3)/gamma(0.5*(3-α))
     return A*r^(-α)*exp(-(r/c)^2)
