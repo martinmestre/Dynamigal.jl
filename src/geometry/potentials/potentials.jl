@@ -57,9 +57,10 @@ function potential(pot::Hernquist, x::AbstractVector{L}) where {L<:Real}
 end
 
 """Miyamoto-Nagai disk potential"""
-function potential(pot::MiyamotoNagaiDisk, x::AbstractVector{L}) where {L<:Real}
+function potential(pot::MiyamotoNagaiDisk, x::AbstractArray{L}) where {L<:Real}
     @unpack m, a, b = pot
-    return -G*m/sqrt( x[1:2]'x[1:2] + (a + sqrt(b^2+x[3]^2))^2 )
+    y = @view x[1:2]
+    return -G*m/sqrt( dot(y,y) + (a + sqrt(b^2+x[3]^2))^2 )
 end
 
 """Allen and Santillan (generalized) halo"""

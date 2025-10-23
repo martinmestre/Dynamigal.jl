@@ -35,21 +35,46 @@ end
     PowerLawCutoff density
 
     density(pot::PowerLawCutoff, r::AbstractVector{L}) where {L<:Real}
-
-    This functions follows Gala:
-    #         0 - G (Gravitational constant)
-    #         1 - m (total mass)
-    #         2 - a (power-law index)
-    #         3 - c (cutoff radius)
-    # */
-    # double r, A;
-    # r = sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2]);
-    # A = pars[1] / (2*M_PI) * pow(pars[3], pars[2] - 3) / gsl_sf_gamma(0.5 * (3 - pars[2]));
-    # return A * pow(r, -pars[2]) * exp(-r*r / (pars[3]*pars[3]));
+    Expression from Gala.
 """
-function density(pot::PowerLawCutoff, r::AbstractVector{L}) where {L<:Real}
-    @unpack_PowerLawCutoff
+function density(pot::PowerLawCutoff, x::AbstractVector{L}) where {L<:Real}
+    @unpack_PowerLawCutoff pot
     r = sqrt( dot(x,x) )
     A = (m/2π)*c^(α-3)/gamma(0.5*(3-α))
     return A*r^(-α)*exp(-(r/c)^2)
+end
+
+
+"""
+    Plummer density
+
+     /*  pars:
+            - G (Gravitational constant)
+            - m (mass scale)
+            - b (length scale)
+    */
+    double r2 = q[0]*q[0] + q[1]*q[1] + q[2]*q[2];
+    return 3*pars[1] / (4*M_PI*pars[2]*pars[2]*pars[2]) * pow(1 + r2/(pars[2]*pars[2]), -2.5);
+    Expression from Gala
+"""
+function density(pot::Plummer, x::AbstractVector{L}) where {L<:Real}
+    @unpack_Plummer pot
+    r² = dot(x,x)
+    return 3m/(4π*a^3)*(1+r²/(a*a))^(-2.5)
+end
+
+
+"""
+    Miyamoto-Nagai disk density
+    Bovy book: eq. 7.16.
+"""
+function density(pot::MiyamotoNagaiDisk, x::AbstractVector{L}) where {L<:Real}
+    @unpack_MiyamotoNagaiDisk pot
+    y = @view x[1:2]
+    R² = dot(y,y)
+    z² = x[3]*x[3]
+    b² = b*b
+    zb² = z²+b²
+    zb = sqrt(zb²)
+    return (m*b²/4π)*(a*R²+(3*zb+a)*(zb+a)^2)/((R²+(zb+a)^2)^(2.5)*(zb²)^(1.5))
 end

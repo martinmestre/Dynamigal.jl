@@ -1,6 +1,6 @@
 # Dynamigal
 
-## Dynamics + Galaxies + Accelerations + Friendly
+## Dynamics + Galaxies + Accelerations + Differentiable + Friendly
 
 A general pure Julia package for Galactic Dynamics considering General Relativity.
 

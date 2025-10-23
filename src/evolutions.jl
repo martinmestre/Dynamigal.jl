@@ -123,15 +123,14 @@ end
 
 # aca estoy...
 """Evolution of a LargeCloudMW (<: GalacticSystem) with dynamical friction"""
-function evolve(𝕗::F, cloudMW::LargeCloudMW, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {F<:AbstractFriction, R<:Real}
-    @show 𝕗
+function evolve(fric::F, cloudMW::LargeCloudMW, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {F<:AbstractFriction, R<:Real}
     x_mw = cloudMW.mw.event.x
     x_cl = cloudMW.cloud.event.x
     v_mw = cloudMW.mw.event.v
     v_cl = cloudMW.cloud.event.v
     u₀ = SVector{12,typeof(x_mw[1])}(x_mw[1], x_mw[2], x_mw[3], x_cl[1], x_cl[2], x_cl[3],
                                     v_mw[1], v_mw[2], v_mw[3], v_cl[1], v_cl[2], v_cl[3])
-    p = (𝕗, cloudMW)
+    p = (fric, cloudMW)
     prob = ODEProblem(ode, u₀, t_span, p)
     sol  = solve(prob, solver; options...)
     sys_orb = Vector{Orbit}(undef, 2)

@@ -10,9 +10,9 @@ using NamedTupleTools
 @reexport using LinearAlgebra
 @reexport using SpecialFunctions
 
-export SolverConfig, UnitsConfig, CosmosConfig, SolverOptions
+export SolverConfig, UnitsConfig, CosmosConfig, SolverOptions, FrictionConfig
 export ntSolverOptions
-export 𝕦, G, 𝕤, 𝕔, H₀, sis, six
+export 𝕦, G, 𝕤, 𝕔, 𝕗, H₀, sis, six
 export potential
 export acceleration, acceleration!, acceleration_c!
 export ode, _ode, ode_c, ode_perf

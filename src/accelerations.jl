@@ -102,8 +102,8 @@ drag force.
 The algorithm for the drag is dispatched according to the 𝕗 struct.
 ⚠ Warning: here x and v are difference vectors between the perturber and the potential source.
 """
-function acceleration(𝕗::F, p::P, x::AbstractVector{L}, v::AbstractVector{L}, t::T) where {P<:AbstractPotential, L<:Real, T<:Real, F<:AbstractFriction}
-    return acceleration(p, x, t) + drag(𝕗, p, x, v, t)
+function acceleration(fric::F, p::P, x::AbstractVector{L}, v::AbstractVector{L}, t::T) where {P<:AbstractPotential, L<:Real, T<:Real, F<:AbstractFriction}
+    return acceleration(p, x, t) + drag(fric, p, x, v, t)
 end
 
 
@@ -209,10 +209,6 @@ function acceleration!(mps::P, x::AbstractVector{L}, t::T=0.0) where {P<:Abstrac
     return acc
 end
 
-# """Acceleration of an AbstractGalacticSystem, main method"""
-# function acceleration(system::P, u::AbstractVector{L}, t::T=0.0) where {P<:AbstractGalacticSystem, L<:Real, T<:Real}
-#     return acceleration(FrictionTrait(P), system, u, t)
-# end
 
 """Acceleration for LargeCloudMW system without friction"""
 function acceleration(system::LargeCloudMW, u::AbstractVector{L}, t::T=0.0) where {L<:Real, T<:Real}
@@ -226,11 +222,11 @@ end
 
 #aca estoy...
 """Acceleration for LargeCloudMW system with dynamical friction"""
-function acceleration(𝕗::F, system::LargeCloudMW, u::AbstractVector{L}, t::T=0.0) where { F<:AbstractFriction, L<:Real, T<:Real}
+function acceleration(fric::F, system::LargeCloudMW, u::AbstractVector{L}, t::T=0.0) where { F<:AbstractFriction, L<:Real, T<:Real}
     @unpack mw, cloud = system
     Δx = SVector{3,L}(u[4]-u[1], u[5]-u[2], u[6]-u[3])
     Δv = SVector{3,L}(u[10]-u[7], u[11]-u[8], u[12]-u[9])
-    acc_at_cloud = acceleration(𝕗, mw.pot, Δx, Δv, t)
+    acc_at_cloud = acceleration(fric, mw.pot, Δx, Δv, t)
     acc_at_mw = acceleration(cloud.pot, -Δx, t)
     return SVector{6,L}(acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
              acc_at_cloud[1], acc_at_cloud[2], acc_at_cloud[3])

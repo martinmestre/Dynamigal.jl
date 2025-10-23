@@ -76,4 +76,8 @@ physical_units(x::Vector{L}, v::Vector{V}, t::T) where {L<:Real, V<:Real,T<:Real
     ρ_c::D = uconvert(u"Msun/kpc^3", 3H₀^2/(8π*u"G") )
 end
 
+"""Friction configuration"""
+@with_kw struct FrictionConfig{} <:AbstractConfig
+    ϵ_ν::Float64 = 0.5e-12
+end
 

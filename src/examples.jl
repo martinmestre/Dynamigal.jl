@@ -95,18 +95,18 @@ function example_cloudsMW_friction()
     b =0.292*𝕦.l    # kpc
     pot_mn = MiyamotoNagaiDisk(m, a, b)
     pot_pl = Plummer(10.0^11*𝕦.m, 10.0𝕦.l)
-    x₀ = [10.0, 0.0, 0.0]
-    v₀ = [0.0,10.0,0.0]   # notice 𝕦.ν instead of 𝕦.v
+    pot_per = Plummer(10^5*𝕦.m, 1.0𝕦.l)
+    x₀ = [50.0, 0.0, 0.0]
+    v₀ = [100.0, 10.0, 0.0]   # notice 𝕦.ν instead of 𝕦.v
     mp₀ = MacroParticle(pot_mn+pot_pl, x₀, v₀)
-    mp₁ = MacroParticle(pot_pl, -x₀, v₀)
+    mp₁ = MacroParticle(pot_per, -x₀, -v₀)
     mps = MacroParticleSystem(mp₀,mp₁)
     lnΛ = 3.0  # Coulomb logarithm
     σₕ = 120.0u"km/s"
-    𝕗 = ChandrasekharFriction(lnΛ, m, σₕ)
+    fric = ChandrasekharFriction(lnΛ, m, σₕ)
     galactic = LargeCloudMW(mps)
-    @show galactic
-    @show mps
-    t_range = (0.0,10.0)
-    sol = evolve(𝕗, galactic, t_range, Vern8(), options=ntSolverOptions(reltol=5.0e-12))
-    return sol
+    t_range = (0.0,0.1)
+    sol = evolve(galactic, t_range, Vern8(), options=ntSolverOptions(abstol= 1.0, reltol=5.0e-8, saveat=0.01))
+    sol_fric = evolve(fric, galactic, t_range, Vern8(), options=ntSolverOptions(abstol= 1.0, reltol=5.0e-8, saveat=0.01))
+    return sol, sol_fric
 end
