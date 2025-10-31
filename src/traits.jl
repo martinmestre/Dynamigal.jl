@@ -27,4 +27,7 @@ end
 # Para cambiar
 # @set_trait system GenSysTrait
 
+"""For testing AD differentiation versus analytically defined gradients/accelerations"""
+abstract type ADTrait end
+struct WithADTrait <: ADTrait end
 

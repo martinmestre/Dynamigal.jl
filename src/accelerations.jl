@@ -17,7 +17,10 @@ end
 function acceleration(pot::P, x::AbstractVector{L}) where {P<:AbstractPotential, L<:Real}
     return -gradient(y->potential(pot, y), x)[1]
 end
-
+"""For testing potential with defined acceleration"""
+function acceleration(::WithADTrait, pot::P, x::AbstractVector{L}) where {P<:AbstractPotential, L<:Real}
+    return -gradient(y->potential(pot, y), x)[1]
+end
 """
     acceleration(pot::P, x::AbstractVector{L}, t::T) where {P<:AbstractStaticPotential, L<:Real, T<:Real}
 Bridge function for static potentials
@@ -110,13 +113,35 @@ end
 
 """Analytical accelerations"""
 
-"""NFW halo acceleration"""
-function acceleration(pot::NFW, x::AbstractVector{T}, t::T=0.0) where {T<:Real}
-    @unpack m, a, 𝔸 = pot
-    r = sqrt(x'x)
-    𝕗 = -G*m/𝔸*f_nfw(r/a)/r^2
-    return 𝕗*x/r
+"""Allen and Santillan (generalized) halo"""
+"""Hernquist potential"""
+"""Kepler potential"""
+
+"""MiyamotoNagaiDisk"""
+function acceleration(pot::MiyamotoNagaiDisk, x::AbstractVector{T}) where {T<:Real}
+    @unpack_MiyamotoNagaiDisk
+    y = @view x[1:2]
+    bz = sqrt(b*b + x[3]*x[3])
+    abz = a + bz
+    fac = -G*m / (dot(y,y) + abz*abz)^(1.5)
+    return fac*SVector{3,T}(x[1], x[2], x[3]*abz/bz)
 end
+
+"""NFW mass"""
+mass(pot::NFW, r) = pot.m_s*f_nfw(r/pot.a)
+mass_nfw(m_s, a, r) = m_s*f_nfw(r/a)
+
+"""NFW halo acceleration"""
+function acceleration(pot::NFW, x::AbstractVector{T}) where {T<:Real}
+    @unpack m_s, a = pot
+    r = sqrt(x'x)
+    return -G*mass_nfw(m_s, a, r)*x/r^3
+end
+
+"""Oscillatory Kepler dependent"""
+
+"""Plummer density"""
+
 
 
 """

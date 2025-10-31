@@ -38,31 +38,6 @@ end
 
 """List of specific Potentials..."""
 
-"""Kepler potential"""
-function potential(pot::Kepler, x::AbstractVector{L}) where {L<:Real}
-    return -G*pot.m / sqrt( dot(x,x) )
-end
-
-
-"""Plummer potential"""
-function potential(pot::Plummer, x::AbstractVector{L}) where {L<:Real}
-     @unpack m, a = pot
-    return -G*m / sqrt(a^2 +  dot(x,x) )
-end
-
-"""Hernquist potential"""
-function potential(pot::Hernquist, x::AbstractVector{L}) where {L<:Real}
-    @unpack m, a = pot
-    return -G*m / (a + sqrt( dot(x,x) ))
-end
-
-"""Miyamoto-Nagai disk potential"""
-function potential(pot::MiyamotoNagaiDisk, x::AbstractArray{L}) where {L<:Real}
-    @unpack m, a, b = pot
-    y = @view x[1:2]
-    return -G*m/sqrt( dot(y,y) + (a + sqrt(b^2+x[3]^2))^2 )
-end
-
 """Allen and Santillan (generalized) halo"""
 function potential(pot::AllenSantillanHalo, x::AbstractVector{L}) where {L<:Real}
     @unpack_AllenSantillanHalo pot
@@ -76,16 +51,51 @@ function potential(pot::AllenSantillanHalo, x::AbstractVector{L}) where {L<:Real
     return res
 end
 
+
+"""Hernquist potential"""
+function potential(pot::Hernquist, x::AbstractVector{L}) where {L<:Real}
+    @unpack m, a = pot
+    return -G*m / (a + sqrt( dot(x,x) ))
+end
+
+
+"""Kepler potential"""
+function potential(pot::Kepler, x::AbstractVector{L}) where {L<:Real}
+    return -G*pot.m / sqrt( dot(x,x) )
+end
+
+
+"""Miyamoto-Nagai disk potential"""
+function potential(pot::MiyamotoNagaiDisk, x::AbstractArray{L}) where {L<:Real}
+    @unpack m, a, b = pot
+    y = @view x[1:2]
+    return -G*m/sqrt( dot(y,y) + (a + sqrt(b^2+x[3]^2))^2 )
+end
+
+
 """NFW halo potential"""
 function potential(pot::NFW, x::AbstractVector{L}) where {L<:Real}
-    @unpack m, a, 𝔸 = pot
+    @unpack m_s, a = pot
     r = sqrt( dot(x,x) )
-    return -G*m/𝔸*log(1+r/a)/r
+    return -G*m_s*log(1+r/a)/r
 end
+
 
 """Oscillatory Kepler dependent"""
 function potential(pot::OscillatoryKepler, x::AbstractVector{L}, t::T) where {L<:Real, T<:Real}
     @unpack m, τ = pot
     return -G*m*sin((2π/τ)*t) / sqrt(t^2 +  dot(x,x) )
 end
+
+
+"""Plummer potential"""
+function potential(pot::Plummer, x::AbstractVector{L}) where {L<:Real}
+     @unpack m, a = pot
+    return -G*m / sqrt(a^2 +  dot(x,x) )
+end
+
+"""PowerLawCutoff potential"""
+
+
+
 

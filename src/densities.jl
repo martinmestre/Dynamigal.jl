@@ -30,20 +30,37 @@ end
 
 """List of specific densities"""
 
+"""Allen and Santillan (generalized) halo"""
+"""Hernquist potential"""
+"""Kepler potential"""
+
 
 """
-    PowerLawCutoff density
-
-    density(pot::PowerLawCutoff, r::AbstractVector{L}) where {L<:Real}
-    Expression from Gala.
+    Miyamoto-Nagai disk density
+    Bovy book: eq. 7.16.
 """
-function density(pot::PowerLawCutoff, x::AbstractVector{L}) where {L<:Real}
-    @unpack_PowerLawCutoff pot
-    r = sqrt( dot(x,x) )
-    A = (m/2π)*c^(α-3)/gamma(0.5*(3-α))
-    return A*r^(-α)*exp(-(r/c)^2)
+function density(pot::MiyamotoNagaiDisk, x::AbstractVector{L}) where {L<:Real}
+    @unpack_MiyamotoNagaiDisk pot
+    y = @view x[1:2]
+    R² = dot(y,y)
+    bz² = b*b + x[3]*x[3]
+    bz = sqrt(bz²)
+    abz = a + bz
+    return (m*b²/4π)*(a*R²+(3*bz+a)*abz^2)/((R²+abz*abz)^2.5*(bz²)^1.5)
 end
 
+
+"""
+    NFW
+    Galactic Dynamics 2nd edition, Binney and Treamaine (2008)
+"""
+function density(pot::NFW, x::AbstractVector{L}) where {L<:Real}
+    @unpack a, ρ₀ = pot
+    r_a = sqrt( dot(x,x) ) / a
+    return ρ₀/r_a/(1+r_a)^2
+end
+
+"""Oscillatory Kepler dependent"""
 
 """
     Plummer density
@@ -65,16 +82,20 @@ end
 
 
 """
-    Miyamoto-Nagai disk density
-    Bovy book: eq. 7.16.
+    PowerLawCutoff density
+
+    density(pot::PowerLawCutoff, r::AbstractVector{L}) where {L<:Real}
+    Expression from Gala.
 """
-function density(pot::MiyamotoNagaiDisk, x::AbstractVector{L}) where {L<:Real}
-    @unpack_MiyamotoNagaiDisk pot
-    y = @view x[1:2]
-    R² = dot(y,y)
-    z² = x[3]*x[3]
-    b² = b*b
-    zb² = z²+b²
-    zb = sqrt(zb²)
-    return (m*b²/4π)*(a*R²+(3*zb+a)*(zb+a)^2)/((R²+(zb+a)^2)^(2.5)*(zb²)^(1.5))
+function density(pot::PowerLawCutoff, x::AbstractVector{L}) where {L<:Real}
+    @unpack_PowerLawCutoff pot
+    r = sqrt( dot(x,x) )
+    𝔸 = (m/2π)*c^(α-3)/gamma(0.5*(3-α))
+    return 𝔸*r^(-α)*exp(-(r/c)^2)
 end
+
+function mass(pot::PowerLawCutoff, x::AbstractVector{L}) where {L<:Real}
+    @unpack_PowerLawCutoff pot
+    r = sqrt( dot(x,x) )
+    𝔸 = (m/2π)*c^(α-3)/gamma(0.5*(3-α))
+    return 2π*𝔸*c^(3-α)*gamma_inc(...)

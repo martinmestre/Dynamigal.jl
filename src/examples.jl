@@ -105,8 +105,8 @@ function example_cloudsMW_friction()
     σₕ = 120.0u"km/s"
     fric = ChandrasekharFriction(lnΛ, m, σₕ)
     galactic = LargeCloudMW(mps)
-    t_range = (0.0,0.1)
-    sol = evolve(galactic, t_range, Vern8(), options=ntSolverOptions(abstol= 1.0, reltol=5.0e-8, saveat=0.01))
-    sol_fric = evolve(fric, galactic, t_range, Vern8(), options=ntSolverOptions(abstol= 1.0, reltol=5.0e-8, saveat=0.01))
+    t_range = (0.0,10.0)
+    sol = evolve(galactic, t_range, Vern8(), options=ntSolverOptions(abstol= 1.0, reltol=5.0e-12, saveat=0.01))
+    sol_fric = evolve(fric, galactic, t_range, Vern8(), options=ntSolverOptions(abstol= 1.0, reltol=5.0e-12, saveat=0.01))
     return sol, sol_fric
 end
