@@ -31,7 +31,9 @@ end
 """List of specific densities"""
 
 """Allen and Santillan (generalized) halo"""
+
 """Hernquist potential"""
+
 """Kepler potential"""
 
 
@@ -88,14 +90,10 @@ end
     Expression from Gala.
 """
 function density(pot::PowerLawCutoff, x::AbstractVector{L}) where {L<:Real}
-    @unpack_PowerLawCutoff pot
     r = sqrt( dot(x,x) )
-    𝔸 = (m/2π)*c^(α-3)/gamma(0.5*(3-α))
-    return 𝔸*r^(-α)*exp(-(r/c)^2)
+    return density(pot, r)
 end
-
-function mass(pot::PowerLawCutoff, x::AbstractVector{L}) where {L<:Real}
+function density(pot::PowerLawCutoff, r::L) where {L<:Real}
     @unpack_PowerLawCutoff pot
-    r = sqrt( dot(x,x) )
-    𝔸 = (m/2π)*c^(α-3)/gamma(0.5*(3-α))
-    return 2π*𝔸*c^(3-α)*gamma_inc(...)
+    return 𝔸*r^(-α)*exp(-r*r/(c*c))
+end

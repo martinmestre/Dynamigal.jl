@@ -9,6 +9,7 @@ abstract type AbstractGeometry <: AbstractCosmos end
 
 abstract type AbstractPotential <: AbstractGeometry end
 abstract type AbstractStaticPotential <: AbstractPotential end
+abstract type AbstractSphericalStaticPotential <: AbstractStaticPotential end
 
 abstract type AbstractSpaceTime <: AbstractGeometry end
 

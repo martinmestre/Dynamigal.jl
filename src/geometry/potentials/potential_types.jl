@@ -1,6 +1,6 @@
 """Potential types"""
 
-@with_kw struct AllenSantillanHalo{T<:Real,D<:Real,F<:Real,G<:Real} <: AbstractStaticPotential
+@with_kw struct AllenSantillanHalo{T<:Real,D<:Real,F<:Real,G<:Real} <: AbstractSphericalStaticPotential
     m::T
     a::D
     Λ::F
@@ -12,7 +12,7 @@ AllenSantillanHalo(m::T, a::D, Λ::F, γ::G) where {T<:Unitful.Mass, D<:Unitful.
                         ustrip(uconvert(𝕦.l, Λ)),  γ )
 
 
-@with_kw struct Hernquist{T<:Real,D<:Real} <: AbstractStaticPotential
+@with_kw struct Hernquist{T<:Real,D<:Real} <: AbstractSphericalStaticPotential
     m::T
     a::D
     @assert m>0 && a>0 "all fields should be possitive"
@@ -21,7 +21,7 @@ Hernquist(m::T, a::D) where {T<:Unitful.Mass, D<:Unitful.Length} =
     Hernquist( ustrip(uconvert(𝕦.m, m)),  ustrip(uconvert(𝕦.l, a)) )
 
 
-@with_kw struct Kepler{T<:Real} <: AbstractStaticPotential
+@with_kw struct Kepler{T<:Real} <: AbstractSphericalStaticPotential
     m::T
     @assert m>0 "m must be possitive"
 end
@@ -41,21 +41,18 @@ MiyamotoNagaiDisk(m::T, a::D, b::F) where {T<:Unitful.Mass, D<:Unitful.Length, F
 # NFW
 f_nfw(x::T) where {T<:Real} = log(1+x)-x/(1+x)
 
-function r_vir_nfw(m; 𝕔_l=𝕔)
+function r_vir_nfw(m_v; 𝕔_l=𝕔)
     ρ_c = ustrip( uconvert(𝕦.m/𝕦.l^3, 𝕔_l.ρ_c))
-    r_v = (m/(200*ρ_c*4.0/3.0*π))^(1.0/3.0)
+    r_v = (m_v/(200*ρ_c*4.0/3.0*π))^(1.0/3.0)
     return r_v
 end
 r_vir_nfw(m::M; 𝕔_l=𝕔) where {M<:Unitful.Mass} = r_vir_nfw(adimensional(m); 𝕔_l=𝕔_l)
 
-function concentration(pot::NFW)
-    return r_vir_nfw(pot.m; 𝕔_l=pot.𝕔_l)/pot.a
-end
 """
     NFW struct
 to do: define method to enter m = scale mass and a=length scale, needs root finding for concentration "c".
 """
-@with_kw struct NFW{T<:Real, F<:Real, D<:Real, C<:AbstractConfig} <: AbstractStaticPotential
+@with_kw struct NFW{T<:Real, F<:Real, D<:Real, C<:AbstractConfig} <: AbstractSphericalStaticPotential
     @assert m_v>0 && a>0  "all fields should be possitive"
     m_v::T  # virial mass: M(r_v)
     a::F  # scale radius: a=r_v/c
@@ -82,6 +79,9 @@ function NFW(m_v::M, c::T; 𝕔_l=𝕔) where {M<:Unitful.Mass, T<:Real}
     return NFW(m_v, a, 𝕔_l, r_v, c, 𝔸, m, ρ₀)
 end
 
+function concentration(pot::NFW)
+    return r_vir_nfw(pot.m; 𝕔_l=pot.𝕔_l)/pot.a
+end
 
 """Time dependent potentials"""
 @with_kw struct OscillatoryKepler{T<:Real, D<:Real} <: AbstractPotential
@@ -93,7 +93,7 @@ OscillatoryKepler(m::T, τ::D) where {T<:Unitful.Mass, D<:Unitful.Time} = Oscill
 time_dependence(::Type{<:OscillatoryKepler}) = TimeDependent()
 
 
-@with_kw struct Plummer{T<:Real,D<:Real} <: AbstractStaticPotential
+@with_kw struct Plummer{T<:Real,D<:Real} <: AbstractSphericalStaticPotential
     m::T
     a::D
     @assert (m>0 && a>0) "all fields should be possitive"
@@ -102,14 +102,16 @@ Plummer(m::T, a::D) where {T<:Unitful.Mass, D<:Unitful.Length} =
     Plummer( ustrip(uconvert(𝕦.m, m)),  ustrip(uconvert(𝕦.l, a)) )
 
 
-@with_kw struct PowerLawCutoff{T<:Real,D<:Real,R<:Real} <: AbstractStaticPotential
+@with_kw struct PowerLawCutoff{T<:Real,D<:Real,R<:Real,G<:Real} <: AbstractSphericalStaticPotential
     m::T # total mass
     α::D # power-law index
     c::R # cutoff radius
+    β::G = 0.5*(3-α) # auxiliary constant
+    𝔸::G = (m/2π)*c^(α-3)/gamma(β)
     @assert m>0 && α>=0 && α<3 && c>0 "all fields should be possitive"
 end
 PowerLawCutoff(m::T, α::D, c::R) where {T<:Unitful.Mass, D<:Real, R<:Unitful.Length} =
-    PowerLawCutoff( ustrip(uconvert(𝕦.m, m)), α, ustrip(uconvert(𝕦.l, a)) )
+    PowerLawCutoff( ustrip(uconvert(𝕦.m, m)), α, ustrip(uconvert(𝕦.l, c)) )
 
 
 """Composite types"""
