@@ -9,6 +9,7 @@ using Parameters
 using NamedTupleTools
 @reexport using LinearAlgebra
 @reexport using SpecialFunctions
+using Roots
 
 export SolverConfig, UnitsConfig, CosmosConfig, SolverOptions, FrictionConfig
 export ntSolverOptions

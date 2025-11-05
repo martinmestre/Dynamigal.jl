@@ -46,7 +46,15 @@ function r_vir_nfw(m_v; 𝕔_l=𝕔)
     r_v = (m_v/(200*ρ_c*4.0/3.0*π))^(1.0/3.0)
     return r_v
 end
-r_vir_nfw(m::M; 𝕔_l=𝕔) where {M<:Unitful.Mass} = r_vir_nfw(adimensional(m); 𝕔_l=𝕔_l)
+r_vir_nfw(m_v::M; 𝕔_l=𝕔) where {M<:Unitful.Mass} = r_vir_nfw(adimensional(m_v); 𝕔_l=𝕔_l)
+
+function concentration(m, a, 𝕔_l)
+    ρ_c = ustrip( uconvert(𝕦.m/𝕦.l^3, 𝕔_l.ρ_c))
+    𝔹 = (4π/3)*200*ρ_c*a^3/m
+    g(x) = f_nfw(x)/x^3 - 𝔹
+    D(f)= x->gradient(y->f(y),x)[1]
+    return find_zero((g,D(g)),  [1.0e-6,100.0], Roots.Brent())
+end
 
 """
     NFW struct
@@ -67,6 +75,14 @@ NFW(m_v::T, a::F; 𝕔_l=𝕔) where {T,F} = NFW(; m_v=m_v, a=a, 𝕔_l=𝕔_l)
 NFW(m_v::M, a::L) where {M<:Unitful.Mass, L<:Unitful.Length} =
     NFW( ustrip(uconvert(𝕦.m, m_v)),  ustrip(uconvert(𝕦.l, a)))
 
+function NFW(; m::T, a::F, 𝕔_l=𝕔) where {T<:Real,F<:Real}
+    c = concentration(m, a, 𝕔_l)
+    𝔸 = f_nfw(c)
+    m_v = 𝔸*m
+    r_v = c*a
+    ρ₀ = m / (4π*a^3)
+    return NFW(m_v, a, 𝕔_l, r_v, c, 𝔸, m, ρ₀)
+end
 
 function NFW(m_v::M, c::T; 𝕔_l=𝕔) where {M<:Unitful.Mass, T<:Real}
     m_v = adimensional(m_v)
@@ -80,7 +96,7 @@ function NFW(m_v::M, c::T; 𝕔_l=𝕔) where {M<:Unitful.Mass, T<:Real}
 end
 
 function concentration(pot::NFW)
-    return r_vir_nfw(pot.m; 𝕔_l=pot.𝕔_l)/pot.a
+    return r_vir_nfw(pot.m_v; 𝕔_l=pot.𝕔_l)/pot.a
 end
 
 """Time dependent potentials"""

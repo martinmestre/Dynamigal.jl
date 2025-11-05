@@ -59,7 +59,7 @@
 #     m = 10.0^12*𝕦.m  # Msun
 #     a = 20.0*𝕦.l
 #     pot = NFW(m, a)
-#     c = concentration(pot)
+#     c = pot.c
 #     f(x) = log(1+x)-x/(1+x)
 #     m_g = m/f(c)
 #     usys = gu.UnitSystem(au.kpc, au.Gyr, au.Msun, au.radian, au.kpc/au.Gyr, au.kpc/au.Gyr^2)
@@ -98,7 +98,7 @@
 #     m = 10^12*𝕦.m  # Msun
 #     a = 20*𝕦.l
 #     pot = NFW(m, a)
-#     c = concentration(pot)
+#     c = pot.c
 #     f(x) = log(1+x)-x/(1+x)
 #     m_g = m/f(c)
 #     pot_Gala = gp.NFWPotential(Py(adimensional(m_g))*au.Msun, Py(adimensional(a))*au.kpc, units=usys)
