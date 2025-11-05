@@ -51,3 +51,28 @@ end
 function Base.:+(mps1::MacroParticleSystem, mps2::MacroParticleSystem)
     return MacroParticleSystem((mps1.macroparticles..., mps2.macroparticles...))
 end
+
+
+"""Base.show for NFW struct"""
+function Base.show(io::IO, pot::NFW)
+    printstyled(io, "NFW halo:\n"; color=:cyan, bold=true)
+
+    fields = [
+        ("m", pot.m),
+        ("a", pot.a),
+        ("c", pot.c),
+        ("m_v", pot.m_v),
+        ("r_v", pot.r_v),
+        ("ρ₀", pot.ρ₀),
+        ("𝔸", pot.𝔸),
+        ("cosmos", pot.cosmos)
+    ]
+
+    for (name, value) in fields
+        print(io, "  ")
+        printstyled(io, name; color=:yellow)
+        print(io, " = ")
+        printstyled(io, string(value); color=:white)
+        print(io, "\n")
+    end
+end
