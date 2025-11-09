@@ -53,26 +53,27 @@ function Base.:+(mps1::MacroParticleSystem, mps2::MacroParticleSystem)
 end
 
 
-"""Base.show for NFW struct"""
-function Base.show(io::IO, pot::NFW)
-    printstyled(io, "NFW halo:\n"; color=:cyan, bold=true)
+function Base.show(io::IO, pot::T) where {T<:AbstractPotential}
+    # Obtener los nombres de los campos
+    field_names = fieldnames(T)
 
-    fields = [
-        ("m", pot.m),
-        ("a", pot.a),
-        ("c", pot.c),
-        ("m_v", pot.m_v),
-        ("r_v", pot.r_v),
-        ("ρ₀", pot.ρ₀),
-        ("𝔸", pot.𝔸),
-        ("cosmos", pot.cosmos)
-    ]
+    # Mostrar el nombre del tipo con parámetros
+    print(io, "$T")
 
-    for (name, value) in fields
-        print(io, "  ")
-        printstyled(io, name; color=:yellow)
-        print(io, " = ")
-        printstyled(io, string(value); color=:white)
-        print(io, "\n")
+    # Mostrar cada campo con su tipo y valor
+    for (i, field) in enumerate(field_names)
+        value = getfield(pot, field)
+        type_str = string(typeof(value))
+        print(io, "\n  $field: $type_str $value")
+    end
+end
+
+function Base.show(io::IO, comp::CompositePotential)
+    print(io, "$(typeof(comp))")
+    print(io, "\n  potentials:")
+
+    for (i, pot) in enumerate(comp.potentials)
+        print(io, "\n    [$i] ")
+        show(io, pot)
     end
 end

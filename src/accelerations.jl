@@ -137,7 +137,10 @@ end
 
 
 """NFW halo acceleration"""
-
+function acceleration(pot::NFW, x::AbstractVector{T}) where {T<:Real}
+    r = sqrt( dot(x,x) )
+    return -G*pot.m*f_nfw(r/pot.a)*x/r^3
+end
 
 """Oscillatory Kepler dependent"""
 
@@ -145,7 +148,7 @@ end
 
 """PowerLawCutoff"""
 function acceleration(pot::PowerLawCutoff, x::AbstractVector{L}) where {L<:Real}
-    @unpack_PowerLawCutoff pot
+    @unpack m, c, β =  pot
     r = sqrt( dot(x,x) )
     return -G * m * (gamma_inc(β, r*r/(c*c),0)[1]) * x / r^3
 end

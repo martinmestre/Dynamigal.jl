@@ -75,9 +75,9 @@ end
 
 """NFW halo potential"""
 function potential(pot::NFW, x::AbstractVector{L}) where {L<:Real}
-    @unpack m_s, a = pot
+    @unpack m, a = pot
     r = sqrt( dot(x,x) )
-    return -G*m_s*log(1+r/a)/r
+    return -G*m*log(1+r/a)/r
 end
 
 

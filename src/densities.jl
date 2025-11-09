@@ -45,7 +45,8 @@ function density(pot::MiyamotoNagaiDisk, x::AbstractVector{L}) where {L<:Real}
     @unpack_MiyamotoNagaiDisk pot
     y = @view x[1:2]
     R² = dot(y,y)
-    bz² = b*b + x[3]*x[3]
+    b² = b*b
+    bz² = b² + x[3]*x[3]
     bz = sqrt(bz²)
     abz = a + bz
     return (m*b²/4π)*(a*R²+(3*bz+a)*abz^2)/((R²+abz*abz)^2.5*(bz²)^1.5)
@@ -94,6 +95,6 @@ function density(pot::PowerLawCutoff, x::AbstractVector{L}) where {L<:Real}
     return density(pot, r)
 end
 function density(pot::PowerLawCutoff, r::L) where {L<:Real}
-    @unpack_PowerLawCutoff pot
+    @unpack α, c, 𝔸 =  pot
     return 𝔸*r^(-α)*exp(-r*r/(c*c))
 end

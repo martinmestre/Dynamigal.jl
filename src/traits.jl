@@ -31,4 +31,3 @@ end
 abstract type AccelerationTrait end
 struct AutoDiffTrait <: AccelerationTrait end
 
-

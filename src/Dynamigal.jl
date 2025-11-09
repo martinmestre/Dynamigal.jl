@@ -19,6 +19,7 @@ export acceleration, acceleration!, acceleration_c!
 export ode, _ode, ode_c, ode_perf
 export evolve, _evolve, evolve_c
 export density
+export mass
 export circular_velocity
 export Particle, TestParticle, MacroParticle
 export MacroParticleSystem
@@ -26,6 +27,7 @@ export LargeCloudMW, CloudsMW, SagCloudsMW
 export Event, Orbit, Snapshot
 export TimeDependent, Kepler, Plummer, AllenSantillanHalo, MiyamotoNagaiDisk
 export Hernquist, NFW
+export PowerLawCutoff
 export OscillatoryKepler
 export CompositePotential
 export concentration
@@ -42,7 +44,7 @@ export MilkyWayBovy2014
 export SystemTrait, @set_system_trait
 export GenSysTrait, GenSysMutOdeTrait
 export GalacticTrait, PerfGalacticTrait
-
+export AccelerationTrait, AutoDiffTrait
 
 
 
@@ -62,6 +64,7 @@ include("odes.jl")
 include("accelerations.jl")
 include("evolutions.jl")
 include("densities.jl")
+include("masses.jl")
 include("circular_velocity.jl")
 include("overloads.jl")
 include("examples.jl")

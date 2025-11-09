@@ -24,8 +24,8 @@ end
     ν::V₁ = u"km/s"  # Just for IC and display
     a::A = v/t    # This is the code unit for acceleration
     α::A₁ = u"km/s/Myr"  # Just for IC and display
-    p::P = v^2  # Code unit for potentials
-    ρ::R = m/l^3
+    p::P = v^2  # Code unit for potential
+    ρ::R = m/l^3 # Code unit for density
 end
 
 
