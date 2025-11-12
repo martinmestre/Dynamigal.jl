@@ -4,7 +4,7 @@ function _ode(u::AbstractVector{<:Real}, p::P, t::T) where {P<:AbstractPotential
     return SA[u[siss]..., acceleration(p, u[sis], t)...]
 end
 # ode(below) is a little faster than _ode(above)
-# ojo! en test de Orbits.ipynb da mejor _ode()
+# ojo! en test Orbits.jl da al reves el benchmark.
 function ode(u::AbstractVector{<:Real}, p::P, t::T) where {P<:AbstractPotential, T<:Real}
     a = acceleration(p, u[sis], t)
     return SVector{6}(u[4], u[5], u[6], a[1], a[2], a[3])

@@ -20,3 +20,9 @@ function MilkyWayBovy2014()
     halo = NFW(m=4.3683325e11*u"Msun", a=16*u"kpc")
     return CompositePotential(bulge,disk,halo)
 end
+function MilkyWayBovy2014(fac::T) where {T<:Real}
+    bulge = PowerLawCutoff(m=4501365375.06545*u"Msun", α=1.8, c=1.0*u"kpc")
+    disk = MiyamotoNagaiDisk(m=68193902782.346756*u"Msun" , a=3.0*u"kpc", b=280.0*u"pc")
+    halo = NFW(m=fac*4.3683325e11*u"Msun", a=16*u"kpc")
+    return CompositePotential(bulge,disk,halo)
+end
