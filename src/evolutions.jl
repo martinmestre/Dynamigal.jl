@@ -12,7 +12,7 @@ function _evolve(pot::P, x::AbstractVector{D}, v::AbstractVector{F},
     return orb
 end
 # evolve(below) is a little faster than _evolve(above)
-# ojo! en test de Orbits.ipynb da mejor _evolve()...
+# ojo! en test de Orbits.ipynb da mejor la de arriba
 function evolve(pot::P, x::AbstractVector{D}, v::AbstractVector{F},
    t_span::Tuple{T,T}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractPotential, D, F, T}
     p = pot
