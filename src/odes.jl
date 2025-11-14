@@ -10,6 +10,13 @@ function ode(u::AbstractVector{<:Real}, p::P, t::T) where {P<:AbstractPotential,
     return SVector{6}(u[4], u[5], u[6], a[1], a[2], a[3])
 end
 
+"""ODE for the Newtonian case: test particle in a potential+friction."""
+function ode(u::AbstractVector{<:Real}, p::Tuple{<:AbstractFriction,<:AbstractPotential}, t::T) where {T<:Real}
+    fric, pot = p
+    a = acceleration(fric, pot, u[sis], u[siss], t)
+    return SVector{6}(u[4], u[5], u[6], a[1], a[2], a[3])
+end
+
 """
 ODE for the Newtonian case: system of macro particles.
 This function is called when calling <evolve> while using SystemTrait: GenSys.
@@ -103,7 +110,6 @@ function ode_perf(u::AbstractVector{L}, p::LargeCloudMW, t::T) where {L<:Real,T<
 end
 
 
-#aca estoy...
 """ODE for the Newtonian case: LargeCloudMW system
     called from evolution() when using GalacticTrait."""
 function ode(u::AbstractVector{L}, p::Tuple{<:AbstractFriction,LargeCloudMW}, t::T) where {L<:Real,T<:Real}

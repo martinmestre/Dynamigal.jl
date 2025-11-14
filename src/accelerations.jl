@@ -111,8 +111,8 @@ drag force.
 The algorithm for the drag is dispatched according to the fric struct.
 ⚠ Warning: here x and v are difference vectors between the perturber and the potential source.
 """
-function acceleration(fric::F, p::P, x::AbstractVector{L}, v::AbstractVector{L}, t::T) where {P<:AbstractPotential, L<:Real, T<:Real, F<:AbstractFriction}
-    return acceleration(p, x, t) + drag(fric, p, x, v, t)
+function acceleration(fric::F, pot::P, x::AbstractVector{L}, v::AbstractVector{L}, t::T) where {P<:AbstractPotential, L<:Real, T<:Real, F<:AbstractFriction}
+    return acceleration(pot, x, t) + drag(fric, pot, x, v, t)
 end
 
 

@@ -38,7 +38,7 @@ export example_cloudsMW
 export example_cloudsMW_friction
 export code_units, physical_units, adimensional
 export r_vir_nfw
-export ChandrasekharFriction
+export ChandrasekharFriction, GalpyFriction, AgamaFriction
 export drag
 export MilkyWayBovy2014
 export SystemTrait, @set_system_trait
