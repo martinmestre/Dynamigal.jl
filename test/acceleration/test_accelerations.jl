@@ -129,16 +129,16 @@
     x = reduce(vcat, [mps[i].event.x for i in eachindex(mps)])
     v = reduce(vcat, [mps[i].event.v for i in eachindex(mps)])
     u = SA[x...,v...]
-    trait = FrictionlessTrait()
+    fric = GalpyFriction(mₚ=1.e1, rₚ=5.0, σₕ=150)
     acc = acceleration!(mps,x)
     acc₂ = acceleration(cloudMW,u)
-    acc₃ = acceleration(trait, cloudMW,x)
+    acc₃ = acceleration(fric, cloudMW,u)
     @test acc ≈ acc₂ rtol=5.e-14
     @test acc₂ ≈ acc₃ rtol=5.e-14
     @show acc acc₂ acc₃
     a = @benchmark acceleration!($mps,$x) samples=100 seconds=50
     b = @benchmark acceleration($cloudMW,$u) samples=100 seconds=50
-    c = @benchmark acceleration($trait, $cloudMW,$x) samples=100 seconds=50
+    c = @benchmark acceleration($fric, $cloudMW,$u) samples=100 seconds=50
     display(a)
     display(b)
     display(c)

@@ -13,15 +13,15 @@ gp = pyimport("gala.potential")
 gu = pyimport("gala.units")
 gi = pyimport("gala.integrate")
 
-# @time begin
-#     include("acceleration/test_accelerations.jl")
-# end
+@time begin
+    include("acceleration/test_accelerations.jl")
+end
 # @time begin
 #     include("ode/test_odes.jl")
 # end
 # @time begin
 #     include("orbit/test_orbits.jl")
 # end
-@time begin
-    include("potential/test_potentials.jl")
-end
+# @time begin
+#     include("potential/test_potentials.jl")
+# end

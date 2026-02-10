@@ -3,7 +3,7 @@
 
 """Evolution of a an initial condition in an AbstractPotential"""
 function _evolve(pot::P, x::AbstractVector{D}, v::AbstractVector{F},
-   t_span::Tuple{T,T}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractPotential, D, F, T}
+   t_span::Tuple{T,T}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractPotential, D<:Real, F<:Real, T}
     p = pot
     u₀ = SA[x...,v...]
     prob = ODEProblem(_ode, u₀, t_span, p)
@@ -14,7 +14,7 @@ end
 # evolve(below) is a little faster than _evolve(above)
 # ojo! en test de Orbits.ipynb da mejor la de arriba
 function evolve(pot::P, x::AbstractVector{D}, v::AbstractVector{F},
-   t_span::Tuple{T,T}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractPotential, D, F, T}
+   t_span::Tuple{T,T}, solver=𝕤.ode; options=ntSolverOptions()) where {P<:AbstractPotential, D<:Real, F<:Real, T}
     p = pot
     u₀ = SA[x...,v...]
     prob = ODEProblem(ode, u₀, t_span, p)
