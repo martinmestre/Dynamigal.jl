@@ -12,7 +12,7 @@ AllenSantillanHalo(m::T, a::D, Λ::F, γ::G) where {T<:Unitful.Mass, D<:Unitful.
                         ustrip(uconvert(𝕦.l, Λ)),  γ )
 
 
-@with_kw struct Hernquist{T<:Real,D<:Real} <: AbstractSphericalStaticPotential
+@with_kw struct Hernquist{T<:Real,D<:Real} <: AbstractStaticPotential # do not assign spherical as mass(r) is not defined yet.
     m::T
     a::D
     @assert m>0 && a>0 "all fields should be possitive"
@@ -21,7 +21,7 @@ Hernquist(m::T, a::D) where {T<:Unitful.Mass, D<:Unitful.Length} =
     Hernquist( ustrip(uconvert(𝕦.m, m)),  ustrip(uconvert(𝕦.l, a)) )
 
 
-@with_kw struct Kepler{T<:Real} <: AbstractSphericalStaticPotential
+@with_kw struct Kepler{T<:Real} <: AbstractStaticPotential # do not assign spherical as mass(r) is not defined yet.
     m::T
     @assert m>0 "m must be possitive"
 end

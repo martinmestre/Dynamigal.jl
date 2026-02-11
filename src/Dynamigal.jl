@@ -45,7 +45,7 @@ export SystemTrait, @set_system_trait
 export GenSysTrait, GenSysMutOdeTrait
 export GalacticTrait, PerfGalacticTrait
 export AccelerationTrait, AutoDiffTrait
-
+export AbstractMacroParticleSystem
 
 
 include("abstract_types.jl")

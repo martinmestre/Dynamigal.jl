@@ -64,50 +64,52 @@
 
 
 
-# @testset "AccelerationsMacroParticleSystem" begin
-#     m = 5
-#     n = 3
-#     m_p = 1.0e8
-#     a_p = 5.0
-#     m_d = 1.0e10
-#     a_d = 7.0
-#     b_d = 2.0
-#     m_h = 5.0e11
-#     a_h = 50.0
-#     pot = Vector{CompositePotential}(undef, n+1)
-#     mp_array = Vector{MacroParticle}(undef, n+1)
-#     for i in eachindex(pot)
-#         pot₁ = Plummer(m_p*rand(), a_p*rand())
-#         pot₂ = MiyamotoNagaiDisk(m_d*rand(), a_d*rand(), b_d*rand())
-#         pot₃ = Hernquist(m_h*rand(), a_h*rand())
-#         pot[i] = CompositePotential(pot₁,pot₂,pot₃)
-#         event = Event(30rand(3), 200rand(3))
-#         mp_array[i] = MacroParticle(pot[i], event)
-#     end
-#     pot[n+1] =  CompositePotential(Kepler(1.0e7), Kepler(0.1))
-#     mp_array[n+1] = MacroParticle(pot[n+1])
-#     mps = MacroParticleSystem(mp_array...)
-#     x = vcat([[mps[i].event.x for i ∈ eachindex(mps)]...]...)
-#     v = vcat([[mps[i].event.v for i ∈ eachindex(mps)]...]...)
-#     for j = 1:2
-#         u = SA[x...,v...].*rand(6*(n+1))
-#         acc = acceleration!(mps,u)
-#         acc₂ = acceleration_c!(mps,u)
-#         @test acc ≈ acc₂ rtol=5.e-14
-#         a = @benchmark acceleration!($mps,$u) samples=100 seconds=1000
-#         b = @benchmark acceleration_c!($mps,$u) samples=100 seconds=1000
-#         println("j = $j")
-#         display(a)
-#         display(b)
-#     end
-#     for Δx ∈ [0.01, 0.001, 0.0001, 0.00001, 0.000001]
-#         x = Δx*[1,0,0]
-#         @show acceleration(mps,x)
-#         c = @benchmark acceleration($mps,$x) samples=100 seconds=1000
-#         println("Δx = $(Δx)")
-#         display(c)
-#     end
-# end
+@testset "AccelerationsMacroParticleSystem" begin
+    m = 5
+    n = 3
+    m_p = 1.0e8
+    a_p = 5.0
+    m_d = 1.0e10
+    a_d = 7.0
+    b_d = 2.0
+    m_h = 5.0e11
+    a_h = 50.0
+    pot = Vector{CompositePotential}(undef, n+1)
+    mp_array = Vector{MacroParticle}(undef, n+1)
+    for i in eachindex(pot)
+        pot₁ = Plummer(m_p*rand(), a_p*rand())
+        pot₂ = MiyamotoNagaiDisk(m_d*rand(), a_d*rand(), b_d*rand())
+        pot₃ = Hernquist(m_h*rand(), a_h*rand())
+        pot[i] = CompositePotential(pot₁,pot₂,pot₃)
+        event = Event(30rand(3), 200rand(3))
+        mp_array[i] = MacroParticle(pot[i], event)
+    end
+    pot[n+1] =  CompositePotential(Kepler(1.0e7), Kepler(0.1))
+    mp_array[n+1] = MacroParticle(pot[n+1])
+    mps = MacroParticleSystem(mp_array...)
+    @show typeof(mps) typeof(mps.macroparticles) typeof(mps.accelerations)
+    x = vcat([[mps[i].event.x for i ∈ eachindex(mps)]...]...)
+    v = vcat([[mps[i].event.v for i ∈ eachindex(mps)]...]...)
+    for j = 1:2
+        u = SA[x...,v...].*rand(6*(n+1))
+        acc = acceleration!(mps,u)
+        acc₂ = acceleration_c!(mps,u)
+        @test acc ≈ acc₂ rtol=5.e-14
+        a = @benchmark acceleration!($mps,$u) samples=100 seconds=1000
+        b = @benchmark acceleration_c!($mps,$u) samples=100 seconds=1000
+        println("j = $j")
+        display(a)
+        display(b)
+    end
+    for Δx ∈ [0.01, 0.001, 0.0001, 0.00001, 0.000001]
+        x = Δx*[1,0,0]
+        y = zeros(MVector{3*(n+1), Float64})  # I am not using the true mps positions.
+        @show acceleration(mps, y, x)
+        c = @benchmark acceleration($mps, $y, $x) samples=100 seconds=1000
+        println("Δx = $(Δx)")
+        display(c)
+    end
+end
 
 @testset "AccelerationsLargeCloudMW" begin
     m_p = 1.0e8
@@ -129,16 +131,20 @@
     x = reduce(vcat, [mps[i].event.x for i in eachindex(mps)])
     v = reduce(vcat, [mps[i].event.v for i in eachindex(mps)])
     u = SA[x...,v...]
-    fric = GalpyFriction(mₚ=1.e1, rₚ=5.0, σₕ=150)
+    fric = GalpyFriction(mₚ=1.e4, rₚ=5.0, σₕ=150)
+    acc_c = acceleration_c!(mps,x)
     acc = acceleration!(mps,x)
     acc₂ = acceleration(cloudMW,u)
     acc₃ = acceleration(fric, cloudMW,u)
-    @test acc ≈ acc₂ rtol=5.e-14
-    @test acc₂ ≈ acc₃ rtol=5.e-14
-    @show acc acc₂ acc₃
+    # @test acc ≈ acc_c rtol=5.e-14
+    # @test acc ≈ acc₂ rtol=5.e-14
+    # @test acc₂ ≈ acc₃ rtol=5.e-14
+    @show acc acc_c acc₂ acc₃
+    a_c = @benchmark acceleration_c!($mps,$x) samples=100 seconds=50
     a = @benchmark acceleration!($mps,$x) samples=100 seconds=50
     b = @benchmark acceleration($cloudMW,$u) samples=100 seconds=50
     c = @benchmark acceleration($fric, $cloudMW,$u) samples=100 seconds=50
+    display(a_c)
     display(a)
     display(b)
     display(c)
