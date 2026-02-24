@@ -81,3 +81,7 @@ end
     ϵ_ν::Float64 = 0.5e-12
 end
 
+"""Jeans configuration"""
+@with_kw struct JeansConfig{} <:AbstractConfig
+    ϵ_ρ::Float64 = 0.5e-7
+end

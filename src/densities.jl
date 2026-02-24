@@ -28,6 +28,12 @@ function density(pot::CompositePotential, x::AbstractVector{L}, t::T=0.0) where 
 end
 
 
+"""Density of radial position"""
+function density(pot::P, r::L) where {P<:AbstractStaticPotential, L<:Real}
+    return density(pot, [1,1,1]*r/sqrt(3))
+end
+
+
 """List of specific densities"""
 
 """Allen and Santillan (generalized) halo"""

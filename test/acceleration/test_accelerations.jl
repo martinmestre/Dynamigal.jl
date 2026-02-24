@@ -87,7 +87,7 @@
     pot[n+1] =  CompositePotential(Kepler(1.0e7), Kepler(0.1))
     mp_array[n+1] = MacroParticle(pot[n+1])
     mps = MacroParticleSystem(mp_array...)
-    @show typeof(mps) typeof(mps.macroparticles) typeof(mps.accelerations)
+    # @show typeof(mps) typeof(mps.macroparticles) typeof(mps.accelerations)
     x = vcat([[mps[i].event.x for i ∈ eachindex(mps)]...]...)
     v = vcat([[mps[i].event.v for i ∈ eachindex(mps)]...]...)
     for j = 1:2
@@ -104,7 +104,7 @@
     for Δx ∈ [0.01, 0.001, 0.0001, 0.00001, 0.000001]
         x = Δx*[1,0,0]
         y = zeros(MVector{3*(n+1), Float64})  # I am not using the true mps positions.
-        @show acceleration(mps, y, x)
+        # @show acceleration(mps, y, x)
         c = @benchmark acceleration($mps, $y, $x) samples=100 seconds=1000
         println("Δx = $(Δx)")
         display(c)
@@ -131,14 +131,14 @@ end
     x = reduce(vcat, [mps[i].event.x for i in eachindex(mps)])
     v = reduce(vcat, [mps[i].event.v for i in eachindex(mps)])
     u = SA[x...,v...]
-    fric = GalpyFriction(mₚ=1.e4, rₚ=5.0, σₕ=150)
+    fric = GalpyFriction(mₚ=1.e-1, rₚ=5.0, σₕ=150)
     acc_c = acceleration_c!(mps,x)
     acc = acceleration!(mps,x)
     acc₂ = acceleration(cloudMW,u)
     acc₃ = acceleration(fric, cloudMW,u)
-    # @test acc ≈ acc_c rtol=5.e-14
-    # @test acc ≈ acc₂ rtol=5.e-14
-    # @test acc₂ ≈ acc₃ rtol=5.e-14
+    @test acc ≈ acc_c rtol=5.e-14
+    @test acc ≈ acc₂ rtol=5.e-14
+    @test acc₂ ≈ acc₃ rtol=5.e-14
     @show acc acc_c acc₂ acc₃
     a_c = @benchmark acceleration_c!($mps,$x) samples=100 seconds=50
     a = @benchmark acceleration!($mps,$x) samples=100 seconds=50
