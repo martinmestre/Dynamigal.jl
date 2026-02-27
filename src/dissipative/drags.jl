@@ -88,7 +88,7 @@ function drag(fric::GalpyFriction, p::P, x::AbstractArray{L}, v::AbstractArray{L
     r = sqrt(dot(x,x))
     ν² = dot(v,v)
     ν = sqrt(ν²)
-    if ν < 𝕗.ϵ_ν   #ver si aca la condicion debe ser en distancia r....
+    if ν < 𝕗.ϵ_ν
         return 0.0
     else
         Λ = r / γₕ / max(rₚ, G*mₚ/ν²)

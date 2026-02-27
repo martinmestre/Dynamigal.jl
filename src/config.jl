@@ -83,5 +83,5 @@ end
 
 """Jeans configuration"""
 @with_kw struct JeansConfig{} <:AbstractConfig
-    ϵ_ρ::Float64 = 0.5e-7
+    ϵ_ρ::Float64 = 0.5e-2 # in code units (M⊙/kpc³)
 end

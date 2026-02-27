@@ -9,7 +9,9 @@ using Parameters
 using NamedTupleTools
 @reexport using LinearAlgebra
 @reexport using SpecialFunctions
-using Roots
+@reexport using Roots
+@reexport using Interpolations
+@reexport using Integrals
 
 export SolverConfig, UnitsConfig, CosmosConfig, SolverOptions, FrictionConfig
 export ntSolverOptions
@@ -40,6 +42,7 @@ export code_units, physical_units, adimensional
 export r_vir_nfw
 export ChandrasekharFriction, GalpyFriction, AgamaFriction
 export drag
+export velocity_dispersion
 export MilkyWayBovy2014
 export SystemTrait, @set_system_trait
 export GenSysTrait, GenSysMutOdeTrait
@@ -66,6 +69,7 @@ include("evolutions.jl")
 include("densities.jl")
 include("masses.jl")
 include("circular_velocity.jl")
+include("jeans.jl")
 include("overloads.jl")
 include("examples.jl")
 
