@@ -18,6 +18,13 @@ function density(pot::P, x::AbstractVector{L}, t::T) where {P<:AbstractStaticPot
     return density(pot, x)
 end
 
+
+"""Density of radial position"""
+# function density(pot::P, r::L) where {P<:AbstractStaticPotential, L<:Real}
+#     return density(pot, [1,0,1]*r/sqrt(2))
+# end
+
+
 """Density of a CompositePotential"""
 function density(pot::CompositePotential, x::AbstractVector{L}, t::T=0.0) where {L<:Real, T<:Real}
     ρ = zero(L)
@@ -26,13 +33,10 @@ function density(pot::CompositePotential, x::AbstractVector{L}, t::T=0.0) where 
     end
     return ρ
 end
-
-
-"""Density of radial position"""
-function density(pot::P, r::L) where {P<:AbstractStaticPotential, L<:Real}
-    return density(pot, [1,1,1]*r/sqrt(3))
-end
-
+# """Density of radial position for CompositePotential"""
+# function density(pot::CompositePotential, r::L) where {L<:Real}
+#     return density(pot, [1,0,1]*r/sqrt(2))
+# end
 
 """List of specific densities"""
 

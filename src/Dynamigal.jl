@@ -40,7 +40,9 @@ export example_cloudsMW
 export example_cloudsMW_friction
 export code_units, physical_units, adimensional
 export r_vir_nfw
-export ChandrasekharFriction, GalpyFriction, AgamaFriction
+export ChandrasekharFriction
+export GalpyFriction, GalaFriction
+export AgamaFriction, TangoFriction
 export drag
 export velocity_dispersion
 export MilkyWayBovy2014
