@@ -93,3 +93,14 @@ end
 function SagCloudsMW(mps::T) where {T<:AbstractMacroParticleSystem}
     return SagCloudsMW{typeof(mps[1]),typeof(mps[2]),typeof(mps[3]),typeof(mps[4])}(mw=mps[1], large=mps[2], small=mps[3], sag=mps[4])
 end
+
+
+@with_kw struct SatelliteCloudMW{P,T,W} <: AbstractGalacticSystem
+    mw::P
+    cloud::T
+    satellite::W
+end
+function SatelliteCloudMW(mps::T) where {T<:AbstractMacroParticleSystem}
+    return SatelliteCloudMW{typeof(mps[1]),typeof(mps[2]),typeof(mps[3])}(mw=mps[1], cloud=mps[2],
+            satellite=mps[3])
+end

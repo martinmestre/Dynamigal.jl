@@ -19,7 +19,7 @@ end
 
 """
 ODE for the Newtonian case: system of macro particles.
-This function is called when calling <evolve> while using SystemTrait: GenSys.
+This function is called when calling <evolve> while using SystemTrait: GenSysTrait.
 
 Benchmark with 20 macroparticles with compound potentials:
 
@@ -54,7 +54,7 @@ end
 
 """
 ODE for the Newtonian case: system of macro particles.
-This function is called when calling <evolve> while using SystemTrait: GenSysMutODE.
+This function is called when calling <evolve> while using SystemTrait: GenSysMutOdeTrait.
 
 Benchmark with 20 macroparticles with compound potentials:
     Test against ode calling acceleration!
@@ -89,6 +89,14 @@ function ode!(du::AbstractVector{L}, u::AbstractVector{L}, p::MacroParticleSyste
     return nothing
 end
 
+
+"""ODE for the Newtonian case: system of macro particles with mutual dynamical friction."""
+function ode(u::AbstractVector{L}, p::Tuple{Matrix{F},MacroParticleSystem}, t::T) where {F<:AbstractFriction, L<:Real,T<:Real}
+    n = Integer(length(u)/2)
+    return SA[u[n+1:end]..., acceleration!(p[1], p[2], u, t)...]
+end
+
+
 """ODE for the Newtonian case: LargeCloudMW system
     called from evolution() when using GalacticTrait."""
 function ode(u::AbstractVector{L}, p::LargeCloudMW, t::T) where {L<:Real,T<:Real}
@@ -110,9 +118,20 @@ function ode_perf(u::AbstractVector{L}, p::LargeCloudMW, t::T) where {L<:Real,T<
 end
 
 
-"""ODE for the Newtonian case: LargeCloudMW system
-    called from evolution() when using GalacticTrait."""
+"""ODE for the Newtonian case: LargeCloudMW system plus dynamical friction for the cloud."""
 function ode(u::AbstractVector{L}, p::Tuple{<:AbstractFriction,LargeCloudMW}, t::T) where {L<:Real,T<:Real}
     return SVector{12,L}(u[7],u[8],u[9],u[10],u[11],u[12],
+                        acceleration(p[1], p[2], u, t)... )
+end
+
+"""ODE for the Newtonian case: SatelliteCloudMW system plus MW's dynamical friction for the cloud."""
+function ode(u::AbstractVector{L}, p::Tuple{<:AbstractFriction,SatelliteCloudMW}, t::T) where {L<:Real,T<:Real}
+    return SVector{18,L}(u[10],u[11],u[12],u[13],u[14],u[15],u[16],u[17],u[18],
+                        acceleration(p[1], p[2], u, t)... )
+end
+
+"""ODE for the Newtonian case: SatelliteCloudMW system plus MW's dynamical friction for the cloud and satellite."""
+function ode(u::AbstractVector{L}, p::Tuple{F,SatelliteCloudMW}, t::T) where {F, L<:Real,T<:Real}
+    return SVector{18,L}(u[10],u[11],u[12],u[13],u[14],u[15],u[16],u[17],u[18],
                         acceleration(p[1], p[2], u, t)... )
 end

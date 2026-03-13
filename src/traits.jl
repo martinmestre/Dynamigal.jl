@@ -7,6 +7,7 @@ struct GenSysTrait <: SystemTrait end
 struct GenSysMutOdeTrait <: SystemTrait end
 struct GalacticTrait <: SystemTrait end
 struct PerfGalacticTrait <: SystemTrait end
+struct MutualFrictionTrait <: SystemTrait end
 
 SystemTrait(::Type) = GenSysTrait()
 SystemTrait(::Type{<:AbstractGalacticSystem}) = GalacticTrait()

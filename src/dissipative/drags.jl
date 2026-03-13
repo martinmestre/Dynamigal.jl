@@ -14,7 +14,7 @@ function drag(fric::ChandrasekharFriction, p::P, x::AbstractArray{L}, v::Abstrac
     @unpack mₚ, rₚ, b_max, v_typ, σₕ = fric
     ν = sqrt(dot(v,v))
     if ν < 𝕗.ϵ_ν
-        return 0.0
+        return zeros(3)
     else
         lnΛ = log( b_max / max(rₚ, G*mₚ/v_typ^2) )
         χ = ν /(σₕ√2)
@@ -32,7 +32,7 @@ function drag(fric::GalaFriction, p::P, x::AbstractArray{L}, v::AbstractArray{L}
     r = sqrt(dot(x,x))
     ν = sqrt(dot(v,v))
     if ν < 𝕗.ϵ_ν
-        return 0.0
+        return zeros(3)
     else
         lnΛ = log( r / max(rₚ, G*mₚ/σₕ(r)^2) )
         χ = ν /(σₕ(r)*√2)
@@ -51,7 +51,7 @@ function drag(fric::TangoFriction, p::P, x::AbstractArray{L}, v::AbstractArray{L
     @unpack mₚ, lnΛ, σₕ = fric
     ν = sqrt(dot(v,v))
     if ν < 𝕗.ϵ_ν
-        return 0.0
+        return zeros(3)
     else
         χ = ν /(σₕ√2)
         return -4π*G^2*lnΛ*density(p, x, t) * mₚ * ( erf(χ) - (2/√π)*χ*exp(-χ^2) ) * v/ν^3
@@ -70,7 +70,7 @@ function drag(fric::AgamaFriction, p::P, x::AbstractArray{L}, v::AbstractArray{L
     ν = sqrt(dot(v,v))
     lnΛ = max(0, sqrt(log(r / b_min)) )
     if ν < 𝕗.ϵ_ν
-        return 0.0
+        return zeros(3)
     else
         χ = ν /(σₕ(r)*√2)
         return -4π*G^2*lnΛ*density(p, x, t) * mₚ * ( erf(χ) - (2/√π)*χ*exp(-χ^2) ) * v/ν^3
@@ -91,7 +91,7 @@ function drag(fric::GalpyFriction, p::P, x::AbstractArray{L}, v::AbstractArray{L
     ν² = dot(v,v)
     ν = sqrt(ν²)
     if ν < 𝕗.ϵ_ν
-        return 0.0
+        return zeros(3)
     else
         Λ = r / γₕ / max(rₚ, G*mₚ/ν²)
         lnΛ = 0.5*log(1+Λ^2)

@@ -35,3 +35,4 @@ function _mass(pot::PowerLawCutoff, r::L) where {L<:Real}
     return 2π*𝔸*c^(3-α)*Γ_β*gamma_inc(β, r*r/(c*c),0)[1]
 end
 mass(pot::PowerLawCutoff, r::L) where {L<:Real} = pot.m*gamma_inc(pot.β, (r/pot.c)^2, 0)[1]
+

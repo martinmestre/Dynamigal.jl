@@ -244,6 +244,44 @@ function acceleration!(mps::P, x::AbstractVector{L}, t::T=0.0) where {P<:Abstrac
 end
 
 
+"""Acceleration of a system of macro particles without using complement, including dynamical friction
+from all the bodies onto all the bodies.
+
+function acceleration!(fric::F, mps::P, x::AbstractVector{L}, t::T=0.0) where {F, P<:AbstractMacroParticleSystem,L<:Real, T<:Real}
+
+Should I use a Matrix fric ? because it needs to have information of host potential (σ) and
+the subject galaxy (m, rhm = a*(1+sqrt(2)) ).
+.
+.
+. work in progress 🧰
+"""
+function acceleration!(fric::Matrix{F}, mps::P, x::AbstractVector{L}, t::T=0.0) where {F<:AbstractFriction, P<:AbstractMacroParticleSystem,L<:Real, T<:Real}
+    n = length(mps)
+    acc  = mps.accelerations
+    @inbounds for i ∈ 1:n
+        i3 = 3i
+        in3 = 3*(i+n)
+        y = SVector{3,L}(x[i3-2], x[i3-1], x[i3])
+        w = SVector{3,L}(x[in3-2], x[in3-1], x[in3])
+        acc_sum = zero(MVector{3,L})
+        for j ∈ 1:n
+            i == j && continue
+            j3 = 3j
+            jn3 = 3*(j+n)
+            χ = SVector{3,L}(x[j3-2], x[j3-1], x[j3])
+            Ω = SVector{3,L}(x[jn3-2], x[jn3-1], x[jn3])
+            acc_sum .+= acceleration(fric[i,j], mps[j].pot, y - χ, w - Ω, t)
+        end
+        acc[3i-2] = acc_sum[1]
+        acc[3i-1] = acc_sum[2]
+        acc[3i]   = acc_sum[3]
+    end
+
+    return acc
+end
+
+
+
 """Acceleration for LargeCloudMW system without friction"""
 function acceleration(system::LargeCloudMW, u::AbstractVector{L}, t::T=0.0) where {L<:Real, T<:Real}
     @unpack mw, cloud = system
@@ -254,7 +292,7 @@ function acceleration(system::LargeCloudMW, u::AbstractVector{L}, t::T=0.0) wher
              acc_at_cloud[1], acc_at_cloud[2], acc_at_cloud[3])
 end
 
-#aca estoy...
+
 """Acceleration for LargeCloudMW system with dynamical friction"""
 function acceleration(fric::F, system::LargeCloudMW, u::AbstractVector{L}, t::T=0.0) where { F<:AbstractFriction, L<:Real, T<:Real}
     @unpack mw, cloud = system
@@ -264,4 +302,36 @@ function acceleration(fric::F, system::LargeCloudMW, u::AbstractVector{L}, t::T=
     acc_at_mw = acceleration(cloud.pot, -Δx, t)
     return SVector{6,L}(acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
              acc_at_cloud[1], acc_at_cloud[2], acc_at_cloud[3])
+end
+
+
+"""Acceleration for SatelliteCloudMW system with dynamical friction for the cloud"""
+function acceleration(fric::F, system::SatelliteCloudMW, u::AbstractVector{L}, t::T=0.0) where { F<:AbstractFriction, L<:Real, T<:Real}
+    @unpack mw, cloud, satellite = system
+    Δx = SVector{3,L}(u[4]-u[1], u[5]-u[2], u[6]-u[3])
+    Δv = SVector{3,L}(u[13]-u[10], u[14]-u[11], u[15]-u[12])
+    δx = SVector{3,L}(u[7]-u[1], u[8]-u[2], u[9]-u[3])
+    δx₂ = SVector{3,L}(u[7]-u[4], u[8]-u[5], u[9]-u[6])
+    acc_at_mw = acceleration(cloud.pot, -Δx)
+    acc_at_cloud = acceleration(fric, mw.pot, Δx, Δv, t)
+    acc_at_sat = acceleration(mw.pot, δx) + acceleration(cloud.pot,δx₂)
+    return SVector{9,L}(acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
+             acc_at_cloud[1], acc_at_cloud[2], acc_at_cloud[3],
+             acc_at_sat[1], acc_at_sat[2], acc_at_sat[3])
+end
+
+"""Acceleration for SatelliteCloudMW system with MW's dynamical friction for the cloud and the satellite"""
+function acceleration(fric::Tuple{F,F}, system::SatelliteCloudMW, u::AbstractVector{L}, t::T=0.0) where { F<:AbstractFriction, L<:Real, T<:Real}
+    @unpack mw, cloud, satellite = system
+    Δx = SVector{3,L}(u[4]-u[1], u[5]-u[2], u[6]-u[3])
+    Δv = SVector{3,L}(u[13]-u[10], u[14]-u[11], u[15]-u[12])
+    δx = SVector{3,L}(u[7]-u[1], u[8]-u[2], u[9]-u[3])
+    δv = SVector{3,L}(u[16]-u[10], u[17]-u[11], u[18]-u[12])
+    δx₂ = SVector{3,L}(u[7]-u[4], u[8]-u[5], u[9]-u[6])
+    acc_at_mw = acceleration(cloud.pot, -Δx)
+    acc_at_cloud = acceleration(fric[1], mw.pot, Δx, Δv, t)
+    acc_at_sat = acceleration(fric[2], mw.pot, δx, δv, t) + acceleration(cloud.pot,δx₂)
+    return SVector{9,L}(acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
+             acc_at_cloud[1], acc_at_cloud[2], acc_at_cloud[3],
+             acc_at_sat[1], acc_at_sat[2], acc_at_sat[3])
 end

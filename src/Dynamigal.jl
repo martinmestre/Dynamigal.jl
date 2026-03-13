@@ -25,7 +25,7 @@ export mass
 export circular_velocity
 export Particle, TestParticle, MacroParticle
 export MacroParticleSystem
-export LargeCloudMW, CloudsMW, SagCloudsMW
+export LargeCloudMW, CloudsMW, SagCloudsMW, SatelliteCloudMW
 export Event, Orbit, Snapshot
 export TimeDependent, Kepler, Plummer, AllenSantillanHalo, MiyamotoNagaiDisk
 export Hernquist, NFW
@@ -49,6 +49,7 @@ export MilkyWayBovy2014
 export SystemTrait, @set_system_trait
 export GenSysTrait, GenSysMutOdeTrait
 export GalacticTrait, PerfGalacticTrait
+export MutualFrictionTrait
 export AccelerationTrait, AutoDiffTrait
 export AbstractMacroParticleSystem
 
