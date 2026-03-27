@@ -10,7 +10,6 @@ function velocity_dispersion(pot::P; β::R=0.0, r_min::L=0.1, r_max::T=0.0, n_no
     @show r_min r_max
     rₐ =range(r_min, r_max, n_nodes)
     σ = Vector{typeof(rₐ[begin])}(undef, n_nodes)
-    vec(r) = [1,0,1]*r/sqrt(2)
     ν(r) = density(pot, vec(r))
     dϕ(r) = norm(acceleration(pot,vec(r)))
     h(u,p) = u^(2β)*ν(u)*dϕ(u)

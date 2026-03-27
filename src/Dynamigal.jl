@@ -46,6 +46,8 @@ export AgamaFriction, TangoFriction
 export drag
 export velocity_dispersion
 export MilkyWayBovy2014
+export MilkyWayPriceWhelan2017
+export MilkyWayMosquera2026
 export SystemTrait, @set_system_trait
 export GenSysTrait, GenSysMutOdeTrait
 export GalacticTrait, PerfGalacticTrait

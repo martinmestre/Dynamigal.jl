@@ -83,7 +83,7 @@ function evolve(::GenSysTrait, mps::MacroParticleSystem, t_span::Tuple{R,R}, sol
 end
 
 
-"""Evolution of a system of MacroParticle using Mutating ODE trait"""
+"""Evolution of a system of MacroParticles using Mutating ODE trait"""
 function evolve(::GenSysMutOdeTrait, mps::MacroParticleSystem, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {R<:Real}
     x = reduce(vcat, [mps[i].event.x for i in eachindex(mps)])
     v = reduce(vcat, [mps[i].event.v for i in eachindex(mps)])

@@ -26,3 +26,21 @@ function MilkyWayBovy2014(fac::T) where {T<:Real}
     halo = NFW(m=fac*4.3683325e11*u"Msun", a=16*u"kpc")
     return CompositePotential(bulge,disk,halo)
 end
+
+function MilkyWayPriceWhelan2017()
+    nucleus = Hernquist(m=1.71e9*u"Msun", a=0.07*u"kpc")
+    bulge = Hernquist(m=5.0e9*u"Msun", a=1.0*u"kpc")
+    disk = MiyamotoNagaiDisk(m=6.8e10*u"Msun" , a=3.0*u"kpc", b=280.0*u"pc")
+    halo = NFW(m=5.4e11*u"Msun", a=15.62*u"kpc")
+    return CompositePotential(nucleus,bulge,disk,halo)
+end
+
+""" MilkyWayMosquera2026 customized potential
+Defined by Mercedes Mosquera for a paper on SBI orbits in the local group."""
+function MilkyWayMosquera2026()
+    nucleus = Hernquist(m=1.71e9*u"Msun", a=0.07*u"kpc")
+    bulge = Hernquist(m=5.0e9*u"Msun", a=1.0*u"kpc")
+    disk = MiyamotoNagaiDisk(m=6.8e10*u"Msun" , a=3.0*u"kpc", b=280.0*u"pc")
+    halo = NFW(m=7.41e11*u"Msun", a=17.04*u"kpc")
+    return CompositePotential(nucleus,bulge,disk,halo)
+end
