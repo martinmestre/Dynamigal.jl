@@ -187,9 +187,34 @@ function evolve(fric::F, cloudMW::LargeCloudMW, t_span::Tuple{R,R}, solver=𝕤.
     return sys_orb
 end
 
+"""Evolution of a CloudsMW (<: GalacticSystem) system including MW's dynamical friction on both clouds and LC's dynamical friction on the SC."""
+function evolve(fric::F, system::SatelliteCloudMW, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {F, R<:Real}
+    println("🎲 Evolving a CloudsMW system")
+    x_mw = system.mw.event.x
+    x_cl = system.large.event.x
+    x_sat = system.small.event.x
+    v_mw = system.mw.event.v
+    v_cl = system.large.event.v
+    v_sat = system.small.event.v
+    u₀ = SVector{18,typeof(x_mw[1])}(x_mw[1], x_mw[2], x_mw[3],
+                                    x_cl[1], x_cl[2], x_cl[3],
+                                    x_sat[1], x_sat[2], x_sat[3],
+                                    v_mw[1], v_mw[2], v_mw[3],
+                                    v_cl[1], v_cl[2], v_cl[3],
+                                    v_sat[1], v_sat[2], v_sat[3])
+    p = (fric, system)
+    prob = ODEProblem(ode, u₀, t_span, p)
+    sol  = solve(prob, solver; options...)
+    sys_orb = Vector{Orbit}(undef, 3)
+    sys_orb[1] = Orbit(sol.t, sol[1:3,:], sol[10:12,:])
+    sys_orb[2] = Orbit(sol.t, sol[4:6,:], sol[13:15,:])
+    sys_orb[3] = Orbit(sol.t, sol[7:9,:], sol[16:18,:])
+    return sys_orb
+end
+
 """Evolution of a SatelliteCloudMW (<: GalacticSystem) with dynamical friction for the cloud"""
 function evolve(fric::F, system::SatelliteCloudMW, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {F, R<:Real}
-    println("🎲 evolving a SatelliteCloudMW system")
+    println("🎲 Evolving a SatelliteCloudMW system")
     x_mw = system.mw.event.x
     x_cl = system.cloud.event.x
     x_sat = system.satellite.event.x

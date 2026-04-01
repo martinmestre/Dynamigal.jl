@@ -195,7 +195,7 @@ Conclusion: acceleration! is more performant than acceleration_c!
 
 selec(i::I) where {I<:Integer} = 1+3(i-1)
 """Complement function to be used in acceleration computation"""
-function complement(mps::P, x::AbstractVector{L}, i::I) where {P<:AbstractMacroParticleSystem, L<:Real, I<:Integer}
+function complement(mps::MacroParticleSystem, x::AbstractVector{L}, i::I) where {L<:Real, I<:Integer}
     n = length(mps)
     ρ = [mps[j].pot for j in 1:n if j != i]
     χ = [SVector{3,L}(
@@ -206,7 +206,7 @@ function complement(mps::P, x::AbstractVector{L}, i::I) where {P<:AbstractMacroP
     return ρ, χ
 end
 """Acceleration of a system of macro particles using complement"""
-function acceleration_c!(mps::P, x::AbstractVector{L}, t::T=0.0) where {P<:AbstractMacroParticleSystem,L<:Real, T<:Real}
+function acceleration_c!(mps::MacroParticleSystem, x::AbstractVector{L}, t::T=0.0) where {L<:Real, T<:Real}
     acc = mps.accelerations
     for i ∈ eachindex(mps)
         y = SVector{3,L}(x[selec(i)], x[selec(i)+1], x[selec(i)+2])
@@ -224,7 +224,7 @@ function acceleration_c!(mps::P, x::AbstractVector{L}, t::T=0.0) where {P<:Abstr
 end
 
 """Acceleration of a system of macro particles without using complement"""
-function acceleration!(mps::P, x::AbstractVector{L}, t::T=0.0) where {P<:AbstractMacroParticleSystem,L<:Real, T<:Real}
+function acceleration!(mps::MacroParticleSystem, x::AbstractVector{L}, t::T=0.0) where {L<:Real, T<:Real}
     n = length(mps)
     acc  = mps.accelerations
     @inbounds for i ∈ 1:n
@@ -247,15 +247,9 @@ end
 """Acceleration of a system of macro particles without using complement, including dynamical friction
 from all the bodies onto all the bodies.
 
-function acceleration!(fric::F, mps::P, x::AbstractVector{L}, t::T=0.0) where {F, P<:AbstractMacroParticleSystem,L<:Real, T<:Real}
-
-Should I use a Matrix fric ? because it needs to have information of host potential (σ) and
-the subject galaxy (m, rhm = a*(1+sqrt(2)) ).
-.
-.
-. work in progress 🧰
-"""
 function acceleration!(fric::Matrix{F}, mps::P, x::AbstractVector{L}, t::T=0.0) where {F<:AbstractFriction, P<:AbstractMacroParticleSystem,L<:Real, T<:Real}
+"""
+function acceleration!(fric::Matrix{F}, mps::MacroParticleSystem, x::AbstractVector{L}, t::T=0.0) where {F<:AbstractFriction,L<:Real, T<:Real}
     n = length(mps)
     acc  = mps.accelerations
     @inbounds for i ∈ 1:n
@@ -302,6 +296,56 @@ function acceleration(fric::F, system::LargeCloudMW, u::AbstractVector{L}, t::T=
     acc_at_mw = acceleration(cloud.pot, -Δx, t)
     return SVector{6,L}(acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
              acc_at_cloud[1], acc_at_cloud[2], acc_at_cloud[3])
+end
+
+"""
+Acceleration for CloudsMW system with mutual dynamical friction. This should be equal to the result
+of using evolve with ::MutualFrictionTrait, that implies using the method acceleration!(fric::Matrix{F}, mps::P, x::AbstractVector{L}, t::T=0.0) where {F<:AbstractFriction, P<:AbstractMacroParticleSystem,L<:Real, T<:Real}, for the corresponding MacroParticleSystem.
+⚠...not tested yet... 🧰
+Corresponding ode() and evolution() functions not written yet. Maybe never will be completed, as this system
+can be solved using MacroParticleSystem approach.
+
+I prefer to use the method below:
+    acceleration(fric::Tuple{F,F}, system::CloudsMW, ...
+where only MW friction effect is considered on both clouds.
+"""
+function acceleration(fric::Matrix{F}, system::CloudsMW, u::AbstractVector{L}, t::T=0.0) where { F<:AbstractFriction, L<:Real, T<:Real}
+    @unpack mw, large, small = system
+    Δx_mw_lc = SVector{3,L}(u[4]-u[1], u[5]-u[2], u[6]-u[3])
+    Δv_mw_lc = SVector{3,L}(u[13]-u[10], u[14]-u[11], u[15]-u[12])
+    Δx_mw_sc = SVector{3,L}(u[7]-u[1], u[8]-u[2], u[9]-u[3])
+    Δv_mw_sc = SVector{3,L}(u[16]-u[10], u[17]-u[11], u[18]-u[12])
+    Δx_lc_sc = SVector{3,L}(u[7]-u[4], u[8]-u[5], u[9]-u[6])
+    Δv_lc_sc = SVector{3,L}(u[16]-u[13], u[17]-u[14], u[18]-u[15])
+    acc_at_mw = acceleration(fric[1,2], large.pot, -Δx_mw_lc, -Δv_mw_lc, t) +
+                acceleration(fric[1,3], small.pot, -Δx_mw_sc, -Δv_mw_sc, t)
+    acc_at_lc = acceleration(fric[2,1], mw.pot, Δx_mw_lc, Δv_mw_lc, t) +
+                   acceleration(fric[2,3], small.pot, -Δx_lc_sc, -Δv_lc_sc, t)
+    acc_at_sc= acceleration(fric[3,1], mw.pot, Δx_mw_sc, Δv_mw_sc, t) +
+                 acceleration(fric[3,2], large.pot, Δx_lc_sc, Δv_lc_sc, t)
+    return SVector{9,L}(acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
+             acc_at_lc[1], acc_at_lc[2], acc_at_lc[3],
+             acc_at_sc[1], acc_at_sc[2], acc_at_sc[3])
+end
+
+"""Acceleration for CloudsMW system with MW's dynamical friction on both clouds and the dynamical friction of the large cloud on the small cloud."""
+function acceleration(fric::Tuple{F,F,F}, system::CloudsMW, u::AbstractVector{L}, t::T=0.0) where { F<:AbstractFriction, L<:Real, T<:Real}
+    @unpack mw, large, small = system
+    Δx_mw_lc = SVector{3,L}(u[4]-u[1], u[5]-u[2], u[6]-u[3])
+    Δv_mw_lc = SVector{3,L}(u[13]-u[10], u[14]-u[11], u[15]-u[12])
+    Δx_mw_sc = SVector{3,L}(u[7]-u[1], u[8]-u[2], u[9]-u[3])
+    Δv_mw_sc = SVector{3,L}(u[16]-u[10], u[17]-u[11], u[18]-u[12])
+    Δx_lc_sc = SVector{3,L}(u[7]-u[4], u[8]-u[5], u[9]-u[6])
+    Δv_lc_sc = SVector{3,L}(u[16]-u[13], u[17]-u[14], u[18]-u[15])
+    acc_at_mw = acceleration(large.pot, -Δx_mw_lc, t) +
+                acceleration(small.pot, -Δx_mw_sc, t)
+    acc_at_lc = acceleration(fric[1], mw.pot, Δx_mw_lc, Δv_mw_lc, t) +
+                acceleration(small.pot, -Δx_lc_sc, t)
+    acc_at_sc= acceleration(fric[2], mw.pot, Δx_mw_sc, Δv_mw_sc, t) +
+                acceleration(fric[3], large.pot, Δx_lc_sc, Δv_lc_sc, t)
+    return SVector{9,L}(acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
+             acc_at_lc[1], acc_at_lc[2], acc_at_lc[3],
+             acc_at_sc[1], acc_at_sc[2], acc_at_sc[3])
 end
 
 
