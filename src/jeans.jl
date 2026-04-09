@@ -1,13 +1,12 @@
 """Velocity dispersions"""
 
-function velocity_dispersion(pot::P; β::R=0.0, r_min::L=0.1, r_max::T=0.0, n_nodes::I=100) where {P, R<:Real, L<:Real, T<:Real, I<:Integer}
+function velocity_dispersion(pot::P; β::R=0.0, r_min::L=0.1, r_max::T=0.0, n_nodes::I=200) where {P, R<:Real, L<:Real, T<:Real, I<:Integer}
     vec(r) = [1,0,1]*r/sqrt(2)
     if r_max == 0.0
         g(x) = density(pot,vec(x)) - 𝕛.ϵ_ρ
         D(f)= x->gradient(y->f(y),x)[1]
         r_max = find_zero((g, D(g)),  [1.0e-6,1.e3], Roots.Brent())
     end
-    @show r_min r_max
     rₐ =range(r_min, r_max, n_nodes)
     σ = Vector{typeof(rₐ[begin])}(undef, n_nodes)
     ν(r) = density(pot, vec(r))
@@ -20,5 +19,6 @@ function velocity_dispersion(pot::P; β::R=0.0, r_min::L=0.1, r_max::T=0.0, n_no
     end
     itp = interpolate(σ, BSpline(Cubic(Line(OnGrid()))))
     sitp = scale(itp, rₐ)
-    return sitp
+    esitp = extrapolate(sitp, sitp(r_max))
+    return esitp
 end

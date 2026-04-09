@@ -12,7 +12,7 @@ AllenSantillanHalo(m::T, a::D, Λ::F, γ::G) where {T<:Unitful.Mass, D<:Unitful.
                         ustrip(uconvert(𝕦.l, Λ)),  γ )
 
 
-@with_kw struct Hernquist{T<:Real,D<:Real} <: AbstractStaticPotential # do not assign spherical as mass(r) is not defined yet.
+@with_kw struct Hernquist{T<:Real,D<:Real} <: AbstractSphericalStaticPotential # mass is not defined yet but acceleration is defined so it dispatchs correctly.
     m::T
     a::D
     @assert m>0 && a>0 "all fields should be possitive"

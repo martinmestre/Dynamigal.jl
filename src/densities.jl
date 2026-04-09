@@ -43,6 +43,12 @@ end
 """Allen and Santillan (generalized) halo"""
 
 """Hernquist potential"""
+function density(pot::Hernquist, x::AbstractVector{L}) where {L<:Real}
+    # println("Herquist density ...")
+    @unpack_Hernquist pot
+    r_a = sqrt( dot(x,x) ) / a
+    return (m/2π*a^3) / ( r_a * (1+r_a)^3 )
+end
 
 """Kepler potential"""
 

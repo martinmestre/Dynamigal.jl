@@ -28,7 +28,8 @@ export MacroParticleSystem
 export LargeCloudMW, CloudsMW, SagCloudsMW, SatelliteCloudMW
 export Event, Orbit, Snapshot
 export TimeDependent, Kepler, Plummer, AllenSantillanHalo, MiyamotoNagaiDisk
-export Hernquist, NFW
+export Hernquist
+export NFW, NFW_from_m_c, NFW_from_mv_a, NFW_from_mv_c
 export PowerLawCutoff
 export OscillatoryKepler
 export CompositePotential
@@ -45,10 +46,12 @@ export GalpyFriction, GalaFriction
 export AgamaFriction, TangoFriction
 export drag
 export velocity_dispersion
+export build_friction, build_friction!
 export MilkyWayBovy2014
 export MilkyWayPriceWhelan2017
 export MilkyWayMosquera2026
 export SystemTrait, @set_system_trait
+export RawSolutionTrait
 export GenSysTrait, GenSysMutOdeTrait
 export GalacticTrait, PerfGalacticTrait
 export MutualFrictionTrait

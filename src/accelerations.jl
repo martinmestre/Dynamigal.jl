@@ -122,6 +122,12 @@ end
 """Allen and Santillan (generalized) halo"""
 
 """Hernquist potential"""
+function acceleration(pot::Hernquist, x::AbstractVector{T}) where {T<:Real}
+    # println("Herquist acceleration...")
+    @unpack_Hernquist pot
+    r = sqrt( dot(x,x) )
+    return G*m / (r+a)^2 * x / r
+end
 
 """Kepler potential"""
 
@@ -298,6 +304,99 @@ function acceleration(fric::F, system::LargeCloudMW, u::AbstractVector{L}, t::T=
              acc_at_cloud[1], acc_at_cloud[2], acc_at_cloud[3])
 end
 
+
+"""Acceleration for CloudsMW system without frictions. Including the reflex acceleration of both clouds on the MW."""
+function acceleration(system::CloudsMW, u::AbstractVector{L}, t::T=0.0) where {L<:Real, T<:Real}
+    @unpack mw, large, small = system
+    Δx_mw_lc = SVector{3,L}(u[4]-u[1], u[5]-u[2], u[6]-u[3])
+    Δx_mw_sc = SVector{3,L}(u[7]-u[1], u[8]-u[2], u[9]-u[3])
+    Δx_lc_sc = SVector{3,L}(u[7]-u[4], u[8]-u[5], u[9]-u[6])
+    acc_at_mw = acceleration(large.pot, -Δx_mw_lc, t) +
+                acceleration(small.pot, -Δx_mw_sc, t)
+    acc_at_lc = acceleration(mw.pot, Δx_mw_lc, t) +
+                acceleration(small.pot, -Δx_lc_sc, t)
+    acc_at_sc= acceleration(mw.pot, Δx_mw_sc, t) +
+                acceleration(large.pot, Δx_lc_sc, t)
+    return SVector{9,L}(acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
+             acc_at_lc[1], acc_at_lc[2], acc_at_lc[3],
+             acc_at_sc[1], acc_at_sc[2], acc_at_sc[3])
+end
+
+"""Acceleration for CloudsMW system with MW's dynamical friction on both clouds and the dynamical friction of the large cloud on the small cloud. And the reflex acceleration of both clouds on the MW."""
+function acceleration(fric::Tuple{F,F,F}, system::CloudsMW, u::AbstractVector{L}, t::T=0.0) where { F<:AbstractFriction, L<:Real, T<:Real}
+    @unpack mw, large, small = system
+    Δx_mw_lc = SVector{3,L}(u[4]-u[1], u[5]-u[2], u[6]-u[3])
+    Δv_mw_lc = SVector{3,L}(u[13]-u[10], u[14]-u[11], u[15]-u[12])
+    Δx_mw_sc = SVector{3,L}(u[7]-u[1], u[8]-u[2], u[9]-u[3])
+    Δv_mw_sc = SVector{3,L}(u[16]-u[10], u[17]-u[11], u[18]-u[12])
+    Δx_lc_sc = SVector{3,L}(u[7]-u[4], u[8]-u[5], u[9]-u[6])
+    Δv_lc_sc = SVector{3,L}(u[16]-u[13], u[17]-u[14], u[18]-u[15])
+    acc_at_mw = acceleration(large.pot, -Δx_mw_lc, t) +
+                acceleration(small.pot, -Δx_mw_sc, t)
+    acc_at_lc = acceleration(fric[1], mw.pot, Δx_mw_lc, Δv_mw_lc, t) +
+                acceleration(small.pot, -Δx_lc_sc, t)
+    acc_at_sc= acceleration(fric[2], mw.pot, Δx_mw_sc, Δv_mw_sc, t) +
+                acceleration(fric[3], large.pot, Δx_lc_sc, Δv_lc_sc, t)
+    return SVector{9,L}(acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
+             acc_at_lc[1], acc_at_lc[2], acc_at_lc[3],
+             acc_at_sc[1], acc_at_sc[2], acc_at_sc[3])
+end
+
+"""Acceleration for CloudsMW system similar to above method plus the incorporation of the drift suffered by the MW due to the Large cloud."""
+function acceleration(fric::Tuple{F,F,F,F}, system::CloudsMW, u::AbstractVector{L}, t::T=0.0) where { F<:AbstractFriction, L<:Real, T<:Real}
+    @unpack mw, large, small = system
+    Δx_mw_lc = SVector{3,L}(u[4]-u[1], u[5]-u[2], u[6]-u[3])
+    Δv_mw_lc = SVector{3,L}(u[13]-u[10], u[14]-u[11], u[15]-u[12])
+    Δx_mw_sc = SVector{3,L}(u[7]-u[1], u[8]-u[2], u[9]-u[3])
+    Δv_mw_sc = SVector{3,L}(u[16]-u[10], u[17]-u[11], u[18]-u[12])
+    Δx_lc_sc = SVector{3,L}(u[7]-u[4], u[8]-u[5], u[9]-u[6])
+    Δv_lc_sc = SVector{3,L}(u[16]-u[13], u[17]-u[14], u[18]-u[15])
+    acc_at_mw = acceleration(fric[4], large.pot, -Δx_mw_lc, -Δv_mw_lc, t) +
+                acceleration(small.pot, -Δx_mw_sc, t)
+    acc_at_lc = acceleration(fric[1], mw.pot, Δx_mw_lc, Δv_mw_lc, t) +
+                acceleration(small.pot, -Δx_lc_sc, t)
+    acc_at_sc= acceleration(fric[2], mw.pot, Δx_mw_sc, Δv_mw_sc, t) +
+                acceleration(fric[3], large.pot, Δx_lc_sc, Δv_lc_sc, t)
+    return SVector{9,L}(acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
+             acc_at_lc[1], acc_at_lc[2], acc_at_lc[3],
+             acc_at_sc[1], acc_at_sc[2], acc_at_sc[3])
+end
+
+"""Acceleration for SatelliteCloudMW system with dynamical friction for the cloud only. And the reflex acceleration of only the cloud on the MW."""
+function acceleration(fric::F, system::SatelliteCloudMW, u::AbstractVector{L}, t::T=0.0) where { F<:AbstractFriction, L<:Real, T<:Real}
+    @unpack mw, cloud, satellite = system
+    Δx = SVector{3,L}(u[4]-u[1], u[5]-u[2], u[6]-u[3])
+    Δv = SVector{3,L}(u[13]-u[10], u[14]-u[11], u[15]-u[12])
+    δx = SVector{3,L}(u[7]-u[1], u[8]-u[2], u[9]-u[3])
+    δx₂ = SVector{3,L}(u[7]-u[4], u[8]-u[5], u[9]-u[6])
+    acc_at_mw = acceleration(cloud.pot, -Δx)
+    acc_at_cloud = acceleration(fric, mw.pot, Δx, Δv, t)
+    acc_at_sat = acceleration(mw.pot, δx) + acceleration(cloud.pot,δx₂)
+    return SVector{9,L}(acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
+             acc_at_cloud[1], acc_at_cloud[2], acc_at_cloud[3],
+             acc_at_sat[1], acc_at_sat[2], acc_at_sat[3])
+end
+
+"""Acceleration for SatelliteCloudMW system with MW's dynamical friction for the cloud and the satellite. And the reflex acceleration of only the cloud on the MW."""
+function acceleration(fric::Tuple{F,F}, system::SatelliteCloudMW, u::AbstractVector{L}, t::T=0.0) where { F<:AbstractFriction, L<:Real, T<:Real}
+    @unpack mw, cloud, satellite = system
+    Δx = SVector{3,L}(u[4]-u[1], u[5]-u[2], u[6]-u[3])
+    Δv = SVector{3,L}(u[13]-u[10], u[14]-u[11], u[15]-u[12])
+    δx = SVector{3,L}(u[7]-u[1], u[8]-u[2], u[9]-u[3])
+    δv = SVector{3,L}(u[16]-u[10], u[17]-u[11], u[18]-u[12])
+    δx₂ = SVector{3,L}(u[7]-u[4], u[8]-u[5], u[9]-u[6])
+    acc_at_mw = acceleration(cloud.pot, -Δx)
+    acc_at_cloud = acceleration(fric[1], mw.pot, Δx, Δv, t)
+    acc_at_sat = acceleration(fric[2], mw.pot, δx, δv, t) + acceleration(cloud.pot,δx₂)
+    return SVector{9,L}(acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
+             acc_at_cloud[1], acc_at_cloud[2], acc_at_cloud[3],
+             acc_at_sat[1], acc_at_sat[2], acc_at_sat[3])
+end
+
+
+
+" 🚧 Below is work in progress! 🛠️"
+
 """
 Acceleration for CloudsMW system with mutual dynamical friction. This should be equal to the result
 of using evolve with ::MutualFrictionTrait, that implies using the method acceleration!(fric::Matrix{F}, mps::P, x::AbstractVector{L}, t::T=0.0) where {F<:AbstractFriction, P<:AbstractMacroParticleSystem,L<:Real, T<:Real}, for the corresponding MacroParticleSystem.
@@ -305,7 +404,7 @@ of using evolve with ::MutualFrictionTrait, that implies using the method accele
 Corresponding ode() and evolution() functions not written yet. Maybe never will be completed, as this system
 can be solved using MacroParticleSystem approach.
 
-I prefer to use the method below:
+I prefer to use the method above:
     acceleration(fric::Tuple{F,F}, system::CloudsMW, ...
 where only MW friction effect is considered on both clouds.
 """
@@ -326,56 +425,4 @@ function acceleration(fric::Matrix{F}, system::CloudsMW, u::AbstractVector{L}, t
     return SVector{9,L}(acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
              acc_at_lc[1], acc_at_lc[2], acc_at_lc[3],
              acc_at_sc[1], acc_at_sc[2], acc_at_sc[3])
-end
-
-"""Acceleration for CloudsMW system with MW's dynamical friction on both clouds and the dynamical friction of the large cloud on the small cloud."""
-function acceleration(fric::Tuple{F,F,F}, system::CloudsMW, u::AbstractVector{L}, t::T=0.0) where { F<:AbstractFriction, L<:Real, T<:Real}
-    @unpack mw, large, small = system
-    Δx_mw_lc = SVector{3,L}(u[4]-u[1], u[5]-u[2], u[6]-u[3])
-    Δv_mw_lc = SVector{3,L}(u[13]-u[10], u[14]-u[11], u[15]-u[12])
-    Δx_mw_sc = SVector{3,L}(u[7]-u[1], u[8]-u[2], u[9]-u[3])
-    Δv_mw_sc = SVector{3,L}(u[16]-u[10], u[17]-u[11], u[18]-u[12])
-    Δx_lc_sc = SVector{3,L}(u[7]-u[4], u[8]-u[5], u[9]-u[6])
-    Δv_lc_sc = SVector{3,L}(u[16]-u[13], u[17]-u[14], u[18]-u[15])
-    acc_at_mw = acceleration(large.pot, -Δx_mw_lc, t) +
-                acceleration(small.pot, -Δx_mw_sc, t)
-    acc_at_lc = acceleration(fric[1], mw.pot, Δx_mw_lc, Δv_mw_lc, t) +
-                acceleration(small.pot, -Δx_lc_sc, t)
-    acc_at_sc= acceleration(fric[2], mw.pot, Δx_mw_sc, Δv_mw_sc, t) +
-                acceleration(fric[3], large.pot, Δx_lc_sc, Δv_lc_sc, t)
-    return SVector{9,L}(acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
-             acc_at_lc[1], acc_at_lc[2], acc_at_lc[3],
-             acc_at_sc[1], acc_at_sc[2], acc_at_sc[3])
-end
-
-
-"""Acceleration for SatelliteCloudMW system with dynamical friction for the cloud"""
-function acceleration(fric::F, system::SatelliteCloudMW, u::AbstractVector{L}, t::T=0.0) where { F<:AbstractFriction, L<:Real, T<:Real}
-    @unpack mw, cloud, satellite = system
-    Δx = SVector{3,L}(u[4]-u[1], u[5]-u[2], u[6]-u[3])
-    Δv = SVector{3,L}(u[13]-u[10], u[14]-u[11], u[15]-u[12])
-    δx = SVector{3,L}(u[7]-u[1], u[8]-u[2], u[9]-u[3])
-    δx₂ = SVector{3,L}(u[7]-u[4], u[8]-u[5], u[9]-u[6])
-    acc_at_mw = acceleration(cloud.pot, -Δx)
-    acc_at_cloud = acceleration(fric, mw.pot, Δx, Δv, t)
-    acc_at_sat = acceleration(mw.pot, δx) + acceleration(cloud.pot,δx₂)
-    return SVector{9,L}(acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
-             acc_at_cloud[1], acc_at_cloud[2], acc_at_cloud[3],
-             acc_at_sat[1], acc_at_sat[2], acc_at_sat[3])
-end
-
-"""Acceleration for SatelliteCloudMW system with MW's dynamical friction for the cloud and the satellite"""
-function acceleration(fric::Tuple{F,F}, system::SatelliteCloudMW, u::AbstractVector{L}, t::T=0.0) where { F<:AbstractFriction, L<:Real, T<:Real}
-    @unpack mw, cloud, satellite = system
-    Δx = SVector{3,L}(u[4]-u[1], u[5]-u[2], u[6]-u[3])
-    Δv = SVector{3,L}(u[13]-u[10], u[14]-u[11], u[15]-u[12])
-    δx = SVector{3,L}(u[7]-u[1], u[8]-u[2], u[9]-u[3])
-    δv = SVector{3,L}(u[16]-u[10], u[17]-u[11], u[18]-u[12])
-    δx₂ = SVector{3,L}(u[7]-u[4], u[8]-u[5], u[9]-u[6])
-    acc_at_mw = acceleration(cloud.pot, -Δx)
-    acc_at_cloud = acceleration(fric[1], mw.pot, Δx, Δv, t)
-    acc_at_sat = acceleration(fric[2], mw.pot, δx, δv, t) + acceleration(cloud.pot,δx₂)
-    return SVector{9,L}(acc_at_mw[1], acc_at_mw[2], acc_at_mw[3],
-             acc_at_cloud[1], acc_at_cloud[2], acc_at_cloud[3],
-             acc_at_sat[1], acc_at_sat[2], acc_at_sat[3])
 end

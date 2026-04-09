@@ -5,6 +5,7 @@
 abstract type SystemTrait end
 struct GenSysTrait <: SystemTrait end
 struct GenSysMutOdeTrait <: SystemTrait end
+struct RawSolutionTrait <: SystemTrait end
 struct GalacticTrait <: SystemTrait end
 struct PerfGalacticTrait <: SystemTrait end
 struct MutualFrictionTrait <: SystemTrait end

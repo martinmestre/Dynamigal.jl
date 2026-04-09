@@ -131,9 +131,17 @@ function ode(u::AbstractVector{L}, p::Tuple{<:AbstractFriction,SatelliteCloudMW}
 end
 
 """ODE for the Newtonian case:
+- SatelliteCloudMW  system without friction.
+- CloudsMW system without friction."""
+function ode(u::AbstractVector{L}, p::S, t::T) where {S<:AbstractGalacticSystem, L<:Real,T<:Real}
+    return SVector{18,L}(u[10],u[11],u[12],u[13],u[14],u[15],u[16],u[17],u[18],
+                        acceleration(p, u, t)... )
+end
+
+"""ODE for the Newtonian case:
 - SatelliteCloudMW  system plus MW's dynamical friction for the cloud and satellite.
 - CloudsMW system with MW's dynamical friction on both clouds and the dynamical friction of the large cloud on the small cloud."""
-function ode(u::AbstractVector{L}, p::Tuple{F,S}, t::T) where {F, S<:GalacticSystem, L<:Real,T<:Real}
+function ode(u::AbstractVector{L}, p::Tuple{F,S}, t::T) where {F, S<:AbstractGalacticSystem, L<:Real,T<:Real}
     return SVector{18,L}(u[10],u[11],u[12],u[13],u[14],u[15],u[16],u[17],u[18],
                         acceleration(p[1], p[2], u, t)... )
 end
