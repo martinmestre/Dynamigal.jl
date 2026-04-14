@@ -43,10 +43,10 @@ export code_units, physical_units, adimensional
 export r_vir_nfw
 export ChandrasekharFriction
 export GalpyFriction, GalaFriction
-export AgamaFriction, TangoFriction
+export AgamaFriction, TangoFriction, ConstantCoulombFriction
 export drag
 export velocity_dispersion
-export build_friction, build_friction!
+export build_friction, build_friction!, build_friction_pyramid!
 export MilkyWayBovy2014
 export MilkyWayPriceWhelan2017
 export MilkyWayMosquera2026
@@ -70,6 +70,7 @@ include("geometry/spacetimes/orbit_types.jl")
 include("distributions/particle_types.jl")
 include("distributions/ensemble_types.jl")
 include("dissipative/dissipative_types.jl")
+include("dissipative/build_frictions.jl")
 include("dissipative/drags.jl")
 include("odes.jl")
 include("accelerations.jl")

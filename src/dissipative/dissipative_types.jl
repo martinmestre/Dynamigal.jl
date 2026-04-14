@@ -34,20 +34,37 @@ GalaFriction(mₚ::M, rₚ::L, σₕ::V) where {M<:Unitful.Mass, L<:Unitful.Leng
     GalaFriction(ustrip(uconvert(𝕦.m, mₚ)), ustrip(uconvert(𝕦.l, rₚ)), σₕ )
 
 
-"""Tango for three's Chandrasekhar dynamical friction configuration
-Taken from MNRAS 501, 2279–2304 (2021), Vasiliev et al., page 2285.
-The lnΛ=constant recipe is only used for Sagittarius dwarf, not for the clouds, so
+"""Constant Coulomb logarithm, used in Tango for three's Chandrasekhar dynamical
+friction configuration only for Sagittarius dwarf, not for the clouds, so
 this is not similar to Agama's formula below.
+Taken from MNRAS 501, 2279–2304 (2021), Vasiliev et al., page 2285.
 Besides, σ=constant.
 """
-@with_kw struct TangoFriction{T<:Real, R<:Real, S<:Real} <:AbstractFriction
+@with_kw struct ConstantCoulombFriction{T<:Real, R<:Real, S<:Real} <:AbstractFriction
     mₚ::R # perturber mass
     lnΛ::T  # Coulomb logarithm
     σₕ::S # host's mean velocity dispersion
 end
-TangoFriction(mₚ::R, lnΛ::T, σₕ::S) where {R<:Unitful.Mass, T<:Real, S<:Unitful.Velocity} =
-    TangoFriction(ustrip(uconvert(𝕦.m, mₚ)), lnΛ, ustrip(uconvert(𝕦.v, σₕ)) )
+ConstantCoulombFriction(mₚ::R, lnΛ::T, σₕ::S) where {R<:Unitful.Mass, T<:Real, S<:Unitful.Velocity} =
+    ConstantCoulombFriction(ustrip(uconvert(𝕦.m, mₚ)), lnΛ, ustrip(uconvert(𝕦.v, σₕ)) )
 
+"""Tango for three's Chandrasekhar dynamical friction configuration
+Tango for three (Vasiliev,Belokurov&Erkal 2021) and LMC rewinding (Correa Magnus & Vasiliev 2022):
+Lambda = max(0, ln(r/b_min)), where b_min is twice the scale radius rₚ=8.5*(mₚ/1.0e11)^0.6.
+"""
+struct TangoFriction{M<:Real, L<:Real, T<:Real, F} <:AbstractFriction
+    mₚ::M # perturber mass
+    rₚ::L  # perturber's radius scale
+    b_min::T # minimum impact parameter in the Coulomb logarithm
+    σₕ::F # host's mean velocity dispersion
+end
+function TangoFriction(mₚ::M, σₕ::F) where {M<:Real, F}  # This is the prescription in Agama script.
+    rₚ = 5*(mₚ/1.0e11)^0.6
+    b_min = 2rₚ
+    return TangoFriction(mₚ, rₚ, b_min, σₕ)
+end
+TangoFriction(mₚ::M, σₕ::F) where {M<:Unitful.Mass, F} =
+    TangoFriction(ustrip(uconvert(𝕦.m, mₚ)), σₕ)
 
 """Agama's Chandrasekhar dynamical friction configuration
 See formula here:
@@ -60,7 +77,7 @@ struct AgamaFriction{M<:Real, L<:Real, T<:Real, F} <:AbstractFriction
     σₕ::F # host's mean velocity dispersion
 end
 function AgamaFriction(mₚ::M, σₕ::F) where {M<:Real, F}  # This is the prescription in Agama script.
-    rₚ = 0.85*(mₚ/1.0e11)^0.6
+    rₚ = 8.5*(mₚ/1.0e11)^0.6
     b_min = 2rₚ
     return AgamaFriction(mₚ, rₚ, b_min, σₕ)
 end

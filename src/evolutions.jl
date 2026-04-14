@@ -133,6 +133,24 @@ function evolve(::MutualFrictionTrait, mps::MacroParticleSystem, t_span::Tuple{R
     return sys_orb
 end
 
+"""Evolution of a system of MacroParticle with partial dynamical friction considered, depending
+on the value of fric parameter. The integration scheme is similar to ::GenSysTrait above but with the friction force."""
+function evolve(fric::Matrix{F}, mps::MacroParticleSystem, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {F<:AbstractFriction, R<:Real}
+    x = reduce(vcat, [mps[i].event.x for i in eachindex(mps)])
+    v = reduce(vcat, [mps[i].event.v for i in eachindex(mps)])
+    u₀ = SA[x...,v...]
+    p = (fric, mps)
+    prob = ODEProblem(ode, u₀, t_span, p)
+    sol  = solve(prob, solver; options...)
+    sys_orb = Vector{Orbit}(undef, length(mps))
+    n = length(x)
+    for i ∈ eachindex(mps)
+        j_x = selec(i)
+        j_v = n+j_x
+        sys_orb[i] = Orbit(sol.t, sol[j_x:j_x+2,:], sol[j_v:j_v+2,:])
+    end
+    return sys_orb
+end
 
 """Evolution of a LargeCloudMW (<: GalacticSystem)"""
 function evolve(::GalacticTrait, cloudMW::LargeCloudMW, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {R<:Real}
