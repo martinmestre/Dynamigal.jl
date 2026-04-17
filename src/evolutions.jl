@@ -204,7 +204,7 @@ end
 
 """Evolution of a CloudsMW (<: GalacticSystem) without friction."""
 function evolve(system::CloudsMW, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {R<:Real}
-    println("🎲 Evolving a CloudsMW system without friction")
+    # println("🎲 Evolving a CloudsMW system without friction")
     x_mw = system.mw.event.x
     x_lc = system.large.event.x
     x_sc = system.small.event.x
@@ -230,7 +230,7 @@ end
 
 """Evolution of a CloudsMW (<: GalacticSystem) system including MW's dynamical friction on both clouds and LC's dynamical friction on the SC. And the reflex acceleration of both clouds on the MW."""
 function evolve(fric::F, system::CloudsMW, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {F, R<:Real}
-    println("🎲 Evolving a CloudsMW system with some of the frictions")
+    # println("🎲 Evolving a CloudsMW system with some of the frictions")
     x_mw = system.mw.event.x
     x_cl = system.large.event.x
     x_sat = system.small.event.x
@@ -246,16 +246,17 @@ function evolve(fric::F, system::CloudsMW, t_span::Tuple{R,R}, solver=𝕤.ode; 
     p = (fric, system)
     prob = ODEProblem(ode, u₀, t_span, p)
     sol  = solve(prob, solver; options...)
-    sys_orb = Vector{Orbit}(undef, 3)
-    sys_orb[1] = Orbit(sol.t, sol[1:3,:], sol[10:12,:])
-    sys_orb[2] = Orbit(sol.t, sol[4:6,:], sol[13:15,:])
-    sys_orb[3] = Orbit(sol.t, sol[7:9,:], sol[16:18,:])
-    return sys_orb
+    # sys_orb = Vector{Orbit}(undef, 3)
+    # sys_orb[1] = Orbit(sol.t, sol[1:3,:], sol[10:12,:])
+    # sys_orb[2] = Orbit(sol.t, sol[4:6,:], sol[13:15,:])
+    # sys_orb[3] = Orbit(sol.t, sol[7:9,:], sol[16:18,:])
+    # return sys_orb
+    return sol
 end
 
 """Evolution of a SatelliteCloudMW (<: GalacticSystem) with dynamical friction for the cloud. Two alterantives of friction treatment in acceleration method, depending on the parameter type."""
 function evolve(fric::F, system::SatelliteCloudMW, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {F, R<:Real}
-    println("🎲 Evolving a SatelliteCloudMW system")
+    # println("🎲 Evolving a SatelliteCloudMW system")
     x_mw = system.mw.event.x
     x_cl = system.cloud.event.x
     x_sat = system.satellite.event.x

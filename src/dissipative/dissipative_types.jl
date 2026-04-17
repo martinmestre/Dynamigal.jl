@@ -59,7 +59,7 @@ struct TangoFriction{M<:Real, L<:Real, T<:Real, F} <:AbstractFriction
     σₕ::F # host's mean velocity dispersion
 end
 function TangoFriction(mₚ::M, σₕ::F) where {M<:Real, F}  # This is the prescription in Agama script.
-    rₚ = 5*(mₚ/1.0e11)^0.6
+    rₚ = 8.5*(mₚ/1.0e11)^0.6
     b_min = 2rₚ
     return TangoFriction(mₚ, rₚ, b_min, σₕ)
 end
