@@ -57,6 +57,7 @@ export GalacticTrait, PerfGalacticTrait
 export MutualFrictionTrait
 export AccelerationTrait, AutoDiffTrait
 export AbstractMacroParticleSystem
+export EvolvedSystem
 
 
 include("abstract_types.jl")
