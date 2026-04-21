@@ -79,7 +79,7 @@ function evolve(::GenSysTrait, mps::MacroParticleSystem, t_span::Tuple{R,R}, sol
     println("🎲 Evolving a MPS system without friction, GenSystTrait")
     sol  = evolve(RawSolutionTrait(), mps, t_span, solver; options=options)
     sys_orb = Vector{Orbit}(undef, length(mps))
-    n = length(x)
+    n = length(sol.u[begin])÷2
     for i ∈ eachindex(mps)
         j_x = selec(i)
         j_v = n+j_x
@@ -141,7 +141,7 @@ end
 function evolve(fric::Matrix{F}, mps::MacroParticleSystem, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {F<:AbstractFriction, R<:Real}
     sol  = evolve(RawSolutionTrait(), fric, mps, t_span, solver; options=options)
     sys_orb = Vector{Orbit}(undef, length(mps))
-    n = length(x)
+    n = length(sol.u[begin])÷2
     for i ∈ eachindex(mps)
         j_x = selec(i)
         j_v = n+j_x
@@ -205,7 +205,7 @@ end
 
 """Evolution of a CloudsMW (<: GalacticSystem) without friction."""
 function evolve(::RawSolutionTrait, system::CloudsMW, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {R<:Real}
-    println("🎲 Evolving a CloudsMW system without friction, RawSolutionTrait")
+    # println("🎲 Evolving a CloudsMW system without friction, RawSolutionTrait")
     x_mw = system.mw.event.x
     x_lc = system.large.event.x
     x_sc = system.small.event.x
@@ -233,7 +233,7 @@ end
 
 """Evolution of a CloudsMW (<: GalacticSystem) system including MW's dynamical friction on both clouds and LC's dynamical friction on the SC. And the reflex acceleration of both clouds on the MW."""
 function evolve(::RawSolutionTrait, fric::F, system::CloudsMW, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {F, R<:Real}
-    println("🎲 Evolving a CloudsMW system with pyramidal frictions, RawSolutionTrait")
+    # println("🎲 Evolving a CloudsMW system with pyramidal frictions, RawSolutionTrait")
     x_mw = system.mw.event.x
     x_cl = system.large.event.x
     x_sat = system.small.event.x
@@ -252,7 +252,7 @@ function evolve(::RawSolutionTrait, fric::F, system::CloudsMW, t_span::Tuple{R,R
     return sol
 end
 function evolve(fric::F, system::CloudsMW, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {F, R<:Real}
-    println("🎲 Evolving a CloudsMW system with pyramidal frictions")
+    # println("🎲 Evolving a CloudsMW system with pyramidal frictions")
     sol  = evolve(RawSolutionTrait(), fric, system, t_span, solver; options=options)
     sys_orb = Vector{Orbit}(undef, 3)
     sys_orb[1] = Orbit(sol.t, sol[1:3,:], sol[10:12,:])
@@ -263,7 +263,7 @@ end
 
 """Evolution of a SatelliteCloudMW (<: GalacticSystem) with dynamical friction for the cloud. Two alterantives of friction treatment in acceleration method, depending on the parameter type."""
 function evolve(::RawSolutionTrait, fric::F, system::SatelliteCloudMW, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {F, R<:Real}
-    println("🎲 Evolving a SatelliteCloudMW system, RawSolutionTrait")
+    # println("🎲 Evolving a SatelliteCloudMW system, RawSolutionTrait")
     x_mw = system.mw.event.x
     x_cl = system.cloud.event.x
     x_sat = system.satellite.event.x
@@ -281,7 +281,7 @@ function evolve(::RawSolutionTrait, fric::F, system::SatelliteCloudMW, t_span::T
     return solve(prob, solver; options...)
 end
 function evolve(fric::F, system::SatelliteCloudMW, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {F, R<:Real}
-    println("🎲 Evolving a SatelliteCloudMW system")
+    # println("🎲 Evolving a SatelliteCloudMW system")
     sol  = evolve(RawSolutionTrait(), fric, system, t_span, solver; options=options)
     sys_orb = Vector{Orbit}(undef, 3)
     sys_orb[1] = Orbit(sol.t, sol[1:3,:], sol[10:12,:])

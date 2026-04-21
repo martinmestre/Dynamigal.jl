@@ -44,7 +44,7 @@ MacroParticle(p::P, x::Vector{D}, v::Vector{F}) where {P<:AbstractPotential, D<:
 
 
 
-"""MacroParticleSystem"""
+"""Macro Particle Systems"""
 
 @with_kw mutable struct MacroParticleSystem{N, A} <: AbstractMacroParticleSystem
     macroparticles::NTuple{N,MacroParticle}
@@ -66,6 +66,8 @@ function MacroParticleSystem(galactic::P) where {P<:AbstractGalacticSystem}
     return MacroParticleSystem(macroparticles)
 end
 
+
+"""Galactic Systems"""
 
 @with_kw struct LargeCloudMW{P,T} <: AbstractGalacticSystem
     mw::P
@@ -105,11 +107,24 @@ function SatelliteCloudsMW(mps::T) where {T<:AbstractMacroParticleSystem}
     return SatelliteCloudsMW{typeof(mps[1]),typeof(mps[2]),typeof(mps[3]),typeof(mps[4])}(mw=mps[1], large=mps[2], small=mps[3], satellite=mps[4])
 end
 
-@with_kw struct EvolvedSystem{S,T} <:AbstractMacroParticleSystem
+"""Evolved Systems"""
+
+@with_kw struct EvolvedSystem{S,T} <:AbstractEvolvedSystem
     system::S
-    orbit::T
+    orbit::T  # raw ODE solution as it comes out of DE.jl
 end
 function EvolvedSystem(system::S, orbit::T) where  {S<:AbstractMacroParticleSystem, T<:SciMLBase.AbstractODESolution}
     return  EvolvedSystem{typeof(system), typeof(orbit)}(system, orbit)
 end
 
+
+"""Mock Stream System"""
+
+@with_kw mutable struct StreamSystem{H,P,E} <: AbstractStreamSystem
+    hosts::H        # Precomputed EvolvedSystem
+    progenitor::P   # Stream progenitor
+    ensemble::E    # Stream star initial conditions to evolve forwards
+end
+function MockStreamSystem(host::H, progenitor::P, ensemble::E) where {H<:AbstractEvolvedSystem, P<:AbstractMacroParticle, E<:AbstractEnsemble}
+    return MockStreamSystem{typeof(host), typeof(progenitor), typeof(ensemble)}(host, progenitor, ensemble)
+end
