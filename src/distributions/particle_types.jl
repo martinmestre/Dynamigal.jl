@@ -111,10 +111,20 @@ end
 
 @with_kw struct EvolvedSystem{S,T} <:AbstractEvolvedSystem
     system::S
-    orbit::T  # raw ODE solution as it comes out of DE.jl
+    orbits::T  # raw ODE solution as it comes out of DE.jl
 end
-function EvolvedSystem(system::S, orbit::T) where  {S<:AbstractMacroParticleSystem, T<:SciMLBase.AbstractODESolution}
-    return  EvolvedSystem{typeof(system), typeof(orbit)}(system, orbit)
+function EvolvedSystem(system::S, orbits::T) where  {S<:AbstractMacroParticleSystem, T<:SciMLBase.AbstractODESolution}
+    return  EvolvedSystem{typeof(system), typeof(orbits)}(system, orbits)
+end
+function (e_sys::EvolvedSystem)(t)
+    tspan = e_sys.orbits.prob.tspan
+    if tspan[1] <= t <= tspan[2]
+        return e_sys.orbits(t)
+    elseif tspan[2] <= t <= tspan[1]
+        return e_sys.orbits(t)
+    else
+        error("Extrapolation forbidden: t=$t is out of range [$(tspan[1]), $(tspan[2])]")
+    end
 end
 
 
@@ -126,5 +136,9 @@ end
     ensemble::E    # Stream star initial conditions to evolve forwards
 end
 function MockStreamSystem(host::H, progenitor::P, ensemble::E) where {H<:AbstractEvolvedSystem, P<:AbstractMacroParticle, E<:AbstractEnsemble}
+    return MockStreamSystem{typeof(host), typeof(progenitor), typeof(ensemble)}(host, progenitor, ensemble)
+end
+function MockStreamSystem(host::H, progenitor::P, n::I) where {H<:AbstractEvolvedSystem, P<:AbstractMacroParticle, I<:Integer}
+    ensemble = TestParticleEnsemble(progenitor, n)
     return MockStreamSystem{typeof(host), typeof(progenitor), typeof(ensemble)}(host, progenitor, ensemble)
 end

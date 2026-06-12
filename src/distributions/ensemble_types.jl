@@ -27,6 +27,10 @@ TestParticleEnsemble(t::T, x::Matrix{D}, v::Matrix{F}) where {T<:Unitful.Time,  
     TestParticleEnsemble(Snapshot(t, x, v))
 TestParticleEnsemble(x::Matrix{D}, v::Matrix{F}) where {D<:Unitful.Length, F<:Unitful.Velocity} =
     TestParticleEnsemble(Snapshot(x, v))
-TestParticleEnsemble(x::Matrix{D}, v::Matrix{F}) where {D<:Unitful.Length, F<:Unitful.Velocity} =
-    TestParticleEnsemble(Snapshot(x, v))
+function TestParticleEnsemble(mp::P, n::I) where {P<:AbstractMacroParticle, I<:Integer}
+    xₚ = mp.event.x
+    vₚ = mp.event.v
+
+    return TestParticleEnsemble(x, v)
+end
 

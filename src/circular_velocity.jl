@@ -5,13 +5,17 @@ function circular_velocity(pot::P, x::AbstractArray{L}, t::T=0.0) where {P<:Abst
     return sqrt( sqrt(x'x)*sqrt(a'a) )
 end
 
+# function circular_velocity(pot::P, r::L, t::T=0.0) where {P<:AbstractPotential, L<:Real, T<:Real}
+#     try sqrt(r)
+#         x = [r, 0., 0.]
+#         return circular_velocity(pot, x, t)
+#     catch err
+#         rethrow(err)
+#     end
+# end
 function circular_velocity(pot::P, r::L, t::T=0.0) where {P<:AbstractPotential, L<:Real, T<:Real}
-    try sqrt(r)
-        x = [r, 0., 0.]
-        return circular_velocity(pot, x, t)
-    catch err
-        rethow(err)
-    end
+    x = [r, 0., 0.]
+    return circular_velocity(pot, x, t)
 end
 
 function circular_velocity(pot::P, x::Vector{<:Unitful.Length}, t::T=0𝕦.t) where {P<:AbstractPotential,T<:Unitful.Time}

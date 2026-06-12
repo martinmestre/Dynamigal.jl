@@ -10,7 +10,7 @@ using NamedTupleTools
 @reexport using LinearAlgebra
 @reexport using SpecialFunctions
 @reexport using Roots
-@reexport using Interpolations
+@reexport using FastInterpolations
 @reexport using Integrals
 
 export SolverConfig, UnitsConfig, CosmosConfig, SolverOptions, FrictionConfig
@@ -73,13 +73,14 @@ include("distributions/ensemble_types.jl")
 include("dissipative/dissipative_types.jl")
 include("dissipative/build_frictions.jl")
 include("dissipative/drags.jl")
+include("equilibria/Jeans.jl")
+include("equilibria/EddingtonInversion.jl")
 include("odes.jl")
 include("accelerations.jl")
 include("evolutions.jl")
 include("densities.jl")
 include("masses.jl")
 include("circular_velocity.jl")
-include("jeans.jl")
 include("overloads.jl")
 include("examples.jl")
 
