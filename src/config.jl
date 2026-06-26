@@ -85,3 +85,8 @@ end
 @with_kw struct JeansConfig{} <:AbstractConfig
     ϵ_ρ::Float64 = 0.5e-2 # in code units (M⊙/kpc³)
 end
+
+"""Potentials configuration"""
+@with_kw struct JeansConfig{} <:AbstractConfig
+    ϵ_r::Float64 = 0.5e-14 # in code units (M⊙/kpc³)
+end

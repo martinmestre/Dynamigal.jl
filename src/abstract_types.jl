@@ -8,8 +8,18 @@ abstract type AbstractCosmos end
 abstract type AbstractGeometry <: AbstractCosmos end
 
 abstract type AbstractPotential <: AbstractGeometry end
+
 abstract type AbstractStaticPotential <: AbstractPotential end
+
 abstract type AbstractSphericalStaticPotential <: AbstractStaticPotential end
+abstract type AbstractAxisymStaticPotential <: AbstractStaticPotential end
+
+abstract type AbstractTabulatedPotential <: AbstractPotential  end
+abstract type AbstractStaticTabulatedPotential <: AbstractTabulatedPotential  end
+abstract type AbstractSphericalStaticTabulatedPotential <: AbstractStaticTabulatedPotential end
+
+
+
 
 abstract type AbstractSpaceTime <: AbstractGeometry end
 
@@ -38,8 +48,6 @@ abstract type AbstractGalacticSystem <: AbstractMacroParticleSystem end
 abstract type AbstractGlobularCluster <: AbstractEnsemble end
 abstract type AbstractGalaxy <: AbstractEnsemble end
 
-
-abstract type AbstractContinuousDistribution <: AbstractDistribution end
 
 abstract type AbstractContinuousGlobularCluster <: AbstractContinuousDistribution end
 abstract type AbstractContinuousGalaxy <:AbstractContinuousDistribution end

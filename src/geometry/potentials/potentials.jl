@@ -36,13 +36,24 @@ function potential(pot::P, x::AbstractVector{L}, t::T) where {P<:AbstractStaticP
     return potential(pot, x)
 end
 
-"""List of specific Potentials..."""
+"""
+potential(pot::P, x::AbstractVector{L}) where {P<:AbstractStaticPotential, L<:Real}
+Bridge function for spherical static potentials
+"""
+function potential(pot::P, x::AbstractVector{L}) where {P<:AbstractSphericalStaticPotential, L<:Real}
+    r  = sqrt(  dot(x,x)  )
+    return potential(pot, r)
+end
+
+
+"""Concrete potentials"""
+
+"""Spherical"""
 
 """Allen and Santillan (generalized) halo"""
-function potential(pot::AllenSantillanHalo, x::AbstractVector{L}) where {L<:Real}
+function potential(pot::AllenSantillanHalo, r::L) where {L<:Real}
     @unpack_AllenSantillanHalo pot
     f(y) = 1 + (y/a)^(γ-1)
-    r  = sqrt(  dot(x,x)  )
     if r < Λ
         res = -G*(m/a)*( log(f(r)/f(Λ))/(γ-1) - (1-1/f(Λ)) )
     else
@@ -53,30 +64,21 @@ end
 
 
 """Hernquist potential"""
-function potential(pot::Hernquist, x::AbstractVector{L}) where {L<:Real}
+function potential(pot::Hernquist, r::L) where {L<:Real}
     @unpack m, a = pot
-    return -G*m / (a + sqrt( dot(x,x) ))
+    return -G*m / (a + r)
 end
 
 
 """Kepler potential"""
 function potential(pot::Kepler, x::AbstractVector{L}) where {L<:Real}
-    return -G*pot.m / sqrt( dot(x,x) )
-end
-
-
-"""Miyamoto-Nagai disk potential"""
-function potential(pot::MiyamotoNagaiDisk, x::AbstractArray{L}) where {L<:Real}
-    @unpack m, a, b = pot
-    y = @view x[1:2]
-    return -G*m/sqrt( dot(y,y) + (a + sqrt(b^2+x[3]^2))^2 )
+    return -G*pot.m / r
 end
 
 
 """NFW halo potential"""
-function potential(pot::NFW, x::AbstractVector{L}) where {L<:Real}
+function potential(pot::NFW, r::L) where {L<:Real}
     @unpack m, a = pot
-    r = sqrt( dot(x,x) )
     return -G*m*log(1+r/a)/r
 end
 
@@ -89,13 +91,21 @@ end
 
 
 """Plummer potential"""
-function potential(pot::Plummer, x::AbstractVector{L}) where {L<:Real}
+function potential(pot::Plummer, r::L) where {L<:Real}
      @unpack m, a = pot
-    return -G*m / sqrt(a^2 +  dot(x,x) )
+    return -G*m / sqrt(a^2 +  r^2)
 end
 
 """PowerLawCutoff potential"""
+# to be done
 
 
 
+"""Axisymmetric"""
 
+"""Miyamoto-Nagai disk potential"""
+function potential(pot::MiyamotoNagai, x::AbstractArray{L}) where {L<:Real}
+    @unpack m, a, b = pot
+    y = @view x[1:2]
+    return -G*m/sqrt( dot(y,y) + (a + sqrt(b^2+x[3]^2))^2 )
+end

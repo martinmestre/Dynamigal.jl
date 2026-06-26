@@ -1,5 +1,7 @@
 """Potential types"""
 
+"""Spherical"""
+
 @with_kw struct AllenSantillanHalo{T<:Real,D<:Real,F<:Real,G<:Real} <: AbstractSphericalStaticPotential
     m::T
     a::D
@@ -21,21 +23,11 @@ Hernquist(m::T, a::D) where {T<:Unitful.Mass, D<:Unitful.Length} =
     Hernquist( ustrip(uconvert(𝕦.m, m)),  ustrip(uconvert(𝕦.l, a)) )
 
 
-@with_kw struct Kepler{T<:Real} <: AbstractStaticPotential # do not assign spherical as mass(r) is not defined yet.
+@with_kw struct Kepler{T<:Real} <: AbstractSphericalStaticPotential
     m::T
     @assert m>0 "m must be possitive"
 end
 Kepler(m::T) where {T<:Unitful.Mass} = Kepler( ustrip(uconvert(𝕦.m, m)) )
-
-
-@with_kw struct MiyamotoNagaiDisk{T<:Real,D<:Real,F<:Real} <: AbstractStaticPotential
-    m::T
-    a::D
-    b::F
-    @assert m>0 && a>0 && b>0 "all fields should be possitive"
-end
-MiyamotoNagaiDisk(m::T, a::D, b::F) where {T<:Unitful.Mass, D<:Unitful.Length, F<:Unitful.Length} =
-    MiyamotoNagaiDisk( ustrip(uconvert(𝕦.m, m)),  ustrip(uconvert(𝕦.l, a)), ustrip(uconvert(𝕦.l, b)) )
 
 
 # NFW
@@ -144,7 +136,7 @@ function NFW(s₁::Symbol, s₂::Symbol, q₁::T, q₂::F, cosmos::C=𝕔) where
 end
 
 
-"""Time dependent potentials"""
+"""Time dependent toy potential"""
 @with_kw struct OscillatoryKepler{T<:Real, D<:Real} <: AbstractPotential
     m::T
     τ::D
@@ -153,7 +145,7 @@ end
 OscillatoryKepler(m::T, τ::D) where {T<:Unitful.Mass, D<:Unitful.Time} = OscillatoryKepler( ustrip(uconvert(𝕦.m, m)), ustrip(uconvert(𝕦.t, τ) ) )
 time_dependence(::Type{<:OscillatoryKepler}) = TimeDependent()
 
-
+"""Plummer"""
 @with_kw struct Plummer{T<:Real,D<:Real} <: AbstractSphericalStaticPotential
     m::T
     a::D
@@ -162,7 +154,7 @@ end
 Plummer(m::T, a::D) where {T<:Unitful.Mass, D<:Unitful.Length} =
     Plummer( ustrip(uconvert(𝕦.m, m)),  ustrip(uconvert(𝕦.l, a)) )
 
-
+"""PowerLawCutoff"""
 struct PowerLawCutoff{T<:Real,D<:Real,R<:Real,G<:Real} <: AbstractSphericalStaticPotential
     m::T # total mass
     α::D # power-law index
@@ -186,8 +178,44 @@ function PowerLawCutoff(; m::T, α::D, c::R) where {T,D,R}
     elseif typeof(m)<:Real && typeof(c)<:Real
         return PowerLawCutoff(m, α, c)
     else
-        error("m and c shoud be both quantities or both numbers")
+        error("m and c should be both quantities or both numbers")
     end
+end
+
+
+"""Axisymmetric"""
+
+@with_kw struct MiyamotoNagai{T<:Real,D<:Real,F<:Real} <: AbstractAxisymStaticPotential
+    m::T
+    a::D
+    b::F
+    @assert m>0 && a>0 && b>0 "all fields should be possitive"
+end
+MiyamotoNagai(m::T, a::D, b::F) where {T<:Unitful.Mass, D<:Unitful.Length, F<:Unitful.Length} =
+    MiyamotoNagai( ustrip(uconvert(𝕦.m, m)),  ustrip(uconvert(𝕦.l, a)), ustrip(uconvert(𝕦.l, b)) )
+const MiyamotoNagaiDisk = MiyamotoNagai
+
+
+
+"""Tabulated types"""
+struct SphericalStaticTabulatedPotential{P<:AbstractSphericalStaticPotential, R<:Real, B, H, D, F, M, S} <: AbstractSphericalStaticTabulatedPotential
+    pot::P
+    r_range::Tuple{R,R}
+    ε_range::Tuple{R,R}
+    β::B # anisotropy, can be either a constant or a function
+    Φ₀::R # Φ(r_tidal) = Φ₀ so that f(ε)=0 ∀ ϵ≤0.
+    Φ::H # potential function
+    ρ::D # mass density
+    f::F # phase-space distribution
+    m::M # mass
+    σ::S # σ_v
+end
+const SSTabulatedPotential = SphericalStaticTabulatedPotential
+
+function SSTabulatedPotential(pot::P, r_range::Tuple{R,R}, ε_range::Tuple{R,R}, β::B; n_nodes=500) where {P<:AbstractSphericalStaticPotential, R<:Real, B}
+    r_knots = range(r_range[1], r_range[2], n_nodes)
+    Φ_knots = potential(pot, )
+    Φ = cubic_interp(r_knots, ; bc=ZeroCurvBC(), extrap=NoExtrap())
 end
 
 """Composite types"""

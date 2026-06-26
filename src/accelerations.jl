@@ -117,29 +117,25 @@ end
 
 
 
-"""Analytical accelerations"""
+"""Concrete potentials"""
 
-"""Allen and Santillan (generalized) halo"""
+"""Spherical"""
+
+"""Kepler potential"""
+function acceleration(pot::Kepler, x::AbstractVector{T}) where {T<:Real}
+    @unpack m = pot
+    r = sqrt( dot(x,x) )
+    return -G*m * x / r^3
+end
 
 """Hernquist potential"""
 function acceleration(pot::Hernquist, x::AbstractVector{T}) where {T<:Real}
-    # println("Herquist acceleration...")
     @unpack_Hernquist pot
     r = sqrt( dot(x,x) )
-    return G*m / (r+a)^2 * x / r
+    return -G*m / (r+a)^2 * x / r
 end
 
-"""Kepler potential"""
-
-"""MiyamotoNagaiDisk"""
-function acceleration(pot::MiyamotoNagaiDisk, x::AbstractVector{T}) where {T<:Real}
-    @unpack_MiyamotoNagaiDisk pot
-    y = @view x[1:2]
-    bz = sqrt(b*b + x[3]*x[3])
-    abz = a + bz
-    fac = -G*m / (dot(y,y) + abz*abz)^(1.5)
-    return fac*SVector{3,T}(x[1], x[2], x[3]*abz/bz)
-end
+"""Allen and Santillan (generalized) halo"""
 
 
 """NFW halo acceleration"""
@@ -151,6 +147,12 @@ end
 """Oscillatory Kepler dependent"""
 
 """Plummer"""
+function acceleration(pot::Plummer, x::AbstractVector{T}) where {T<:Real}
+    @unpack_Plummer pot
+    r = sqrt( dot(x,x) )
+    return -G*m / (a^2+r^2)^1.5 * x   # = -G*m*r / (a^2+r^2)^(3/2) * x / r
+end
+
 
 """PowerLawCutoff"""
 function acceleration(pot::PowerLawCutoff, x::AbstractVector{L}) where {L<:Real}
@@ -158,6 +160,21 @@ function acceleration(pot::PowerLawCutoff, x::AbstractVector{L}) where {L<:Real}
     r = sqrt( dot(x,x) )
     return -G * m * (gamma_inc(β, r*r/(c*c),0)[1]) * x / r^3
 end
+
+
+
+"""Axisymmetric"""
+
+"""MiyamotoNagaiDisk"""
+function acceleration(pot::MiyamotoNagai, x::AbstractVector{T}) where {T<:Real}
+    @unpack_MiyamotoNagai pot
+    y = @view x[1:2]
+    bz = sqrt(b*b + x[3]*x[3])
+    abz = a + bz
+    fac = -G*m / (dot(y,y) + abz*abz)^(1.5)
+    return fac*SVector{3,T}(x[1], x[2], x[3]*abz/bz)
+end
+
 
 """
 ------------------------------------------------------------------------------------

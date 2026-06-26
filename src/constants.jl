@@ -6,6 +6,7 @@ const 𝕔 = CosmosConfig()
 const 𝕤 = SolverConfig()
 const 𝕗 = FrictionConfig()
 const 𝕛 = JeansConfig()
+const 𝕡 = PotentialsConfig()
 const sis = SA[1,2,3]
 const siss = sis .+ 3
 const six = SA[1,2,3,4,5,6]

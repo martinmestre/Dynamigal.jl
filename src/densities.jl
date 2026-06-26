@@ -18,11 +18,14 @@ function density(pot::P, x::AbstractVector{L}, t::T) where {P<:AbstractStaticPot
     return density(pot, x)
 end
 
-
-"""Density of radial position"""
-# function density(pot::P, r::L) where {P<:AbstractStaticPotential, L<:Real}
-#     return density(pot, [1,0,1]*r/sqrt(2))
-# end
+"""
+    density(pot::P, x::AbstractVector{L}) where {P<:AbstractStaticPotential, L<:Real}
+Bridge function for spherical static potentials
+"""
+function density(pot::P, x::AbstractVector{L}) where {P<:AbstractStaticPotential, L<:Real}
+    r = sqrt( dot(x,x) )
+    return density(pot, r)
+end
 
 
 """Density of a CompositePotential"""
@@ -33,53 +36,42 @@ function density(pot::CompositePotential, x::AbstractVector{L}, t::T=0.0) where 
     end
     return ρ
 end
-# """Density of radial position for CompositePotential"""
-# function density(pot::CompositePotential, r::L) where {L<:Real}
-#     return density(pot, [1,0,1]*r/sqrt(2))
-# end
 
-"""List of specific densities"""
+
+
+"""Concrete potentials"""
+
+"""Spherical"""
 
 """Allen and Santillan (generalized) halo"""
 
 """Hernquist potential"""
-function density(pot::Hernquist, x::AbstractVector{L}) where {L<:Real}
-    # println("Herquist density ...")
+function density(pot::Hernquist, r::L) where {L<:Real}
     @unpack_Hernquist pot
-    r_a = sqrt( dot(x,x) ) / a
-    return (m/2π*a^3) / ( r_a * (1+r_a)^3 )
+    r_a = r / a
+    return m/(2π*a^3) / ( r_a * (1+r_a)^3 )
 end
 
 """Kepler potential"""
-
-
-"""
-    Miyamoto-Nagai disk density
-    Bovy book: eq. 7.16.
-"""
-function density(pot::MiyamotoNagaiDisk, x::AbstractVector{L}) where {L<:Real}
-    @unpack_MiyamotoNagaiDisk pot
-    y = @view x[1:2]
-    R² = dot(y,y)
-    b² = b*b
-    bz² = b² + x[3]*x[3]
-    bz = sqrt(bz²)
-    abz = a + bz
-    return (m*b²/4π)*(a*R²+(3*bz+a)*abz^2)/((R²+abz*abz)^2.5*(bz²)^1.5)
+function density(pot::Kepler, r::L) where {L<:Real}
+    @unpack m = pot
+    if r < 𝕡.ϵ_r
+        return Inf
+    else
+        return 0.0
+    end
 end
-
 
 """
     NFW
     Galactic Dynamics 2nd edition, Binney and Treamaine (2008)
 """
-function density(pot::NFW, x::AbstractVector{L}) where {L<:Real}
+function density(pot::NFW, r::L) where {L<:Real}
     @unpack a, ρ₀ = pot
-    r_a = sqrt( dot(x,x) ) / a
+    r_a = r / a
     return ρ₀/r_a/(1+r_a)^2
 end
 
-"""Oscillatory Kepler dependent"""
 
 """
     Plummer density
@@ -93,10 +85,9 @@ end
     return 3*pars[1] / (4*M_PI*pars[2]*pars[2]*pars[2]) * pow(1 + r2/(pars[2]*pars[2]), -2.5);
     Expression from Gala
 """
-function density(pot::Plummer, x::AbstractVector{L}) where {L<:Real}
+function density(pot::Plummer, r::L) where {L<:Real}
     @unpack_Plummer pot
-    r² = dot(x,x)
-    return 3m/(4π*a^3)*(1+r²/(a*a))^(-2.5)
+    return 3m/(4π*a^3) / (1+r^2/(a*a))^(2.5)
 end
 
 
@@ -106,11 +97,25 @@ end
     density(pot::PowerLawCutoff, r::AbstractVector{L}) where {L<:Real}
     Expression from Gala.
 """
-function density(pot::PowerLawCutoff, x::AbstractVector{L}) where {L<:Real}
-    r = sqrt( dot(x,x) )
-    return density(pot, r)
-end
 function density(pot::PowerLawCutoff, r::L) where {L<:Real}
     @unpack α, c, 𝔸 =  pot
-    return 𝔸*r^(-α)*exp(-r*r/(c*c))
+    return 𝔸 / r^α * exp(-r*r/(c*c))
+end
+
+
+"""Axisymmetric"""
+
+"""
+    Miyamoto-Nagai disk density
+    Bovy book: eq. 7.16.
+"""
+function density(pot::MiyamotoNagai, x::AbstractVector{L}) where {L<:Real}
+    @unpack_MiyamotoNagai pot
+    y = @view x[1:2]
+    R² = dot(y,y)
+    b² = b*b
+    bz² = b² + x[3]*x[3]
+    bz = sqrt(bz²)
+    abz = a + bz
+    return (m*b²/4π)*(a*R²+(3*bz+a)*abz^2)/((R²+abz*abz)^2.5*(bz²)^1.5)
 end
