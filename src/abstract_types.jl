@@ -13,6 +13,12 @@ abstract type AbstractStaticPotential <: AbstractPotential end
 
 abstract type AbstractSphericalStaticPotential <: AbstractStaticPotential end
 abstract type AbstractAxisymStaticPotential <: AbstractStaticPotential end
+abstract type AbstractTriaxialStaticPotential <: AbstractStaticPotential end
+
+abstract type AbstractCompositePotential <: AbstractPotential end
+abstract type AbstractCustomPotential <: AbstractCompositePotential end
+abstract type AbstractMilkyWayPotential <: AbstractCustomPotential end
+
 
 abstract type AbstractTabulatedPotential <: AbstractPotential  end
 abstract type AbstractStaticTabulatedPotential <: AbstractTabulatedPotential  end
@@ -48,6 +54,7 @@ abstract type AbstractGalacticSystem <: AbstractMacroParticleSystem end
 abstract type AbstractGlobularCluster <: AbstractEnsemble end
 abstract type AbstractGalaxy <: AbstractEnsemble end
 
+abstract type AbstractContinuousDistribution <: AbstractDistribution end
 
 abstract type AbstractContinuousGlobularCluster <: AbstractContinuousDistribution end
 abstract type AbstractContinuousGalaxy <:AbstractContinuousDistribution end

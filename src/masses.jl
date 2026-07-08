@@ -16,8 +16,42 @@ function mass(pot::P, x::AbstractVector{L}) where {P<:AbstractSphericalStaticPot
     return mass(pot, r)
 end
 
+""" Enclosed mass corresponding to a single spherical and static potential.
+    M(r) = (r^2/G)*dΦ(r)/dr = -a(r)*r^2/G
+    If acceleration is not defined, then by default it uses AD with the potential
+    function.
+"""
+function mass(pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
+    return -r^2 / G * acceleration(pot,r)
+end
+
+""" Enclosed mass corresponding to a single spherical and static potential.
+    M(r) = 4π ∫₀ʳ s^2 * ρ(s) ds
+    Used only when setting the corresponding specific method:
+    mass(pot::Hernquist, r::L) where {L<:Real} = mass(DensityTrait(), pot, r)
+"""
+function mass(::DensityTrait, pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
+    f(s,p) = s^2 * density(pot, s)
+    prob = IntegralProblem(f, (0, r))
+    return  4π * solve(prob, QuadGKJL()).u
+end
 
 
+
+"""Specific potentials"""
+
+
+"""Allen and Santillan (generalized by Irrgang 2013) halo"""
+function mass(pot::AllenSantillanHalo, r::L) where {L<:Real}
+    @unpack_AllenSantillanHalo pot
+    f(y) = 1 + (y/a)^(γ-1)
+    g(y) = m * (y/a)^γ / f(y)
+    if r < Λ
+        return g(r)
+    else
+        return g(Λ)
+    end
+end
 
 """Hernquist"""
 mass(pot::Hernquist, r::L) where {L<:Real} = pot.m*(r/a)^2/(1+r/a)^2

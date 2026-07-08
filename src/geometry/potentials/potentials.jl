@@ -4,7 +4,7 @@
 """
     potential(pot::P, x::Vector{<:Unitful.Length}, t::T) where {P<:AbstractPotential, T<:Unitful.Time}
 Unitful Potential for AbstractPotentials con y sin dependencia tempora.
-Sirve incluso para CompositePotential.
+Sirve incluso para AbstractCompositePotential.
 """
 function potential(pot::P, x::Vector{<:Unitful.Length}, t::T) where {P<:AbstractPotential, T<:Unitful.Time}
     x, t = adimensional(x, t)
@@ -15,11 +15,18 @@ function potential(pot::P, x::Vector{<:Unitful.Length}) where {P<:AbstractPotent
     return potential(pot, x)*𝕦.p
 end
 
+""" Generic method for AbstractCompositePotential
+This method is used, for example, by the Exponential3MN potential,
+and then in the field <potentials>, contains a CompositePotential.
 """
-    potential(pot::CompositePotential, x::AbstractVector{L}, t::T) where {L<:Real, T<:Real}
+# potential(pot::C, x::AbstractArray{L}) where {C<:AbstractCompositePotential, L<:Real} =
+#     potential(pot.potentials, x)
+
+"""
+   potential(pot::C, x::AbstractVector{L}, t::T=0.0) where {C<:AbstractCompositePotential, L<:Real, T<:Real}
 Composite Potential
 """
-function potential(pot::CompositePotential, x::AbstractVector{L}, t::T=0.0) where {L<:Real, T<:Real}
+function potential(pot::C, x::AbstractVector{L}, t::T=0.0) where {C<:AbstractCompositePotential, L<:Real, T<:Real}
     sum_pot = zero(L)
     for p ∈ pot
         sum_pot += potential(p, x, t)
@@ -50,7 +57,10 @@ end
 
 """Spherical"""
 
-"""Allen and Santillan (generalized) halo"""
+"""Allen and Santillan (generalized) halo
+Corresponds to Eq. (20) at Irrgang et al. (2013).
+The exact A&S corresponds exactly to the case Λ=100kpc and γ=2.02.
+"""
 function potential(pot::AllenSantillanHalo, r::L) where {L<:Real}
     @unpack_AllenSantillanHalo pot
     f(y) = 1 + (y/a)^(γ-1)
@@ -109,3 +119,4 @@ function potential(pot::MiyamotoNagai, x::AbstractArray{L}) where {L<:Real}
     y = @view x[1:2]
     return -G*m/sqrt( dot(y,y) + (a + sqrt(b^2+x[3]^2))^2 )
 end
+

@@ -2,6 +2,9 @@
 
 """Spherical"""
 
+# Generalized A&S halo from Irrgang et al. (2013).
+# Corresponds to Eq. (20) at Irrgang et al. (2013).
+# The exact A&S corresponds exactly to the case Λ=100kpc and γ=2.02.
 @with_kw struct AllenSantillanHalo{T<:Real,D<:Real,F<:Real,G<:Real} <: AbstractSphericalStaticPotential
     m::T
     a::D
@@ -14,7 +17,7 @@ AllenSantillanHalo(m::T, a::D, Λ::F, γ::G) where {T<:Unitful.Mass, D<:Unitful.
                         ustrip(uconvert(𝕦.l, Λ)),  γ )
 
 
-@with_kw struct Hernquist{T<:Real,D<:Real} <: AbstractSphericalStaticPotential # mass is not defined yet but acceleration is defined so it dispatchs correctly.
+@with_kw struct Hernquist{T<:Real,D<:Real} <: AbstractSphericalStaticPotential
     m::T
     a::D
     @assert m>0 && a>0 "all fields should be possitive"
@@ -189,15 +192,73 @@ end
     m::T
     a::D
     b::F
-    @assert m>0 && a>0 && b>0 "all fields should be possitive"
+    @assert a>0 && b>0 "scale fields should be positive"
 end
 MiyamotoNagai(m::T, a::D, b::F) where {T<:Unitful.Mass, D<:Unitful.Length, F<:Unitful.Length} =
     MiyamotoNagai( ustrip(uconvert(𝕦.m, m)),  ustrip(uconvert(𝕦.l, a)), ustrip(uconvert(𝕦.l, b)) )
 const MiyamotoNagaiDisk = MiyamotoNagai
 
+"""
+MN3 fit to double exponential and exp-sech² disks
+Smith et al. (2015)
+Although it is an Axisymmetric potential, it belongs to P <: AbstractCompositePotential,
+containing a CompositePotential in the <potentials> field.
+"""
+struct Exponential3MN{M<:Real,L<:Real,H<:Real,B<:Bool,C<:AbstractCompositePotential} <: AbstractCompositePotential
+    m::M
+    a::L   # radial exponential scale
+    b::H   # vertical exponential scale
+    sech::B
+    positive_density::B
+    potentials::C
+end
+function Exponential3MN(m::M, a::L, b::H, sech::B=true, positive_density::B=true) where {M<:Real,L<:Real,H<:Real,B<:Bool}
+    @show m a b
+    @assert m>0 && a>0 && b>0 "all fields should be positive"
+    b_sech(x) = -0.033*x^3 + 0.262*x^2 + 0.659*x
+    b_exp(x)  = -0.269*x^3 + 1.080*x^2 + 1.092*x
 
+    if positive_density
+        𝕂 = [ 0.0036  -0.0330  0.1117  -0.1335  0.1749;
+               -0.0131  0.1090  -0.3035  0.2921  -5.7976;
+              -0.0048   0.0454  -0.1425  0.1012   6.7120;
+              -0.0158   0.0993  -0.2070  -0.7089  0.6445;
+              -0.0319   0.1514  -0.1279  -0.9325   2.6836;
+              -0.0326   0.1816  -0.2943  -0.6329  2.3193]
+    else
+        𝕂 = [-0.0090   0.0640   -0.1653  0.1164   1.9487;
+               0.0173   -0.0903   0.0877  0.2029   -1.3077;
+              -0.0051    0.0287  -0.0361  -0.0544  0.2242;
+              -0.0358    0.2610  -0.6987  -0.1193  2.0074;
+              -0.0830    0.4992  -0.7967  -1.2966  4.4441;
+              -0.0247    0.1718  -0.4124  -0.5944  0.7333]
+    end
 
-"""Tabulated types"""
+    if sech
+        b_mn_a = b_sech(b/a)
+    else
+        b_mn_a = b_exp(b/a)
+    end
+    @assert  0 < b_mn_a < 3 "b_mn_a = b_mn/a is outside of the fitted range [0:3]"
+
+    x = [b_mn_a^i for i in 4:-1:0]
+    y = 𝕂*x
+    m_mn = (@view y[1:3]).*m
+    a_mn = (@view y[4:6]).*a
+    b_mn = b_mn_a*a
+    @show m_mn a_mn b_mn
+    potentials = CompositePotential(Tuple(MiyamotoNagai(m_mn[i],a_mn[i],b_mn) for i in 1:3))
+    @show sech positive_density
+    return Exponential3MN{typeof(m),typeof(a),typeof(b),typeof(sech),typeof(potentials)}(m,a,b,sech,positive_density,potentials)
+end
+
+Exponential3MN(m::M, a::L, b::H, sech::B=true, positive_density::B=true) where {M<:Unitful.Mass, L<:Unitful.Length, H<:Unitful.Length, B<:Bool} =
+    Exponential3MN( ustrip(uconvert(𝕦.m, m)),  ustrip(uconvert(𝕦.l, a)), ustrip(uconvert(𝕦.l, b)), sech, positive_density)
+Exponential3MN(;m,a,b,sech, positive_density) = Exponential3MN(m,a,b,sech, positive_density)
+
+"""
+Tabulated types
+"""
 struct SphericalStaticTabulatedPotential{P<:AbstractSphericalStaticPotential, R<:Real, B, H, D, F, M, S} <: AbstractSphericalStaticTabulatedPotential
     pot::P
     r_range::Tuple{R,R}
@@ -218,17 +279,30 @@ function SSTabulatedPotential(pot::P, r_range::Tuple{R,R}, ε_range::Tuple{R,R},
     Φ = cubic_interp(r_knots, ; bc=ZeroCurvBC(), extrap=NoExtrap())
 end
 
-"""Composite types"""
-struct CompositePotential{P <: NTuple{N, AbstractPotential} where N} <: AbstractPotential
-    potentials::P
-end
 
+"""Composite types"""
+(::Type{T})(p...) where {T<:AbstractCompositePotential} = T(p)
+
+macro composite_pots(name, supertype)
+    quote
+        struct $name{N, P <: NTuple{N, AbstractPotential}} <: $supertype
+            potentials::P
+        end
+    end |> esc
+end
+@composite_pots CompositePotential AbstractCompositePotential
 function CompositePotential(potentials::NTuple{N, T}) where {N, T <: AbstractPotential}
     if N == 1
         throw(ArgumentError("CompositePotential requires at least 2 elements, got $N"))
     end
-    return CompositePotential{typeof(potentials)}(potentials)
+    return CompositePotential{N, typeof(potentials)}(potentials)
 end
-CompositePotential(p...) = CompositePotential(p)
 
+"""
+MilkyWay customized types.
+See constructors and references in customized.jl
+"""
 
+@composite_pots  MilkyWayBovy2014 AbstractMilkyWayPotential
+@composite_pots MilkyWayPriceWhelan2017 AbstractMilkyWayPotential
+@composite_pots MilkyWayPriceWhelan2022 AbstractMilkyWayPotential

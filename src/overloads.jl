@@ -3,27 +3,26 @@
 """Potential types"""
 
 """CompositePotential types"""
-Base.length(cp::CompositePotential) = length(cp.potentials)
-Base.getindex(cp::CompositePotential, i::Int) = cp.potentials[i]
-Base.iterate(cp::CompositePotential, state...) = iterate(cp.potentials, state...)
-Base.eachindex(cp::CompositePotential) = eachindex(cp.potentials)
-Base.getindex(cp::CompositePotential, r::AbstractRange{Int}) = MacroParticleSystem(cp.potentials[r])
-Base.getindex(cp::CompositePotential, v::AbstractVector{Int}) = MacroParticleSystem(cp.potentials[v])
+Base.length(cp::C) where {C<:AbstractCompositePotential} = length(cp.potentials)
+Base.getindex(cp::C, i::Int) where {C<:AbstractCompositePotential} = cp.potentials[i]
+Base.iterate(cp::C, state...) where {C<:AbstractCompositePotential} = iterate(cp.potentials, state...)
+Base.eachindex(cp::C) where {C<:AbstractCompositePotential} = eachindex(cp.potentials)
+Base.getindex(cp::C, r::AbstractRange{Int}) where {C<:AbstractCompositePotential} = CompositePotential(cp.potentials[r])
 
 
 function Base.:+(p1::T, p2::U) where {T <: AbstractPotential, U <: AbstractPotential}
     return CompositePotential((p1, p2))
 end
 
-function Base.:+(cp::CompositePotential, p::T) where {T <: AbstractPotential}
+function Base.:+(cp::C, p::T) where {C<:AbstractCompositePotential, T <: AbstractPotential}
     return CompositePotential((cp.potentials..., p))
 end
 
-function Base.:+(p::T, cp::CompositePotential) where {T <: AbstractPotential}
+function Base.:+(p::T, cp::C) where {T <: AbstractPotential, C<:AbstractCompositePotential}
     return CompositePotential((p, cp.potentials...))
 end
 
-function Base.:+(cp1::CompositePotential, cp2::CompositePotential)
+function Base.:+(cp1::C, cp2::P) where {C<:AbstractCompositePotential, P<:AbstractCompositePotential}
     return CompositePotential((cp1.potentials..., cp2.potentials...))
 end
 
@@ -33,7 +32,6 @@ Base.getindex(mps::MacroParticleSystem, i::Int) = mps.macroparticles[i]
 Base.iterate(mps::MacroParticleSystem, state...) = iterate(mps.macroparticles, state...)
 Base.eachindex(mps::MacroParticleSystem) = eachindex(mps.macroparticles)
 Base.getindex(mps::MacroParticleSystem, r::AbstractRange{Int}) = MacroParticleSystem(mps.macroparticles[r])
-Base.getindex(mps::MacroParticleSystem, v::AbstractVector{Int}) = MacroParticleSystem(mps.macroparticles[v])
 
 
 function Base.:+(p1::T, p2::U) where {T <: AbstractMacroParticle, U <: AbstractMacroParticle}

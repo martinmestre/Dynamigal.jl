@@ -29,7 +29,10 @@ end
 # Para cambiar
 # @set_trait system GenSysTrait
 
-"""For testing AD differentiation versus analytically defined gradients/accelerations"""
-abstract type AccelerationTrait end
-struct AutoDiffTrait <: AccelerationTrait end
-
+"""For specifying a not-default derivation/integration of a quantity"""
+abstract type DerivationTrait end
+struct PotentialADTrait <: DerivationTrait end
+struct MassTrait <: DerivationTrait end
+struct AccelerationTrait <: DerivationTrait end
+struct DensityTrait <: DerivationTrait end
+struct DistributionTrait <: DerivationTrait end

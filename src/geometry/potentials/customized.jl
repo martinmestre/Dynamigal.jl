@@ -18,13 +18,13 @@ function MilkyWayBovy2014()
     bulge = PowerLawCutoff(m=4501365375.06545*u"Msun", α=1.8, c=1.0*u"kpc")
     disk = MiyamotoNagaiDisk(m=68193902782.346756*u"Msun" , a=3.0*u"kpc", b=280.0*u"pc")
     halo = NFW(m=4.3683325e11*u"Msun", a=16*u"kpc")
-    return CompositePotential(bulge,disk,halo)
+    return MilkyWayBovy2014(bulge,disk,halo)
 end
 function MilkyWayBovy2014(fac::T) where {T<:Real}
     bulge = PowerLawCutoff(m=4501365375.06545*u"Msun", α=1.8, c=1.0*u"kpc")
     disk = MiyamotoNagaiDisk(m=68193902782.346756*u"Msun" , a=3.0*u"kpc", b=280.0*u"pc")
     halo = NFW(m=fac*4.3683325e11*u"Msun", a=16*u"kpc")
-    return CompositePotential(bulge,disk,halo)
+    return MilkyWayBovy2014(bulge,disk,halo)
 end
 
 function MilkyWayPriceWhelan2017()
@@ -32,15 +32,13 @@ function MilkyWayPriceWhelan2017()
     bulge = Hernquist(m=5.0e9*u"Msun", a=1.0*u"kpc")
     disk = MiyamotoNagaiDisk(m=6.8e10*u"Msun" , a=3.0*u"kpc", b=280.0*u"pc")
     halo = NFW(m=5.4e11*u"Msun", a=15.62*u"kpc")
-    return CompositePotential(nucleus,bulge,disk,halo)
+    return MilkyWayPriceWhelan2017(nucleus,bulge,disk,halo)
 end
 
-""" MilkyWayMosquera2026 customized potential
-Defined by Mercedes Mosquera for a paper on SBI orbits in the local group."""
-function MilkyWayMosquera2026()
-    nucleus = Hernquist(m=1.71e9*u"Msun", a=0.07*u"kpc")
+function MilkyWayPriceWhelan2022()
+    nucleus = Hernquist(m=1.8142e9*u"Msun", a=0.0688867*u"kpc")
     bulge = Hernquist(m=5.0e9*u"Msun", a=1.0*u"kpc")
-    disk = MiyamotoNagaiDisk(m=6.8e10*u"Msun" , a=3.0*u"kpc", b=280.0*u"pc")
-    halo = NFW(m=7.41e11*u"Msun", a=17.04*u"kpc")
-    return CompositePotential(nucleus,bulge,disk,halo)
+    disk = Exponential3MN(m=4.7717e10*u"Msun", a=2.6*u"kpc", b=0.3*u"kpc", sech=true, positive_density=true)
+    halo = NFW(m=5.5427e11*u"Msun", a=15.626*u"kpc")
+    return MilkyWayPriceWhelan2022(nucleus,bulge,disk,halo)
 end

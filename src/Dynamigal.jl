@@ -13,9 +13,9 @@ using NamedTupleTools
 @reexport using FastInterpolations
 @reexport using Integrals
 
-export SolverConfig, UnitsConfig, CosmosConfig, SolverOptions, FrictionConfig
+export SolverConfig, UnitsConfig, CosmosConfig, SolverOptions, FrictionConfig, JeansConfig, PotentialsConfig
 export ntSolverOptions
-export 𝕦, G, 𝕤, 𝕔, 𝕗, 𝕛, H₀, sis, six
+export 𝕦, G, 𝕤, 𝕔, 𝕗, 𝕛, 𝕡, H₀, sis, six
 export potential
 export acceleration, acceleration!, acceleration_c!
 export ode, _ode, ode_c, ode_perf
@@ -27,11 +27,12 @@ export Particle, TestParticle, MacroParticle
 export MacroParticleSystem
 export LargeCloudMW, CloudsMW, SagCloudsMW, SatelliteCloudMW
 export Event, Orbit, Snapshot
-export TimeDependent, Kepler, Plummer, AllenSantillanHalo, MiyamotoNagaiDisk
+export TimeDependent, Kepler, Plummer, AllenSantillanHalo
 export Hernquist
 export NFW, NFW_from_m_c, NFW_from_mv_a, NFW_from_mv_c
 export PowerLawCutoff
 export OscillatoryKepler
+export MiyamotoNagai, Exponential3MN
 export CompositePotential
 export concentration
 export example_Plummer, example_MiyamotoNagai, example_sum_of_potentials
@@ -48,14 +49,15 @@ export drag
 export velocity_dispersion
 export build_friction, build_friction!, build_friction_pyramid!
 export MilkyWayBovy2014
-export MilkyWayPriceWhelan2017
+export MilkyWayPriceWhelan2017, MilkyWayPriceWhelan2022
 export MilkyWayMosquera2026
 export SystemTrait, @set_system_trait
 export RawSolutionTrait
 export GenSysTrait, GenSysMutOdeTrait
 export GalacticTrait, PerfGalacticTrait
 export MutualFrictionTrait
-export AccelerationTrait, AutoDiffTrait
+export PotentialADTrait, MassTrait, AccelerationTrait
+export DensityTrait, DistributionTrait
 export AbstractMacroParticleSystem
 export EvolvedSystem
 
