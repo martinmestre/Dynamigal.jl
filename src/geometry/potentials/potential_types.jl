@@ -200,7 +200,7 @@ const MiyamotoNagaiDisk = MiyamotoNagai
 
 """
 MN3 fit to double exponential and exp-sech² disks
-Smith et al. (2015)
+Smith et al. (2015) (https://ui.adsabs.harvard.edu/abs/2015MNRAS.448.2934S/abstract)
 Although it is an Axisymmetric potential, it belongs to P <: AbstractCompositePotential,
 containing a CompositePotential in the <potentials> field.
 """
