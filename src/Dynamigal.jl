@@ -4,13 +4,14 @@ using Reexport
 @reexport using OrdinaryDiffEq
 using Parameters
 @reexport using Zygote
+import Zygote: gradient
 @reexport using StaticArrays
 @reexport using Unitful, UnitfulAstro
 using NamedTupleTools
 @reexport using LinearAlgebra
 @reexport using SpecialFunctions
 @reexport using Roots
-@reexport using FastInterpolations
+using FastInterpolations
 @reexport using Integrals
 
 export SolverConfig, UnitsConfig, CosmosConfig, SolverOptions, FrictionConfig, JeansConfig, PotentialsConfig
@@ -32,7 +33,8 @@ export Hernquist
 export NFW, NFW_from_m_c, NFW_from_mv_a, NFW_from_mv_c
 export PowerLawCutoff
 export OscillatoryKepler
-export MiyamotoNagai, Exponential3MN
+export MiyamotoNagai, MiyamotoNagaiDisk
+export Exponential3MN
 export CompositePotential
 export concentration
 export example_Plummer, example_MiyamotoNagai, example_sum_of_potentials

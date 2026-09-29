@@ -49,6 +49,7 @@ function concentration(m::T, a::F, cosmos::C) where {T<:Real,F<:Real,C<:Abstract
     𝔹 = (4π/3)*200*ρ_c*a^3/m
     g(x) = f_nfw(x)/x^3 - 𝔹
     D(f)= x->gradient(y->f(y),x)[1]
+    # println(g(1.0e-6), "   ", g(100.0))
     return find_zero((g,D(g)),  [1.0e-6,100.0], Roots.Brent())
 end
 
@@ -89,7 +90,7 @@ function NFW_from_m_c(m::T, c::F, cosmos::C=𝕔) where {T<:Real,F<:Real,C<:Abst
     return NFW(m, a, c, m_v, r_v, ρ₀, 𝔸, cosmos)
 end
 NFW_from_m_c(m::M, c::L, cosmos::C=𝕔) where {M<:Unitful.Mass, L<:Real, C<:AbstractConfig} =
-     NFW( ustrip(uconvert(𝕦.m, m)), c, cosmos)
+     NFW_from_m_c( ustrip(uconvert(𝕦.m, m)), c, cosmos)
 NFW_from_m_c(; m::M, c::L, cosmos::C=𝕔) where {M,L,C} = NFW_from_m_c(m, c, cosmos)
 
 function NFW_from_mv_a(m_v::T, a::F, cosmos::C=𝕔) where {T<:Real,F<:Real,C<:AbstractConfig}
@@ -115,7 +116,7 @@ function NFW_from_mv_c(m_v::T, c::F, cosmos::C=𝕔) where {T<:Real,F<:Real,C<:A
     return NFW(m, a, c, m_v, r_v, ρ₀, 𝔸, cosmos)
 end
 NFW_from_mv_c(m_v::M, c::L, cosmos::C=𝕔) where {M<:Unitful.Mass, L<:Real, C<:AbstractConfig} =
-     NFW( ustrip(uconvert(𝕦.m, m_v)),  c, cosmos)
+     NFW_from_mv_c( ustrip(uconvert(𝕦.m, m_v)),  c, cosmos)
 NFW_from_mv_c(; m_v::M, c::L, cosmos::C=𝕔) where {M,L,C} = NFW_from_mv_c(m_v, c, cosmos)
 
 """General NFW with symbol arguments."""
@@ -213,7 +214,6 @@ struct Exponential3MN{M<:Real,L<:Real,H<:Real,B<:Bool,C<:AbstractCompositePotent
     potentials::C
 end
 function Exponential3MN(m::M, a::L, b::H, sech::B=true, positive_density::B=true) where {M<:Real,L<:Real,H<:Real,B<:Bool}
-    @show m a b
     @assert m>0 && a>0 && b>0 "all fields should be positive"
     b_sech(x) = -0.033*x^3 + 0.262*x^2 + 0.659*x
     b_exp(x)  = -0.269*x^3 + 1.080*x^2 + 1.092*x
@@ -246,9 +246,7 @@ function Exponential3MN(m::M, a::L, b::H, sech::B=true, positive_density::B=true
     m_mn = (@view y[1:3]).*m
     a_mn = (@view y[4:6]).*a
     b_mn = b_mn_a*a
-    @show m_mn a_mn b_mn
     potentials = CompositePotential(Tuple(MiyamotoNagai(m_mn[i],a_mn[i],b_mn) for i in 1:3))
-    @show sech positive_density
     return Exponential3MN{typeof(m),typeof(a),typeof(b),typeof(sech),typeof(potentials)}(m,a,b,sech,positive_density,potentials)
 end
 

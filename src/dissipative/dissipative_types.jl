@@ -65,6 +65,9 @@ function TangoFriction(mₚ::M, σₕ::F) where {M<:Real, F}  # This is the pres
 end
 TangoFriction(mₚ::M, σₕ::F) where {M<:Unitful.Mass, F} =
     TangoFriction(ustrip(uconvert(𝕦.m, mₚ)), σₕ)
+TangoFriction(; mₚ::M, σₕ::F) where {M<:Real, F}  =
+    TangoFriction(mₚ, σₕ)
+
 
 """Agama's Chandrasekhar dynamical friction configuration
 See formula here:
@@ -83,7 +86,8 @@ function AgamaFriction(mₚ::M, σₕ::F) where {M<:Real, F}  # This is the pres
 end
 AgamaFriction(mₚ::M, σₕ::F) where {M<:Unitful.Mass, F} =
     AgamaFriction(ustrip(uconvert(𝕦.m, mₚ)), σₕ)
-
+AgamaFriction(; mₚ::M, σₕ::F) where {M<:Real, F}  =
+    AgamaFriction(mₚ, σₕ)
 
 """Galpy's Chandrasekhar dynamical friction configuration
 See formula here:
@@ -91,17 +95,14 @@ https://docs.galpy.org/en/latest/reference/potentialchandrasekhardynfric.html#ga
 Src code here:
 https://github.com/jobovy/galpy/blob/main/galpy/potential/ChandrasekharDynamicalFrictionForce.py#L37-L159
 """
-struct GalpyFriction{M<:Real, L<:Real, F, R<:Real} <:AbstractFriction
+@with_kw struct GalpyFriction{M<:Real, L<:Real, F, R<:Real} <:AbstractFriction
     mₚ::M # perturber mass
     rₚ::L # perturber's half-mass radius.
     σₕ::F # host's mean velocity dispersion
-    γₕ::R # according to DOI 10.1093/mnras/stw2011, this quantity should be
-                # γ = max(|r/ρ * dρ/dr|, r)
+    γₕ::R=1.0 # according to DOI 10.1093/mnras/stw2011, this quantity should be
+                # γi = max(|r/ρ * dρ/dr|, r)
                 # I demonstrated that the equation in Galpy manual (https://docs.galpy.org/en/v1.11.0/ reference/potentialchandrasekhardynfric.html#dynamfric-potential)
                 # is equivalent to Eq. (6) in reference DOI 10.1093/mnras/stw2011.
-end
-function GalpyFriction(mₚ::M, rₚ::L, σₕ::F) where {M<:Real, L<:Real, F}
-    return GalpyFriction(mₚ, rₚ, σₕ, 1.0)
 end
 GalpyFriction(mₚ::M, rₚ::L, σₕ::F) where {M<:Unitful.Mass, L<:Unitful.Length, F} =
     GalpyFriction(ustrip(uconvert(𝕦.m, mₚ)), ustrip(uconvert(𝕦.l, rₚ)), σₕ)

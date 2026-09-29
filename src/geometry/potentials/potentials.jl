@@ -53,6 +53,31 @@ function potential(pot::P, x::AbstractVector{L}) where {P<:AbstractSphericalStat
 end
 
 
+""" Potential corresponding to a single spherical and static potential, from ρ(r),
+    considering  Φ(∞) = 0.
+    Φ(r) = -4πG*[ (1/r) ∫₀ʳ ρ(s) s² ds + ∫ᵣ^∞ ρ(s)s ds ]
+    Used only when setting the corresponding specific method:
+    potential(pot::PowerLawCutoff, r::L) where {L<:Real} = potential(DensityTrait(), pot, r)
+"""
+function potential(::DensityTrait, pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
+    f(s,p) = s * density(pot, s)
+    prob = IntegralProblem(f, (r, Inf))
+    return  -G * ( mass(DensityTrait(), pot, r) / r + 4π*solve(prob, QuadGKJL()).u )
+end
+
+""" Potential corresponding to a single spherical and static potential, from a(r),
+    considering  Φ(∞) = 0.
+    Φ(r) = ∫ᵣ^∞ a(s) ds
+    Used only when setting the corresponding specific method:
+    potential(pot::PowerLawCutoff, r::L) where {L<:Real} = potential(AccelerationTrait(), pot, r)
+"""
+function potential(::AccelerationTrait, pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
+    f(s,p) = acceleration(pot, s)
+    prob = IntegralProblem(f, (r, Inf))
+    return solve(prob, QuadGKJL()).u
+end
+
+
 """Concrete potentials"""
 
 """Spherical"""
@@ -65,8 +90,10 @@ function potential(pot::AllenSantillanHalo, r::L) where {L<:Real}
     @unpack_AllenSantillanHalo pot
     f(y) = 1 + (y/a)^(γ-1)
     if r < Λ
-        res = -G*(m/a)*( log(f(r)/f(Λ))/(γ-1) - (1-1/f(Λ)) )
+        println("r<Λ")
+        res = G*(m/a)*( log(f(r)/f(Λ))/(γ-1) - (1-1/f(Λ)) )
     else
+        println("else")
         res = -G*(m/r)*(Λ/a)^γ/f(Λ)
     end
     return res
@@ -106,9 +133,8 @@ function potential(pot::Plummer, r::L) where {L<:Real}
     return -G*m / sqrt(a^2 +  r^2)
 end
 
-"""PowerLawCutoff potential"""
-# to be done
-
+"""PowerLawCutoff potential -- to do: compute analytically"""
+potential(pot::PowerLawCutoff, r::L) where {L<:Real} = potential(AccelerationTrait(), pot, r)
 
 
 """Axisymmetric"""

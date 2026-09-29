@@ -61,5 +61,5 @@ class AllenSantillan:
                     fac[i] = g*self.M_h/self.r_h*(1-1/self.f(r[i]))/r[i]**2
                 else:
                     fac[i] = g*self.M_h*(self.L/self.r_h)**self.gam/self.f(self.L)/r[i]**3
-        return np.array([fac*x, fac*y, fac*z])
+        return -np.array([fac*x, fac*y, fac*z])
 
