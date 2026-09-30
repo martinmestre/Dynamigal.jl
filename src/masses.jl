@@ -16,7 +16,7 @@ function mass(pot::P, x::AbstractVector{L}) where {P<:AbstractSphericalStaticPot
     return mass(pot, r)
 end
 
-""" Enclosed mass corresponding to a single spherical and static potential.
+""" Enclosed mass corresponding to a single spherical and static potential (default).
     M(r) = (r^2/G)*dΦ(r)/dr = -a(r)*r^2/G
     If acceleration is not defined, then by default it uses AD with the potential
     function.
@@ -25,12 +25,19 @@ function mass(pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
     return -r^2 / G * acceleration(pot,r)
 end
 
-""" Enclosed mass corresponding to a single spherical and static potential.
+""" FromDensityTrait 🦆 -> Dual use
+    Enclosed mass corresponding to a single spherical and static potential.
     M(r) = 4π ∫₀ʳ s^2 * ρ(s) ds
-    Used only when setting the corresponding specific method:
-    mass(pot::Hernquist, r::L) where {L<:Real} = mass(DensityTrait(), pot, r)
+
+    Apply in case:
+
+    1) an analytical formula for m(r), a(r) or Φ(r) is given but we need to test. Examples:
+    @test mass(FromDensityTrait(), pot, r) ≈ mass(pot, r)
+
+    2) Neither m(r) nor a(r) nor Φ(r) are available. Example:
+    mass(pot::SomePotential, x::L) where {L<:Real} = mass(FromDensityTrait(), pot, x)
 """
-function mass(::DensityTrait, pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
+function mass(::FromDensityTrait, pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
     f(s,p) = s^2 * density(pot, s)
     prob = IntegralProblem(f, (0, r))
     return  4π * solve(prob, QuadGKJL()).u

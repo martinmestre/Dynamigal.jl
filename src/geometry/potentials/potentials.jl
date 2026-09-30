@@ -53,25 +53,41 @@ function potential(pot::P, x::AbstractVector{L}) where {P<:AbstractSphericalStat
 end
 
 
-""" Potential corresponding to a single spherical and static potential, from ρ(r),
-    considering  Φ(∞) = 0.
-    Φ(r) = -4πG*[ (1/r) ∫₀ʳ ρ(s) s² ds + ∫ᵣ^∞ ρ(s)s ds ]
-    Used only when setting the corresponding specific method:
-    potential(pot::PowerLawCutoff, r::L) where {L<:Real} = potential(DensityTrait(), pot, r)
 """
-function potential(::DensityTrait, pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
+FromDensityTrait 🦆 -> Dual use for spherical static case.
+Potential corresponding to a single spherical and static potential, from ρ(r),
+considering  Φ(∞) = 0.
+Φ(r) = -4πG*[ (1/r) ∫₀ʳ ρ(s) s² ds + ∫ᵣ^∞ ρ(s)s ds ].
+
+Apply in case:
+
+1) an analytical formula for Φ(r) is given but we need to test. Examples:
+@test potential(FromDensityTrait(), pot, r) ≈ potential(pot, r)
+
+2) Neither Φ(r) nor a(r) are available (see below: FromAccelerationTrait).  Example:
+potential(pot::PowerLawCutoff, r::L) where {L<:Real} = potential(FromDensityTrait(), pot, r)
+"""
+function potential(::FromDensityTrait, pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
     f(s,p) = s * density(pot, s)
     prob = IntegralProblem(f, (r, Inf))
-    return  -G * ( mass(DensityTrait(), pot, r) / r + 4π*solve(prob, QuadGKJL()).u )
+    return  -G * ( mass(pot, r) / r + 4π*solve(prob, QuadGKJL()).u )
 end
 
-""" Potential corresponding to a single spherical and static potential, from a(r),
-    considering  Φ(∞) = 0.
-    Φ(r) = ∫ᵣ^∞ a(s) ds
-    Used only when setting the corresponding specific method:
-    potential(pot::PowerLawCutoff, r::L) where {L<:Real} = potential(AccelerationTrait(), pot, r)
 """
-function potential(::AccelerationTrait, pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
+FromAccelerationTrait 🪗 -> Dual use for spherical static case.
+Potential corresponding to a single spherical and static potential, from a(r),
+considering  Φ(∞) = 0.
+Φ(r) = ∫ᵣ^∞ a(s) ds.
+
+Apply in case:
+
+1) an analytical formula for Φ(r) is given but we need to test. Examples:
+@test potential(FromAccelerationTrait(), pot, r) ≈ potential(pot, r)
+
+2) Neither Φ(r), a(r) nor ρ(r) (see above) are available.  Example:
+potential(pot::PowerLawCutoff, r::L) where {L<:Real} = potential(FromAccelerationTrait(), pot, r)
+"""
+function potential(::FromAccelerationTrait, pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
     f(s,p) = acceleration(pot, s)
     prob = IntegralProblem(f, (r, Inf))
     return solve(prob, QuadGKJL()).u
@@ -134,7 +150,7 @@ function potential(pot::Plummer, r::L) where {L<:Real}
 end
 
 """PowerLawCutoff potential -- to do: compute analytically"""
-potential(pot::PowerLawCutoff, r::L) where {L<:Real} = potential(AccelerationTrait(), pot, r)
+potential(pot::PowerLawCutoff, r::L) where {L<:Real} = potential(FromAccelerationTrait(), pot, r)
 
 
 """Axisymmetric"""

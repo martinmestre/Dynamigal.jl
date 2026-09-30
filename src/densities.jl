@@ -1,12 +1,28 @@
 """Densities"""
 
 """
+Method for time-dependent potentials (Poisson)
+"""
+function density(pot::P, x::AbstractVector{L}, t::T) where {P<:AbstractPotential, L<:Real, T<:Real}
+    Φ(x) = potential(pot,x,t)
+    return sum(first(diaghessian(Φ, x))) / (4π*G)
+end
 
-General method for spherical static potentials
+"""
+Method for static potentials (Poisson)
 """
 function density(pot::P, x::AbstractVector{L}) where {P<:AbstractStaticPotential, L<:Real}
     Φ(x) = potential(pot,x)
     return sum(first(diaghessian(Φ, x))) / (4π*G)
+end
+
+"""
+Method for spherical static potentials (Poisson)
+4π*ρ(r) = (1/r^2)*[d/dr][r^2*(dΦ/dr)] = -(1/r^2)*[d/dr][r^2*a(r)]
+"""
+function density(pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
+    g(s) = s^2*acceleration(pot, s)
+    return -first(gradient(s->g(s), r)) / (4π*G*r^2)
 end
 
 """
@@ -27,20 +43,31 @@ function density(pot::P, x::AbstractVector{L}) where {P<:AbstractSphericalStatic
 end
 
 """
-    density(pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
-General method for spherical static potentials
+FromMassTrait 🌍 -> Dual use for Spherical Static
+Apply in case:
+1) An analytical formula for ρ(r), a(r) or Φ(r) is given but we need to test. Example:
+@test density(FromMassTrait(), pot, r) ≈ density(pot, r)
+
+2) Neither ρ(r), a(r) nor Φ(r) are available, but M(<r) is available. Example:
+density(pot::SomePotential, r::L) where {L<:Real} = density(FromMassTrait(), pot, x)
 """
-function density(pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
+function density(::FromMassTrait, pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
     return 1 / (4π*r^2) * gradient(y->mass(pot, y), r)[1]
 end
 
 """
-    density(::DistributionTrait, pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
-Trait method for spherical static potentials, computed integrating in velocity space the
-phase-space distribution function.
+FromMassTrait 🌍 -> Dual use for Spherical Static
+Computed integrating in velocity space the phase-space distribution function.
 For the moment only available for the isotropic case.
+
+Apply in case:
+1) An analytical formula for ρ(r), a(r), Φ(r) or M(<r) is given but we need to test. Example:
+@test density(FromDistributionTrait(), pot, r) ≈ density(pot, r)
+
+2) Neither ρ(r), a(r), M(<r) or Φ(r) are available, but distribution(r,v) is available. Example:
+density(pot::SomePotential, r::L) where {L<:Real} = density(FromDistributionTrait(), pot, x)
 """
-function density(::DistributionTrait, pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
+function density(::FromDistributionTrait, pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
     println("👀 Important to define the distribution function method for the spherical and static case:
     distribution(pot, r, v).")
     f(s,p) = s^2 * distribution(pot, p, s)

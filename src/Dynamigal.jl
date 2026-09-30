@@ -58,8 +58,8 @@ export RawSolutionTrait
 export GenSysTrait, GenSysMutOdeTrait
 export GalacticTrait, PerfGalacticTrait
 export MutualFrictionTrait
-export PotentialADTrait, MassTrait, AccelerationTrait
-export DensityTrait, DistributionTrait
+export FromPotentialTrait, FromMassTrait, FromAccelerationTrait
+export FromDensityTrait, FromDistributionTrait
 export AbstractMacroParticleSystem
 export EvolvedSystem
 

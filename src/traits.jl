@@ -30,9 +30,9 @@ end
 # @set_trait system GenSysTrait
 
 """For specifying a not-default derivation/integration of a quantity"""
-abstract type DerivationTrait end
-struct PotentialADTrait <: DerivationTrait end
-struct MassTrait <: DerivationTrait end
-struct AccelerationTrait <: DerivationTrait end
-struct DensityTrait <: DerivationTrait end
-struct DistributionTrait <: DerivationTrait end
+abstract type FromTrait end
+struct FromPotentialTrait <: FromTrait end
+struct FromMassTrait <: FromTrait end
+struct FromAccelerationTrait <: FromTrait end
+struct FromDensityTrait <: FromTrait end
+struct FromDistributionTrait <: FromTrait end
