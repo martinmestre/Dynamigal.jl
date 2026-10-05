@@ -61,7 +61,7 @@ function mass(pot::AllenSantillanHalo, r::L) where {L<:Real}
 end
 
 """Hernquist"""
-mass(pot::Hernquist, r::L) where {L<:Real} = pot.m*(r/a)^2/(1+r/a)^2
+mass(pot::Hernquist, r::L) where {L<:Real} = pot.m*(r/pot.a)^2/(1+r/pot.a)^2
 
 """Kepler"""
 mass(pot::Kepler, r::L=0.0) where {L<:Real} = pot.m

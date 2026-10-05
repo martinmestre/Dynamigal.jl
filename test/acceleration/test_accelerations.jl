@@ -51,6 +51,36 @@ end
     end
 end
 
+@testset "AccelerationsPowerLawCutoff" begin
+    m=4501365375.06545*u"Msun"
+    α=1.8
+    c=1.0*u"kpc"
+    pot = PowerLawCutoff(m, α, c)
+    pot_gala = gp.PowerLawCutoffPotential(ustrip.([m, α, c])..., units=gu.galactic)
+    for i in range(1,10)
+        x = 50*rand(3)
+        acc_gala = pot_gala.acceleration(x).to(au.kpc/au.Gyr^2).value
+        @test ustrip.(acceleration(pot,x)) ≈ acceleration(pot, ustrip.(x)) rtol=5.e-14
+        @test ustrip.(acceleration(pot,x)) ≈ pyconvert(Vector{Float64}, acc_gala.flatten()) rtol=5.e-14
+
+    end
+end
+
+@testset "AccelerationsNFW" begin
+    m=4501365375.06545*u"Msun"
+    a=40u"kpc"
+    pot = NFW(m, a)
+    pot_gala = gp.NFWPotential(ustrip.([m, a])..., units=gu.galactic)
+    for i in range(1,10)
+        x = 50*rand(3)
+        acc_gala = pot_gala.acceleration(x).to(au.kpc/au.Gyr^2).value
+        @test ustrip.(acceleration(pot,x)) ≈ acceleration(pot, ustrip.(x)) rtol=5.e-14
+        @test ustrip.(acceleration(pot,x)) ≈ pyconvert(Vector{Float64}, acc_gala.flatten()) rtol=5.e-14
+
+    end
+end
+
+
 @testset "ConcentrationNFW" begin
     for i in range(1,2)
         m = rand()*10^12*𝕦.m  # Msun
@@ -176,7 +206,7 @@ end
     fric_galpy = GalpyFriction(mₚ=1.e-1, rₚ=5.0, σₕ=r->150.0)
     fric_agama = AgamaFriction(mₚ=1.e-1, σₕ=r->150.0)
     fric_tango = TangoFriction(mₚ=1.e-1, σₕ=r->150.0)
-    @show fric_galpy fric_agama fric_tango
+    # @show fric_galpy fric_agama fric_tango
     acc_c = acceleration_c!(mps,x)
     acc = acceleration!(mps,x)
     acc₂ = acceleration(cloudMW,u)
@@ -188,7 +218,7 @@ end
     @test acc₂ ≈ acc₃ rtol=5.e-14
     @test acc₃ ≈ acc₄ rtol=5.e-14
     @test acc₄ ≈ acc₅ rtol=5.e-14
-    @show acc acc_c acc₂ acc₃  acc₄ acc₅
+    # @show acc acc_c acc₂ acc₃  acc₄ acc₅
     a_c = @benchmark acceleration_c!($mps,$x) samples=100 seconds=50
     a = @benchmark acceleration!($mps,$x) samples=100 seconds=50
     b = @benchmark acceleration($cloudMW,$u) samples=100 seconds=50
@@ -224,7 +254,7 @@ end
     fric_galpy = GalpyFriction(mₚ=1.e5, rₚ=5.0, σₕ=r->150.0)
     fric_agama = AgamaFriction(mₚ=1.e5, σₕ=r->150.0)
     fric_tango = TangoFriction(mₚ=1.e5, σₕ=r->150.0)
-    @show fric_galpy fric_agama fric_tango
+    # @show fric_galpy fric_agama fric_tango
     acc_g = acceleration(fric_galpy, cloudMW, u)
     acc_a = acceleration(fric_agama, cloudMW, u)
     acc_t = acceleration(fric_tango, cloudMW, u)
@@ -232,7 +262,7 @@ end
     @test acc_g ≈ acc_t rtol=5.e-10
     @test acc_a ≈ acc_t rtol=5.e-10
 
-    @show acc_g acc_a acc_t
+    # @show acc_g acc_a acc_t
     a = @benchmark acceleration($fric_galpy, $cloudMW,$u) samples=100 seconds=50
     b = @benchmark acceleration($fric_galpy, $cloudMW,$u) samples=100 seconds=50
     c = @benchmark acceleration($fric_galpy, $cloudMW,$u) samples=100 seconds=50
