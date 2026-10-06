@@ -1,18 +1,6 @@
 """Configuration/option structs and conversion functions"""
 
 
-"""Solver algorithm"""
-@with_kw struct SolverOptions  <:AbstractConfig
-    abstol::Float64 = 0.5e-12
-    reltol::Float64 = 5.0e-12
-end
-ntSolverOptions(; kwargs...) = (; ntfromstruct(SolverOptions())..., kwargs...)
-
-@with_kw struct SolverConfig  <:AbstractConfig
-    ode::supertype(Vern9) = Vern9()
-end
-
-
 """Units configuration"""
 @with_kw struct UnitsConfig{M<:Unitful.Unitlike, L<:Unitful.Unitlike, T<:Unitful.Unitlike,
                             V<:Unitful.Unitlike, A<:Unitful.Unitlike,P<:Unitful.Unitlike,
@@ -27,8 +15,6 @@ end
     p::P = v^2  # Code unit for potential
     ρ::R = m/l^3 # Code unit for density
 end
-
-
 
 """Code units"""
 code_units(::Nothing) = nothing
@@ -69,6 +55,24 @@ physical_units(x::Vector{L}, v::Vector{V}) where {L<:Real, V<:Real} =
 physical_units(x::Vector{L}, v::Vector{V}, t::T) where {L<:Real, V<:Real,T<:Real} =
     physical_units.(x,:l), physical_units.(v,:v), physical_units(t,:t)
 
+
+    """Solver algorithm"""
+@with_kw struct SolverOptions  <:AbstractConfig
+    abstol::Float64 = 0.5e-12
+    reltol::Float64 = 5.0e-12
+end
+ntSolverOptions(; kwargs...) = (; ntfromstruct(SolverOptions())..., kwargs...)
+
+@with_kw struct SolverConfig  <:AbstractConfig
+    ode::supertype(Vern9) = Vern9()
+end
+
+    """Integrals configuration (not used yet)"""
+@with_kw struct IntegralsOptions  <:AbstractConfig
+    abstol::Float64 = 0.0
+    reltol::Float64 = 5.0e-12
+    maxiters::Int = 10^7
+end
 
 """Cosmos configuration"""
 @with_kw struct CosmosConfig{F<:Unitful.Frequency, D<:Unitful.Density} <:AbstractConfig

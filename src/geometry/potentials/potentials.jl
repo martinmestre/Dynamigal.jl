@@ -97,7 +97,12 @@ potential(pot::PowerLawCutoff, r::L) where {L<:Real} = potential(FromDensityTrai
 function potential(::FromDensityTrait, pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
     f(s,p) = s * density(pot, s)
     prob = IntegralProblem(f, (r, Inf))
-    return  -G * ( mass(pot, r) / r + 4π*solve(prob, QuadGKJL()).u )
+    #sol = solve(prob, QuadGKJL(); abstol=𝕚.abstol, reltol=𝕚.reltol, maxiters=𝕚.maxiters)
+    sol = solve(prob, QuadGKJL(); abstol=𝕚.abstol, reltol=𝕚.reltol)
+    if sol.resid > max(𝕚.abstol, 𝕚.reltol * norm(sol.u))
+        @warn "Tolerance not reached within maxevals" sol.u sol.resid pot
+    end
+    return  -G * ( mass(pot, r) / r + 4π*sol.u )
 end
 
 """
@@ -117,8 +122,13 @@ potential(pot::PowerLawCutoff, r::L) where {L<:Real} = potential(FromAcceleratio
 function potential(::FromAccelerationTrait, pot::P, r::L) where {P<:AbstractSphericalStaticPotential, L<:Real}
     f(s,p) = acceleration(pot, s)
     prob = IntegralProblem(f, (r, Inf))
-    return solve(prob, QuadGKJL()).u
+    sol = solve(prob, QuadGKJL(); abstol=𝕚.abstol, reltol=𝕚.reltol)
+    if sol.resid > max(𝕚.abstol, 𝕚.reltol * norm(sol.u))
+        @warn "Tolerance not reached within maxevals" sol.u sol.resid
+    end
+    return sol.u
 end
+
 
 
 """Concrete potentials"""
