@@ -49,8 +49,9 @@ function concentration(m::T, a::F, cosmos::C) where {T<:Real,F<:Real,C<:Abstract
     𝔹 = (4π/3)*200*ρ_c*a^3/m
     g(x) = f_nfw(x)/x^3 - 𝔹
     D(f)= x->gradient(y->f(y),x)[1]
-    # println(g(1.0e-6), "   ", g(100.0))
-    return find_zero((g,D(g)),  [1.0e-6,100.0], Roots.Brent())
+    r_large = 50a
+    println("At concentration NFW:", g(1.0e-6), "   ", g(r_large), " for r_large=", r_large)
+    return find_zero((g,D(g)),  [1.0e-6,r_large], Roots.Brent())
 end
 
 """

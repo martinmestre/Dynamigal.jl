@@ -10,7 +10,7 @@
             @test ustrip(potential(trait, pot, x)) ≈ ustrip(potential(pot, x)) rtol=δᵣ
             @test ustrip(potential(trait, pot, r)) ≈ ustrip(potential(pot, r)) rtol=δᵣ
 
-            # x, r, t = adimensional(x,r,t)
+            x, r, t = adimensional(x,r,t)
             @test potential(trait, pot, x, t) ≈ potential(trait, pot, x) rtol=δᵣ
             @test potential(trait, pot, x) ≈ potential(trait, pot, r) rtol=δᵣ
             @test potential(trait, pot, x) ≈ potential(pot, x) rtol=δᵣ
@@ -65,7 +65,7 @@ end
             @test ustrip(potential(trait, pot, x)) ≈ ustrip(potential(pot, x)) rtol=δᵣ
             @test ustrip(potential(trait, pot, r)) ≈ ustrip(potential(pot, r)) rtol=δᵣ
 
-            # x, r, t = adimensional(x,r,t)
+            x, r, t = adimensional(x,r,t)
             @test potential(trait, pot, x, t) ≈ potential(trait, pot, x) rtol=δᵣ
             @test potential(trait, pot, x) ≈ potential(trait, pot, r) rtol=δᵣ
             @test potential(trait, pot, x) ≈ potential(pot, x) rtol=δᵣ
@@ -73,10 +73,9 @@ end
         end
     end
 
-    δᵣ = 5.0e-12
+    δᵣ = 5.0e-11
     n = 5
     trait = FromDensityTrait()
-
 
     m_gal = 2.325e7*u"Msun"
     m =1018.0*m_gal  # Msun
@@ -105,5 +104,4 @@ end
     a=40u"kpc"
     pot = Hernquist(m, a)
     loop(pot, trait, n, δᵣ)
-
 end

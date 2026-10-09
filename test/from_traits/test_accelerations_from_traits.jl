@@ -49,6 +49,35 @@
     a=40u"kpc"
     pot = Hernquist(m, a)
     loop(pot, trait, n, δᵣ)
+
+end
+
+
+@testset "AccelerationsFromPotentialTrait_Aspherical" begin
+    function loop(pot, trait, n, δᵣ)
+        for i in range(1,n)
+            x = 200*rand(3)*u"kpc"
+            t = 10.0*u"Gyr"
+            r  = sqrt(  dot(x,x)  )
+
+            @test ustrip.(acceleration(trait, pot, x, t)) ≈ ustrip.(acceleration(trait, pot, x)) rtol=δᵣ
+            @test ustrip.(acceleration(trait, pot, x)) ≈ ustrip.(acceleration(pot, x)) rtol=δᵣ
+
+            x, r, t = adimensional(x,r,t)
+            @test acceleration(trait, pot, x, t) ≈ acceleration(trait, pot, x) rtol=δᵣ
+            @test acceleration(trait, pot, x) ≈ acceleration(pot, x) rtol=δᵣ
+        end
+    end
+    trait = FromPotentialTrait()
+    n = 5
+    δᵣ = 5.0e-14
+
+
+    m=4501365375.06545*u"Msun"
+    a=40u"kpc"
+    b=3u"kpc"
+    pot = MiyamotoNagai(m, a, b)
+    loop(pot, trait, n, δᵣ)
 end
 
 @testset "AccelerationsFromMassTrait" begin

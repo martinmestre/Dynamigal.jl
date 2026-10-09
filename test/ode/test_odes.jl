@@ -22,8 +22,8 @@
     ode₂ = ode(u, cloudMW, 0.0)
     @test ode₁ ≈ ode₂  rtol=5.e-16
     @show ode₁ ode₂
-    a = @benchmark ode($u, $mps, 0.0) samples=100 seconds=50
-    b = @benchmark ode($u, $cloudMW, 0.0) samples=100 seconds=50
+    a = @benchmark ode($u, $mps, 0.0) samples=10 seconds=20
+    b = @benchmark ode($u, $cloudMW, 0.0) samples=10 seconds=20
     display(a)
     display(b)
 end

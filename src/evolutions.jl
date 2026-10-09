@@ -107,7 +107,8 @@ function evolve(::GenSysMutOdeTrait, mps::MacroParticleSystem, t_span::Tuple{R,R
 end
 
 """Evolution of a system of MacroParticle with mutual dynamical friction considered.
-The integration scheme is similar to ::GenSysTrait above but with the friction force."""
+The integration scheme is similar to ::GenSysTrait above but with the friction force
+computed inside this function."""
 function evolve(::MutualFrictionTrait, mps::MacroParticleSystem, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {R<:Real}
     x = reduce(vcat, [mps[i].event.x for i in eachindex(mps)])
     v = reduce(vcat, [mps[i].event.v for i in eachindex(mps)])

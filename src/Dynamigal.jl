@@ -14,6 +14,8 @@ using NamedTupleTools
 using FastInterpolations
 @reexport using Integrals
 
+import ForwardDiff
+
 export SolverConfig, UnitsConfig, CosmosConfig, SolverOptions, FrictionConfig, JeansConfig, PotentialsConfig
 export ntSolverOptions
 export 𝕦, G, 𝕤, 𝕔, 𝕗, 𝕛, 𝕡, H₀, sis, six
@@ -73,6 +75,7 @@ include("geometry/potentials/potentials.jl")
 include("geometry/potentials/customized.jl")
 include("geometry/spacetimes/orbit_types.jl")
 include("distributions/particle_types.jl")
+include("distributions/system_types.jl")
 include("distributions/ensemble_types.jl")
 include("dissipative/dissipative_types.jl")
 include("dissipative/build_frictions.jl")

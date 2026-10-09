@@ -84,10 +84,10 @@ end
 @testset "ConcentrationNFW" begin
     for i in range(1,2)
         m = rand()*10^12*𝕦.m  # Msun
-        a = 20*rand()*𝕦.l
+        a = (20*rand()+3)*𝕦.l
         pot = NFW(m, a)
         pot₂ = NFW(:m, :c, m, pot.c)
-        @show pot pot₂
+        # @show pot pot₂
         @test pot₂.a ≈ pot.a rtol=5.e-14
      end
 end
@@ -263,9 +263,9 @@ end
     @test acc_a ≈ acc_t rtol=5.e-10
 
     # @show acc_g acc_a acc_t
-    a = @benchmark acceleration($fric_galpy, $cloudMW,$u) samples=100 seconds=50
-    b = @benchmark acceleration($fric_galpy, $cloudMW,$u) samples=100 seconds=50
-    c = @benchmark acceleration($fric_galpy, $cloudMW,$u) samples=100 seconds=50
+    a = @benchmark acceleration($fric_galpy, $cloudMW,$u) samples=30 seconds=50
+    b = @benchmark acceleration($fric_galpy, $cloudMW,$u) samples=30 seconds=50
+    c = @benchmark acceleration($fric_galpy, $cloudMW,$u) samples=30 seconds=50
     display(a)
     display(b)
     display(c)

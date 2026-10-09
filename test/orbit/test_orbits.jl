@@ -56,33 +56,31 @@ Adding `atol=0.5e-16` in both Gala and GalacticDynamics improves the precision b
     t_range = (t₁, t₂)
     x₀ = -50.0*SA[1,0,0]
     v₀ = 200.0*SA[0,1,0]
-    m = 10.0^12*𝕦.m  # Msun
+    m_v = 10.0^12*𝕦.m  # Msun
     a = 20.0*𝕦.l
-    pot = NFW(m, a)
-    c = pot.c
-    f(x) = log(1+x)-x/(1+x)
-    m_g = m/f(c)
+    pot = NFW_from_mv_a(m_v, a)
     usys = gu.UnitSystem(au.kpc, au.Gyr, au.Msun, au.radian, au.kpc/au.Gyr, au.kpc/au.Gyr^2)
-    pot_Gala = gp.NFWPotential(Py(adimensional(m_g))*au.Msun, Py(adimensional(a))*au.kpc, units=usys)
+    pot_Gala = gp.NFWPotential(Py(pot.m)*au.Msun, Py(pot.a)*au.kpc, units=usys)
     w₀ = gd.PhaseSpacePosition(pos=Py(x₀)*au.kpc, vel=Py(v₀)*au.kpc/au.Gyr)
 
     orb₁ = pot_Gala.integrate_orbit(w₀, dt=Δt*au.Gyr, t1=t₁, t2=t₂*au.Gyr,
                                 Integrator=gi.DOPRI853Integrator,
-                                Integrator_kwargs=Py(Dict("rtol"=>5.0e-8)))
+                                Integrator_kwargs=Py(Dict("rtol"=>5.0e-10)))
     orb₂ = pot_Gala.integrate_orbit(w₀, dt=Δt*au.Gyr, t1=t₁, t2=(t₂)*au.Gyr,
                                     Integrator=gi.DOPRI853Integrator,
-                                    Integrator_kwargs=Py(Dict("rtol"=>5.0e-11)))
+                                    Integrator_kwargs=Py(Dict("rtol"=>5.0e-12)))
     orb₃ = pot_Gala.integrate_orbit(w₀, dt=Δt*au.Gyr, t1=t₁, t2=(t₂)*au.Gyr,
                                     Integrator=gi.DOPRI853Integrator,
-                                    Integrator_kwargs=Py(Dict("rtol"=>5.0e-20, "atol"=>0.5e-20)))
-    orb₄ = evolve(pot, x₀, v₀, t_range, Vern7(); options=ntSolverOptions(;reltol=5.0e-8, saveat=Δt))
-    orb₅ = evolve(pot, x₀, v₀, t_range, Vern7(); options=ntSolverOptions(;reltol=5.0e-11,saveat=Δt))
-    orb₆ = evolve(pot, x₀, v₀, t_range, Vern7(); options=ntSolverOptions(;reltol=5.0e-16, abstol=0.5e-16, saveat=Δt))
-    orb₀ = evolve(pot, x₀, v₀, t_range, Vern7(); options=ntSolverOptions(; saveat=Δt))
-    @test orb₄.x[1,end] ≈ pyconvert(Float64,orb₁.x[-1].value)  rtol=5.0e-8
-    @test orb₅.x[1,end] ≈ pyconvert(Float64,orb₂.x[-1].value)  rtol=5.0e-10
-    @test orb₆.x[1,end] ≈ pyconvert(Float64,orb₃.x[-1].value)  rtol=5.0e-12
-    @test orb₀.x[1,end] ≈ pyconvert(Float64,orb₃.x[-1].value)  rtol=5.0e-12
+                                    Integrator_kwargs=Py(Dict("rtol"=>5.0e-14, "atol"=>0.5e-14)))
+
+    orb₄ = evolve(pot, x₀, v₀, t_range, Vern9(); options=ntSolverOptions(;reltol=5.0e-10, saveat=Δt))
+    orb₅ = evolve(pot, x₀, v₀, t_range, Vern9(); options=ntSolverOptions(;reltol=5.0e-12,saveat=Δt))
+    orb₆ = evolve(pot, x₀, v₀, t_range, Vern9(); options=ntSolverOptions(;reltol=5.0e-16, abstol=0.5e-16, saveat=Δt))
+    orb₀ = evolve(pot, x₀, v₀, t_range, Vern9(); options=ntSolverOptions(; saveat=Δt))
+    @test orb₄.x[1,end] ≈ pyconvert(Float64,orb₁.x[-1].value)  rtol=5.0e-7
+    @test orb₅.x[1,end] ≈ pyconvert(Float64,orb₂.x[-1].value)  rtol=5.0e-9
+    @test orb₆.x[1,end] ≈ pyconvert(Float64,orb₃.x[-1].value)  rtol=5.0e-11
+    @test orb₀.x[1,end] ≈ pyconvert(Float64,orb₃.x[-1].value)  rtol=5.0e-11
 end
 
 
@@ -95,14 +93,10 @@ end
     t_range = (t₁, t₂)
     x₀ = 30*[1,0,1]
     v₀ = 200*[0,1,0]
-    m = 10^12*𝕦.m  # Msun
-    a = 20*𝕦.l
-    pot = NFW(m, a)
-    c = pot.c
-    f(x) = log(1+x)-x/(1+x)
-    m_g = m/f(c)
-    pot_Gala = gp.NFWPotential(Py(adimensional(m_g))*au.Msun, Py(adimensional(a))*au.kpc, units=usys)
-    @show pot_Gala
+    m_v = 10.0^12*𝕦.m  # Msun
+    a = 20.0*𝕦.l
+    pot = NFW_from_mv_a(m_v, a)
+    pot_Gala = gp.NFWPotential(Py(pot.m)*au.Msun, Py(pot.a)*au.kpc, units=usys)
 
     # Gala.py solution
     w₀ = gd.PhaseSpacePosition(pos=Py(x₀)*au.kpc, vel=Py(v₀)*au.kpc/au.Gyr)

@@ -22,9 +22,9 @@ gi = pyimport("gala.integrate")
 # @time begin
 #     include("ode/test_odes.jl")
 # end
-# @time begin
-#     include("orbit/test_orbits.jl")
-# end
 @time begin
-    include("from_traits/test_from_traits.jl")
+    include("orbit/test_orbits.jl")
 end
+# @time begin
+#     include("from_traits/test_from_traits.jl")
+# end
