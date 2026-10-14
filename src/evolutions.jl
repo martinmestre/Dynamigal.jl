@@ -109,13 +109,13 @@ end
 """Evolution of a system of MacroParticle with mutual dynamical friction considered.
 The integration scheme is similar to ::GenSysTrait above but with the friction force
 computed inside this function."""
-function evolve(::MutualFrictionTrait, mps::MacroParticleSystem, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {R<:Real}
+function evolve(::MutualFrictionTrait, mps::MacroParticleSystem, β::B, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {B, R<:Real}
     x = reduce(vcat, [mps[i].event.x for i in eachindex(mps)])
     v = reduce(vcat, [mps[i].event.v for i in eachindex(mps)])
     u₀ = SA[x...,v...]
     n = length(mps)
     fric = Matrix{GalpyFriction}(undef, n, n)
-    build_friction!(fric, mps)
+    build_friction!(fric, mps, β)
     p = (fric, mps)
     prob = ODEProblem(ode, u₀, t_span, p)
     sol  = solve(prob, solver; options...)

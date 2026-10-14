@@ -1,9 +1,9 @@
 """Build friction arrays"""
-function build_friction(mps::MacroParticleSystem, algorithm::F) where {F}
+function build_friction(mps::MacroParticleSystem, β::B, algorithm::F) where {B,F}
     @warn "The value of α is not exact for general potentials"
     n = length(mps)
     α = 1+sqrt(2)
-    γ = 0.1
+    γ = 0.001
     η = 100.0
     fric = Matrix{algorithm}(undef, n, n)
     for j in 1:n
@@ -14,7 +14,7 @@ function build_friction(mps::MacroParticleSystem, algorithm::F) where {F}
             r_min = γ*mps[j].pot.a
             r_max = η*mps[j].pot.a
         end
-        σ=velocity_dispersion(mps[j].pot; r_min=r_min, r_max=r_max)
+        σ=velocity_dispersion(mps[j].pot, β[j]; r_min=r_min, r_max=r_max)
         for i in 1:n
             if mps[i].pot isa CompositePotential
                 mass = sum(mps[i].pot[k].m for k in 1:length(mps[i].pot))
@@ -29,11 +29,11 @@ function build_friction(mps::MacroParticleSystem, algorithm::F) where {F}
     return fric
 end
 
-function build_friction!(fric::Matrix{GalpyFriction}, mps::MacroParticleSystem)
+function build_friction!(fric::Matrix{GalpyFriction}, mps::MacroParticleSystem, β::B) where {B}
     @warn "The value of α is not exact for general potentials"
     n = length(mps)
     α = 1+sqrt(2)
-    γ = 0.1
+    γ = 0.001
     η = 100.0
     for j in 1:n
         if mps[j].pot isa CompositePotential
@@ -43,7 +43,7 @@ function build_friction!(fric::Matrix{GalpyFriction}, mps::MacroParticleSystem)
             r_min = γ*mps[j].pot.a
             r_max = η*mps[j].pot.a
         end
-        σ=velocity_dispersion(mps[j].pot; r_min=r_min, r_max=r_max)
+        σ=velocity_dispersion(mps[j].pot, β[j]; r_min=r_min, r_max=r_max)
         for i in 1:n
             if mps[i].pot isa CompositePotential
                 mass = sum(mps[i].pot[k].m for k in 1:length(mps[i].pot))
@@ -58,11 +58,11 @@ function build_friction!(fric::Matrix{GalpyFriction}, mps::MacroParticleSystem)
 end
 
 """Build friction arrays"""
-function build_friction_pyramid!(fric::Matrix{GalpyFriction}, mps::MacroParticleSystem)
+function build_friction_pyramid!(fric::Matrix{GalpyFriction}, mps::MacroParticleSystem, β::B) where {B}
     @warn "The value of α is not exact for general potentials. Partial friction.."
     n = length(mps)
     α = 1+sqrt(2)
-    γ = 0.1
+    γ = 0.001
     η = 100.0
     for j in 1:n
         if mps[j].pot isa CompositePotential
@@ -74,7 +74,7 @@ function build_friction_pyramid!(fric::Matrix{GalpyFriction}, mps::MacroParticle
             r_max = η*mps[j].pot.a
             mass_host = mps[j].pot.m
         end
-        σ=velocity_dispersion(mps[j].pot; r_min=r_min, r_max=r_max)
+        σ=velocity_dispersion(mps[j].pot, β[j]; r_min=r_min, r_max=r_max)
         for i in 1:n
             if mps[i].pot isa CompositePotential
                 mass = sum(mps[i].pot[k].m for k in 1:length(mps[i].pot))
@@ -92,10 +92,10 @@ function build_friction_pyramid!(fric::Matrix{GalpyFriction}, mps::MacroParticle
     end
 end
 
-function build_friction(host::T, satellite::S, algorithm::F) where {T<:AbstractMacroParticle,S<:AbstractMacroParticle, F}
+function build_friction(host::T, β::B, satellite::S, algorithm::F) where {T<:AbstractMacroParticle, B,S<:AbstractMacroParticle, F}
     @warn "The value of α is not exact for general potentials"
     α = 1+sqrt(2)
-    γ = 0.1
+    γ = 0.001
     η = 50.0
     if host.pot isa CompositePotential
         r_min = γ*minimum([host.pot[k].a for k in 1:length(host.pot)])
@@ -113,7 +113,7 @@ function build_friction(host::T, satellite::S, algorithm::F) where {T<:AbstractM
         scale = satellite.pot.a
     end
     # @show r_min r_max scale mass algorithm
-    σ=velocity_dispersion(host.pot; r_min=r_min, r_max=r_max)
+    σ=velocity_dispersion(host.pot, β; r_min=r_min, r_max=r_max)
 
     if algorithm == GalpyFriction
         return algorithm(mass, α*scale, σ)

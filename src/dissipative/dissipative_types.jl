@@ -106,5 +106,6 @@ https://github.com/jobovy/galpy/blob/main/galpy/potential/ChandrasekharDynamical
 end
 GalpyFriction(mₚ::M, rₚ::L, σₕ::F) where {M<:Unitful.Mass, L<:Unitful.Length, F} =
     GalpyFriction(ustrip(uconvert(𝕦.m, mₚ)), ustrip(uconvert(𝕦.l, rₚ)), σₕ)
-
+GalpyFriction(mₚ::M, rₚ::L, σₕ::F) where {M<:Real, L<:Real, F} =
+    GalpyFriction(mₚ=mₚ, rₚ=rₚ, σₕ=σₕ)
 
