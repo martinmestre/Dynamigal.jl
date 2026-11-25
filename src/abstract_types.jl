@@ -12,6 +12,7 @@ abstract type AbstractPotential <: AbstractGeometry end
 abstract type AbstractStaticPotential <: AbstractPotential end
 
 abstract type AbstractSphericalStaticPotential <: AbstractStaticPotential end
+abstract type AbstractPolytropicSphericalStaticPotential <: AbstractSphericalStaticPotential end
 abstract type AbstractAxisymStaticPotential <: AbstractStaticPotential end
 abstract type AbstractTriaxialStaticPotential <: AbstractStaticPotential end
 

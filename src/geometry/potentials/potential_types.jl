@@ -33,7 +33,36 @@ end
 Kepler(m::T) where {T<:Unitful.Mass} = Kepler( ustrip(uconvert(𝕦.m, m)) )
 
 
-# NFW
+
+"""
+King struct
+"""
+# g_King(y) = exp(y)*erf(√y)-√(4y/π)*(1+2y/3)
+# struct King{M<:Real,L<:Real,D<:Real,V>:Real} <: AbstractSphericalStaticPotential
+#     m::M # total masss
+#     a::L # scale radius
+#     ρ₀::D # central density
+#     ρ₁::D # scale density
+#     σ::V # scale velocity dispersion
+# end
+# function King(ρ₁::D, σ::V) where {D<:Real,V>:Real}
+#     @assert ρ₁>0 && σ>0 "all fields should be possitive"
+#     # here I solve king potential numerically...
+#     # Ψ = solution...
+#     ρ₀ = ρ₁*(g_King(Ψ(0))/σ^2)
+#     a = 3σ/2/√(π*G*ρ₀)
+#     m = ...
+#     return King{typeof(m),typeof(a),typeof(ρ₀),typeof(ρ₁),typeof(σ)}(m,a,ρ₀,ρ₁,σ)
+# end
+
+
+King(m::T, a::D) where {T<:Unitful.Mass, D<:Unitful.Length} =
+    King( ustrip(uconvert(𝕦.m, m)),  ustrip(uconvert(𝕦.l, a)) )
+
+
+"""
+    NFW struct
+"""
 f_nfw(x::T) where {T<:Real} = log(1+x)-x/(1+x)
 
 function r_vir_nfw(m_v::T, cosmos::C=𝕔)  where {T<:Real,C<:AbstractConfig}
@@ -50,13 +79,10 @@ function concentration(m::T, a::F, cosmos::C) where {T<:Real,F<:Real,C<:Abstract
     g(x) = f_nfw(x)/x^3 - 𝔹
     D(f)= x->gradient(y->f(y),x)[1]
     r_large = 50a
-    println("At concentration NFW:", g(1.0e-6), "   ", g(r_large), " for r_large=", r_large)
+    println("At concentration NFW: ", g(1.0e-6), "   ", g(r_large), " for r_large=", r_large)
     return find_zero((g,D(g)),  [1.0e-6,r_large], Roots.Brent())
 end
 
-"""
-    NFW struct
-"""
 struct NFW{T<:Real, F<:Real, D<:Real, C<:AbstractConfig} <: AbstractSphericalStaticPotential
     m::T  # scale mass
     a::F  # scale radius
@@ -151,7 +177,7 @@ OscillatoryKepler(m::T, τ::D) where {T<:Unitful.Mass, D<:Unitful.Time} = Oscill
 time_dependence(::Type{<:OscillatoryKepler}) = TimeDependent()
 
 """Plummer"""
-@with_kw struct Plummer{T<:Real,D<:Real} <: AbstractSphericalStaticPotential
+@with_kw struct Plummer{T<:Real,D<:Real} <: AbstractPolytropicSphericalStaticPotential
     m::T
     a::D
     @assert (m>0 && a>0) "all fields should be possitive"
@@ -186,6 +212,7 @@ function PowerLawCutoff(; m::T, α::D, c::R) where {T,D,R}
         error("m and c should be both quantities or both numbers")
     end
 end
+
 
 
 """Axisymmetric"""
@@ -272,12 +299,27 @@ struct SphericalStaticTabulatedPotential{P<:AbstractSphericalStaticPotential, R<
 end
 const SSTabulatedPotential = SphericalStaticTabulatedPotential
 
-function SSTabulatedPotential(pot::P, r_range::Tuple{R,R}, ε_range::Tuple{R,R}, β::B; n_nodes=500) where {P<:AbstractSphericalStaticPotential, R<:Real, B}
-    r_knots = range(r_range[1], r_range[2], n_nodes)
-    Φ_knots = potential(pot, )
-    Φ = cubic_interp(r_knots, ; bc=ZeroCurvBC(), extrap=NoExtrap())
-end
+function SSTabulatedPotential(pot::P, r_range::Tuple{R,R}, ε_range::Tuple{R,R}, β::B; n_nodes::I=500) where {P<:AbstractSphericalStaticPotential, R<:Real, B, I<:Integer}
+    r_min, r_max = r_range
+    @assert r_min > 0 "r_range[1] must be > 0"
+    @assert r_max > r_min "r_range[2] must be > r_range[1]"
 
+
+    r_knots = exp.(range(log(r_min), log(r_max), n_nodes))
+    Φ_knots = potential.(pot, r_knots)
+    ρ_knots = density.(pot, r_knots)
+    m_knots = mass.(pot, r_knots)
+
+    Φ = cubic_interp(r_knots, Φ_knots; bc=ZeroCurvBC(), extrap=NoExtrap())
+    Φ₀ =
+    ρ = cubic_interp(r_knots, ρ_knots; bc=ZeroCurvBC(), extrap=NoExtrap())
+    m = cubic_interp(r_knots, m_knots; bc=ZeroCurvBC(), extrap=NoExtrap())
+    σ = velocity_dispersion(pot, β; r_min=r_min, r_max=r_max, n_nodes=n_nodes)
+
+    f = build_distribution_function(ρ, Φ, σ, β, Φ₀, ε_range, n_nodes)
+
+    return SSTabulatedPotential(pot, r_range, ε_range, β, Φ₀, Φ, ρ, f, m, σ)
+end
 
 """Composite types"""
 (::Type{T})(p...) where {T<:AbstractCompositePotential} = T(p)

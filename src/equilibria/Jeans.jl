@@ -23,14 +23,17 @@ function velocity_dispersion(pot::P, r::T, β::F) where {P,T<:Real, F<:Function}
     return sqrt( (1/(exp(γ(r))*ν(r)))*𝕀 )
 end
 
-function velocity_dispersion(pot::P, β::F; r_min::L=0.1, r_max::T=0.0, n_nodes::I=200) where {P, F, L<:Real, T<:Real, I<:Integer}
+function velocity_dispersion(pot::P, β::F; r_min::L=0.1, r_max::T=0.0, n_nodes::I=500) where {P, F, L<:Real, T<:Real, I<:Integer}
+    @assert r_max > 0
+    @assert r_min > 0
     vec(u) = [1,1,√2]*u/2
     if r_max == 0.0
         g(x) = density(pot,vec(x)) - 𝕛.ϵ_ρ
         D(f)= x->gradient(y->f(y),x)[1]
         r_max = find_zero((g, D(g)),  [1.0e-6,1.e3], Roots.Brent())
     end
-    rₐ =range(r_min, r_max, n_nodes)
+    # rₐ =range(r_min, r_max, n_nodes)
+    rₐ = exp.(range(log(r_min), log(r_max), n_nodes))
     σ = Vector{typeof(rₐ[begin])}(undef, n_nodes)
     for i ∈ eachindex(rₐ)
         σ[i] = velocity_dispersion(pot, rₐ[i], β)

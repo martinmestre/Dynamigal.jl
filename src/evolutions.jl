@@ -76,7 +76,7 @@ end
 
 """Evolution of a system of MacroParticle, general type"""
 function evolve(::GenSysTrait, mps::MacroParticleSystem, t_span::Tuple{R,R}, solver=𝕤.ode; options=ntSolverOptions()) where {R<:Real}
-    println("🎲 Evolving a MPS system without friction, GenSystTrait")
+    # println("🎲 Evolving a MPS system without friction, GenSystTrait")
     sol  = evolve(RawSolutionTrait(), mps, t_span, solver; options=options)
     sys_orb = Vector{Orbit}(undef, length(mps))
     n = length(sol.u[begin])÷2
